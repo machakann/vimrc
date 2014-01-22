@@ -1,8 +1,8 @@
-﻿" vim:set ts=8 sts=2 sw=2 tw=0:
+" vim:set ts=8 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 22-Jan-2014.
+" Last Change: 23-Jan-2014.
 "
 "***** Todo *****
 " How to handle count? (v:count, v:count1 ...) in variational commands of 'f' or 't'
@@ -12,6 +12,7 @@
 " matlabcomplete, matlabdoc
 " color modulation
 " alignment operator
+" smartinput : ft=vim, <C-r>= <- do not expand this
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
@@ -1371,70 +1372,62 @@ function! s:mcayl_gather_candidate_positions(direction, line, mcayl_patterns) "{
   return filter(candidate_positions, 'v:val > 0')
 endfunction
 "}}}
-function! Mcayl_forward(...) "{{{
-  " gather requied info
-  let mode = mode()
-  if mode ==# 'i'
-    let col  = col('.') - 1
-    let line = getline('.')[col :]
-  elseif mode =~# '[nvV]' || mode == "\<C-v>"
-    let col  = col('.')
-    let line = getline('.')[col :]
-  elseif mode ==# 'c'
-    let col  = getcmdpos() - 1
-    let line = getcmdline()[col :]
-  endif
-
+function! Mcayl_forward(mode, line, col, ...) "{{{
   let mcayl_patterns = a:0 > 0 ? a:1 : g:mcayl_patterns
-  let candidate_positions = s:mcayl_gather_candidate_positions('forward', line, mcayl_patterns)
+  let candidate_positions = s:mcayl_gather_candidate_positions('forward', a:line[a:col :], mcayl_patterns)
 
+  let output = ''
   if !empty(candidate_positions)
-    if mode ==# 'i'
-      let output = repeat("\<Right>", min(candidate_positions))
-    elseif mode =~# '[nvV]' || mode == "\<C-v>"
-      let output = ":call cursor(0, " . (col + min(candidate_positions)) . ")\<CR>"
-    elseif mode ==# 'c'
-      let output = repeat("\<Right>", min(candidate_positions))
+    if a:mode ==# 'i'
+      call cursor(0, a:col + min(candidate_positions) + 1)
+    elseif a:mode ==# 'n'
+      call cursor(0, a:col + min(candidate_positions))
+    elseif a:mode ==# 'v'
+      return repeat("\<Right>", min(candidate_positions))
+    elseif a:mode ==# 'c'
+      call setcmdpos(a:col + min(candidate_positions))
     endif
-  else
-    let output = ""
   endif
 
   return output
 endfunction
 "}}}
-function! Mcayl_backward(...) "{{{
-  " gather requied info
-  let col  = col('.') - 1
-  let line = getline('.')[: col-1]
+function! Mcayl_backward(mode, line, col, ...) "{{{
   let mcayl_patterns = a:0 > 0 ? a:1 : g:mcayl_patterns
+  let candidate_positions = s:mcayl_gather_candidate_positions('backward', a:line[: a:col-1], mcayl_patterns)
 
-  let candidate_positions = s:mcayl_gather_candidate_positions('backward', line, mcayl_patterns)
-
+  let output = ''
   if !empty(candidate_positions)
-    return repeat("\<Left>", col - max(candidate_positions))
-  else
-    return ""
+    if a:mode ==# 'i'
+      call cursor(0, max(candidate_positions) + 1)
+    elseif a:mode ==# 'n'
+      call cursor(0, max(candidate_positions))
+    elseif a:mode ==# 'v'
+      let output = repeat("\<Left>", min(candidate_positions))
+    elseif a:mode ==# 'c'
+      call setcmdpos(max(candidate_positions))
+    endif
   endif
+
+  return output
 endfunction
 "}}}
-inoremap <silent><expr> <Plug>(mcayl-forward)  Mcayl_forward()
-inoremap <silent><expr> <Plug>(mcayl-backward) Mcayl_backward()
-nnoremap <silent><expr> <Plug>(mcayl-forward)  Mcayl_forward()
-nnoremap <silent><expr> <Plug>(mcayl-backward) Mcayl_backward()
-xnoremap <silent><expr> <Plug>(mcayl-forward)  Mcayl_forward()
-xnoremap <silent><expr> <Plug>(mcayl-backward) Mcayl_backward()
-cnoremap <silent><expr> <Plug>(mcayl-forward)  Mcayl_forward()
-cnoremap <silent><expr> <Plug>(mcayl-backward) Mcayl_backward()
+inoremap <silent> <Plug>(mcayl-forward)  <C-r>=Mcayl_forward('i', getline('.'), col('.') - 1)<CR>
+inoremap <silent> <Plug>(mcayl-backward) <C-r>=Mcayl_backward('i', getline('.'), col('.') - 1)<CR>
+nnoremap <silent> <Plug>(mcayl-forward)  :call Mcayl_forward('n', getline('.'), col('.'))<CR>
+nnoremap <silent> <Plug>(mcayl-backward) :call Mcayl_backward('n', getline('.'), col('.'))<CR>
+" cnoremap <silent> <Plug>(mcayl-forward)  <C-r>=Mcayl_forward('c', getcmdline(), getcmdpos())<CR>
+" cnoremap <silent> <Plug>(mcayl-backward) <C-r>=Mcayl_backward('c', getline(), getcmdpos())<CR>
+xnoremap <silent><expr> <Plug>(mcayl-forward)  Mcayl_forward('v', getline('.'), col('.'))
+xnoremap <silent><expr> <Plug>(mcayl-backward) Mcayl_backward('v', getline('.'), col('.'))
 imap <M-;> <Plug>(mcayl-forward)
 imap <M-,> <Plug>(mcayl-backward)
 nmap <M-;> <Plug>(mcayl-forward)
 nmap <M-,> <Plug>(mcayl-backward)
+" cmap <M-;> <Plug>(mcayl-forward)
+" cmap <M-,> <Plug>(mcayl-backward)
 xmap <M-;> <Plug>(mcayl-forward)
 xmap <M-,> <Plug>(mcayl-backward)
-cmap <M-;> <Plug>(mcayl-forward)
-cmap <M-,> <Plug>(mcayl-backward)
-cmap <M-,> <Right><Right>
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
