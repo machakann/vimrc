@@ -1,4 +1,4 @@
-" vim:set ts=8 sts=2 sw=2 tw=0:
+﻿" vim:set ts=8 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
