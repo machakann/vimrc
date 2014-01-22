@@ -166,7 +166,9 @@ NeoBundleLazy   'ujihisa/neco-look', {
       \ 'depends' : 'Shougo/neocomplete',
       \ 'autoload' : {
       \   'insert' : 1,
-      \ }}
+      \ },
+      \ 'type' : 'nosync',
+      \}
 
 filetype plugin indent on       " Required!
 NeoBundleCheck
