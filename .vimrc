@@ -1268,6 +1268,8 @@ autocmd vimrc BufReadPost *
 
 " move cursor as you like in insert mode
 " TODO: implement the actions in cmd mode and normal mode
+" TODO: add mode specific feature to mcayl_patterns
+" TODO: make it responsive for the assignment of count
 let s:type_str  = type('')
 let s:type_list = type([])
 let s:type_dict = type({})
@@ -1380,12 +1382,10 @@ function! Mcayl_forward(mode, line, col, ...) "{{{
   if !empty(candidate_positions)
     if a:mode ==# 'i'
       call cursor(0, a:col + min(candidate_positions) + 1)
-    elseif a:mode ==# 'n'
-      call cursor(0, a:col + min(candidate_positions))
-    elseif a:mode ==# 'v'
-      return repeat("\<Right>", min(candidate_positions))
+    elseif a:mode =~# '[nv]'
+      let output = min(candidate_positions) . 'l'
     elseif a:mode ==# 'c'
-      call setcmdpos(a:col + min(candidate_positions))
+      call setcmdpos(a:col + min(candidate_positions) + 1)
     endif
   endif
 
@@ -1400,10 +1400,8 @@ function! Mcayl_backward(mode, line, col, ...) "{{{
   if !empty(candidate_positions)
     if a:mode ==# 'i'
       call cursor(0, max(candidate_positions) + 1)
-    elseif a:mode ==# 'n'
-      call cursor(0, max(candidate_positions))
-    elseif a:mode ==# 'v'
-      let output = repeat("\<Left>", min(candidate_positions))
+    elseif a:mode =~# '[nv]'
+      let output = (a:col - max(candidate_positions)) . 'h'
     elseif a:mode ==# 'c'
       call setcmdpos(max(candidate_positions))
     endif
@@ -1412,22 +1410,22 @@ function! Mcayl_backward(mode, line, col, ...) "{{{
   return output
 endfunction
 "}}}
+nnoremap <expr> <Plug>(mcayl-forward)  Mcayl_forward('n', getline('.'), col('.'))
+nnoremap <expr> <Plug>(mcayl-backward) Mcayl_backward('n', getline('.'), col('.'))
+xnoremap <expr> <Plug>(mcayl-forward)  Mcayl_forward('v', getline('.'), col('.'))
+xnoremap <expr> <Plug>(mcayl-backward) Mcayl_backward('v', getline('.'), col('.'))
 inoremap <silent> <Plug>(mcayl-forward)  <C-r>=Mcayl_forward('i', getline('.'), col('.') - 1)<CR>
 inoremap <silent> <Plug>(mcayl-backward) <C-r>=Mcayl_backward('i', getline('.'), col('.') - 1)<CR>
-nnoremap <silent> <Plug>(mcayl-forward)  :call Mcayl_forward('n', getline('.'), col('.'))<CR>
-nnoremap <silent> <Plug>(mcayl-backward) :call Mcayl_backward('n', getline('.'), col('.'))<CR>
-" cnoremap <silent> <Plug>(mcayl-forward)  <C-r>=Mcayl_forward('c', getcmdline(), getcmdpos())<CR>
-" cnoremap <silent> <Plug>(mcayl-backward) <C-r>=Mcayl_backward('c', getline(), getcmdpos())<CR>
-xnoremap <silent><expr> <Plug>(mcayl-forward)  Mcayl_forward('v', getline('.'), col('.'))
-xnoremap <silent><expr> <Plug>(mcayl-backward) Mcayl_backward('v', getline('.'), col('.'))
-imap <M-;> <Plug>(mcayl-forward)
-imap <M-,> <Plug>(mcayl-backward)
+cnoremap <Plug>(mcayl-forward)  <C-r>=Mcayl_forward('c', getcmdline(), getcmdpos() - 1)<CR>
+cnoremap <Plug>(mcayl-backward) <C-r>=Mcayl_backward('c', getcmdline(), getcmdpos() - 1)<CR>
 nmap <M-;> <Plug>(mcayl-forward)
 nmap <M-,> <Plug>(mcayl-backward)
-" cmap <M-;> <Plug>(mcayl-forward)
-" cmap <M-,> <Plug>(mcayl-backward)
 xmap <M-;> <Plug>(mcayl-forward)
 xmap <M-,> <Plug>(mcayl-backward)
+imap <M-;> <Plug>(mcayl-forward)
+imap <M-,> <Plug>(mcayl-backward)
+cmap <M-;> <Plug>(mcayl-forward)
+cmap <M-,> <Plug>(mcayl-backward)
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
