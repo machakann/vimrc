@@ -2484,10 +2484,14 @@ function! s:vertical_f(is_t, is_capital)
 
   let highlight_rows = []
   let uniq_chars     = g:Sl.uniq(filter(deepcopy(chars), '!empty(v:val)'))
-  for c in uniq_chars
-    let highlight_rows += [match(chars, g:s.escape_pattern(c), 0, v:count1) + 1]
+  for c in copy(uniq_chars)
+    let idx = match(chars, g:s.escape_pattern(c), 0, v:count1)
+    if idx >= 0
+      let highlight_rows += [idx + 1]
+    else
+      call remove(uniq_chars, match(uniq_chars, g:s.escape_pattern(c)))
+    endif
   endfor
-  call filter(highlight_rows, 'v:val != 0')
   if a:is_capital
     call map(highlight_rows, 'currentline - v:val')
   else
@@ -2522,7 +2526,7 @@ function! s:vertical_f(is_t, is_capital)
 "       let command = ":call cursor(" . dest[0] . ", " . dest[1] . ")\<CR>:normal! zz\<CR>"
     else
       " This looks bad practice...
-      let command = ":\<Esc>"
+      let command = "\<Esc>"
     endif
   endif
   for id in id_list
