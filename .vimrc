@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 23-Jan-2014.
+" Last Change: 25-Jan-2014.
 "
 "***** Todo *****
 " How to handle count? (v:count, v:count1 ...) in variational commands of 'f' or 't'
@@ -13,6 +13,8 @@
 " color modulation
 " alignment operator
 " smartinput : ft=vim, <C-r>= <- do not expand this
+" make a switch to toggle on/off of the smartinput function
+" The automated hight modulation of quickfix window
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
@@ -349,13 +351,14 @@ if neobundle#tap('vim-smartinput')
 
   " smart quotes input
   let rules += [
-        \       {'char': '''', 'at': '\%#',     'input': '''''<Left>', 'mode': 'i:'},
-        \       {'char': '''', 'at': '''''\%#', 'input': '''''<Left>', 'mode': 'i:'},
-        \       {'char': '''', 'at': '\\\%#',   'input': '''',         'mode': 'i:'},
-        \       {'char':  '"', 'at': '\%#',     'input': '""<Left>',   'mode': 'i:'},
-        \       {'char':  '"', 'at': '""\%#',   'input': '""""<Left>', 'mode': 'i:'},
-        \       {'char':  '"', 'at': '\\\%#',   'input': '"',          'mode': 'i:'},
-        \       {'char': '''', 'at': '\w\%#',   'input': '''',         'mode': 'i:'},
+        \       {'char': '''', 'at': '\%#',       'input': '''''<Left>', 'mode': 'i:'},
+        \       {'char': '''', 'at': '''''\%#',   'input': '''''<Left>', 'mode': 'i:'},
+        \       {'char': '''', 'at': '\\\%#',     'input': '''',         'mode': 'i:'},
+        \       {'char':  '"', 'at': '\%#',       'input': '""<Left>',   'mode': 'i:'},
+        \       {'char':  '"', 'at': '""\%#',     'input': '""""<Left>', 'mode': 'i:'},
+        \       {'char':  '"', 'at': '\\\%#',     'input': '"',          'mode': 'i:'},
+        \       {'char': '''', 'at': '\w\%#',     'input': '''',         'mode': 'i:'},
+        \       {'char': '''', 'at': '\w''\%#''', 'input': '<Del>',      'mode': 'i:'},
         \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%(\W\&[^"]\)"[^"]*\%#',           'input': '""',       'mode': 'i:'},
         \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%(\W\&[^"]\)"[^"]*\%#"',          'input': '<Right>',  'mode': 'i:'},
         \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%(\W\&[^'']\)''[^'']*\%#',   'input': '''''',     'mode': 'i:'},
@@ -951,7 +954,7 @@ if neobundle#tap('unite.vim')
   " last ':messages'
   " http://d.hatena.ne.jp/osyo-manga/20131030/1383144724
   let g:unite_source_alias_aliases = {'messages' : {'source': 'output', 'args': 'message'}}
-  call unite#custom#source('messages', 'sorters', 'sorter_reverse')
+"   call unite#custom#source('messages', 'sorters', 'sorter_reverse')
   call unite#custom#default_action('messages', 'yank')
   call unite#custom#profile('source/messages', 'context', {'start_insert' : 0})
   nnoremap [Unite]M :Unite messages<CR>
@@ -1266,10 +1269,8 @@ autocmd vimrc BufReadPost *
 "   \ |   setlocal omnifunc=syntaxcomplete#Complete
 "   \ | endif
 
-" move cursor as you like in insert mode
-" TODO: implement the actions in cmd mode and normal mode
+" move cursor as you like
 " TODO: add mode specific feature to mcayl_patterns
-" TODO: make it responsive for the assignment of count
 let s:type_str  = type('')
 let s:type_list = type([])
 let s:type_dict = type({})
@@ -1285,10 +1286,14 @@ let g:mcayl_patterns = {
       \   'post'    : ['\w\ze\s\+\.=', '\w\ze\s\+[=!<>][=~][#?]\?', '\w\ze\s\+is\%(not\)\?\s\+', '\w\ze[']
       \   },
       \ }
-function! s:mcayl_gather_candidate_positions(direction, line, mcayl_patterns) "{{{
-  " prepare matching pattern list
+function! s:compare(i1, i2) "{{{
+  return a:i1 - a:i2
+endfunction
+"}}}
+function! s:mcayl_resolve_pattern_dictionary(mode, direction, string, mcayl_patterns) "{{{
+  " resolving mcayl_patterns and extracting requred patterns
   let keys = keys(a:mcayl_patterns)
-  let matched_key = filter(keys, 'v:val ==# "' . &filetype . '"')[0]
+  let matched_key = get(filter(keys, 'v:val ==# "' . &filetype . '"'), 0, [])
   if !empty(matched_key)
     let include_list = [matched_key]
     if has_key(a:mcayl_patterns[matched_key], 'include')
@@ -1305,7 +1310,10 @@ function! s:mcayl_gather_candidate_positions(direction, line, mcayl_patterns) "{
   let  pre_pattern_list = []
   let post_pattern_list = []
   for key in include_list
-    let pattern_info = a:mcayl_patterns[key]
+    let pattern_info = get(a:mcayl_patterns, key)
+    if has_key(pattern_info, a:mode)
+      let pattern_info = pattern_info[a:mode]
+    endif
 
     if type(pattern_info) == s:type_list
       let  pre_pattern_list += pattern_info
@@ -1367,23 +1375,123 @@ function! s:mcayl_gather_candidate_positions(direction, line, mcayl_patterns) "{
     endif
   endfor
 
-  " get the closest mathed position
-  let candidate_positions  = map( pre_pattern_list, 'match(a:line, v:val) == 0 ? match(a:line, v:val, 0, 2) : match(a:line, v:val)')
-  let candidate_positions += map(post_pattern_list, 'matchend(a:line, v:val) == 0 ? matchend(a:line, v:val, 0, 2) : matchend(a:line, v:val)')
+  return [pre_pattern_list, post_pattern_list]
+endfunction
+"}}}
+function! s:mcayl_gather_candidate_positions(string, pattern_lists, method) "{{{
+  " gathering candidate_positions
+  " Candidate positions are not made unique, there might be same numbers.
 
-  return filter(candidate_positions, 'v:val > 0')
+  " Third parameter 'method' is to determine the method how many items are collected.
+  " There are three methods 'flont', 'count', 'all'.
+  " 'flont' : only searching the second flontmost matched positions
+  " 'count' : searching positions up to assigned count
+  " 'all'   : searching all positions as possible
+
+  " I assumed that several dozen patterns are used usually, so I optimized for the use case.
+  " If defined patterns are too much, following algorithm might be slow.
+  " But if there is too much patterns, cursor would stop frequently, I guess it is nonsense.
+
+  let  pre_pattern_list = a:pattern_lists[0]
+  let post_pattern_list = a:pattern_lists[1]
+
+  let candidate_positions = []
+  if a:method ==# 'frontmost'
+    " get the closest matched position
+    for pattern in pre_pattern_list
+      let pos = match(a:string, pattern) == 0 ? match(a:string, pattern, 0, 2) : match(a:string, pattern)
+      let candidate_positions += [pos]
+    endfor
+
+    for pattern in post_pattern_list
+      let pos = matchend(a:string, pattern) == 0 ? matchend(a:string, pattern, 0, 2) : matchend(a:string, pattern)
+      let candidate_positions += [pos]
+    endfor
+
+"     call filter(candidate_positions, 'v:val >= 0')
+  elseif a:method ==# 'count'
+    " gather matched positions up to the assigned count
+    for pattern in pre_pattern_list
+      let pos     = 0
+      let l:count = 1
+      while l:count <= v:count1
+        let pos = match(a:string, pattern, 0, l:count)
+        if pos < 0 | break | endif
+        let candidate_positions += [pos]
+        let l:count += 1
+      endwhile
+    endfor
+
+    for pattern in post_pattern_list
+      let pos     = 0
+      let l:count = 1
+      while l:count <= v:count1
+        let pos = matchend(a:string, pattern, 0, l:count)
+        if pos < 0 | break | endif
+        let candidate_positions += [pos]
+        let l:count += 1
+      endwhile
+    endfor
+  elseif a:method ==# 'all'
+    " get all the matched positions
+    for pattern in pre_pattern_list
+      let pos     = 0
+      let l:count = 1
+      while 1
+        let pos = match(a:string, pattern, 0, l:count)
+        if pos < 0 | break | endif
+        let candidate_positions += [pos]
+        let l:count += 1
+      endwhile
+    endfor
+
+    for pattern in post_pattern_list
+      let pos     = 0
+      let l:count = 1
+      while 1
+        let pos = matchend(a:string, pattern, 0, l:count)
+        if pos < 0 | break | endif
+        let candidate_positions += [pos]
+        let l:count += 1
+      endwhile
+    endfor
+  endif
+
+  return candidate_positions
 endfunction
 "}}}
 function! Mcayl_forward(mode, line, col, ...) "{{{
+  let string = a:line[a:col :]
   let mcayl_patterns = a:0 > 0 ? a:1 : g:mcayl_patterns
-  let candidate_positions = s:mcayl_gather_candidate_positions('forward', a:line[a:col :], mcayl_patterns)
+  let pattern_lists  = s:mcayl_resolve_pattern_dictionary(a:mode, 'forward', string, mcayl_patterns)
+
+  if v:count1 == 1
+    let candidate_positions = s:mcayl_gather_candidate_positions(string, pattern_lists, 'front')
+  else
+    let candidate_positions = s:mcayl_gather_candidate_positions(string, pattern_lists, 'count')
+  endif
+  call filter(candidate_positions, 'v:val > 0')
 
   let output = ''
   if !empty(candidate_positions)
     if a:mode ==# 'i'
       call cursor(0, a:col + min(candidate_positions) + 1)
-    elseif a:mode =~# '[nv]'
-      let output = min(candidate_positions) . 'l'
+    elseif a:mode ==# 'n'
+      if v:count == 0
+        let output = min(candidate_positions) . 'l'
+      else
+        let rel_pos = get(sort(candidate_positions, "s:compare"), v:count1-1, -1)
+        " use <Esc> to clear assigned count
+        let output  = (rel_pos > 0) ? ("\<Esc>" . rel_pos . 'l') : "\<Esc>"
+      endif
+    elseif a:mode ==# 'v'
+      if v:count == 0
+        let output = min(candidate_positions) . 'l'
+      else
+        let rel_pos = get(sort(candidate_positions, "s:compare"), v:count1-1, -1)
+        " use 'oo' to clear assigned count
+        let output  = rel_pos > 0 ? 'oo' . rel_pos . 'l' : 'oo'
+      endif
     elseif a:mode ==# 'c'
       call setcmdpos(a:col + min(candidate_positions) + 1)
     endif
@@ -1393,17 +1501,34 @@ function! Mcayl_forward(mode, line, col, ...) "{{{
 endfunction
 "}}}
 function! Mcayl_backward(mode, line, col, ...) "{{{
+  let string = a:line[: a:col-1]
   let mcayl_patterns = a:0 > 0 ? a:1 : g:mcayl_patterns
-  let candidate_positions = s:mcayl_gather_candidate_positions('backward', a:line[: a:col-1], mcayl_patterns)
+  let pattern_lists  = s:mcayl_resolve_pattern_dictionary(a:mode, 'backward', string, mcayl_patterns)
+
+  let candidate_positions = s:mcayl_gather_candidate_positions(string, pattern_lists, 'all')
 
   let output = ''
   if !empty(candidate_positions)
     if a:mode ==# 'i'
       call cursor(0, max(candidate_positions) + 1)
-    elseif a:mode =~# '[nv]'
-      let output = (a:col - max(candidate_positions)) . 'h'
+    elseif a:mode ==# 'n'
+      if v:count1 == 1
+        let output = (a:col - max(candidate_positions)) . 'h'
+      else
+        let pos = get(reverse(sort(candidate_positions, "s:compare")), v:count1-1, -1)
+        " use <Esc> to clear assigned count
+        let output  = (rel_pos > 0) ? ("\<Esc>" . (a:col - pos) . 'h') : "\<Esc>"
+      endif
+    elseif a:mode ==# 'v'
+      if v:count1 == 1
+        let output = (a:col - max(candidate_positions)) . 'h'
+      else
+        let rel_pos = get(reverse(sort(candidate_positions, "s:compare")), v:count1-1, -1)
+        " use 'oo' to clear assigned count
+        let output  = rel_pos > 0 ? 'oo' . (a:col - pos) . 'l' : 'oo'
+      endif
     elseif a:mode ==# 'c'
-      call setcmdpos(max(candidate_positions))
+      call setcmdpos(max(candidate_positions) + 1)
     endif
   endif
 
@@ -1426,6 +1551,20 @@ imap <M-;> <Plug>(mcayl-forward)
 imap <M-,> <Plug>(mcayl-backward)
 cmap <M-;> <Plug>(mcayl-forward)
 cmap <M-,> <Plug>(mcayl-backward)
+
+function! Speed_gun(...)
+  let l:count = a:0 > 0 ? a:1 : 10
+  let g:time = []
+  while l:count > 0
+    normal! 0
+    let start_time = reltime()
+    normal l
+    let g:time += [reltimestr(reltime(start_time))]
+    let l:count -= 1
+  endwhile
+  execute "let mean_time = (" . join(g:time, '+') . ")/" . len(g:time)
+  PP! mean_time
+endfunction
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
@@ -1868,7 +2007,7 @@ function! g:exec_highlight_mod(hi_group, fg_displacement, bg_displacement, color
   endif
 
   if guibg =~? '#[0-9a-f]\{6}'
-    let guifg = call('printf', ['#%02x%02x%02x'] + s:{a:color_space}_mod(s:parse_html_color(guibg), a:bg_displacement))
+    let guibg = call('printf', ['#%02x%02x%02x'] + s:{a:color_space}_mod(s:parse_html_color(guibg), a:bg_displacement))
   elseif guibg =~? '\w\+' && guibg !~# '\%(fg\)\|\%(bg\)\|\%(foreground\)\|\%(background\)'
     let guibg = get(g:color_map, tolower(guibg), '')
   endif
