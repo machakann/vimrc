@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 18-Feb-2014.
+" Last Change: 04-Feb-2014.
 "
 "***** Todo *****
 " improve columnjump
@@ -60,6 +60,7 @@ call neobundle#rc($USERDIR.'/bundle/')
 NeoBundle       'davidhalter/jedi-vim'
 NeoBundle       'deris/columnjump'
 NeoBundle       'gilligan/textobj-lastpaste'
+NeoBundle       'junegunn/vim-easy-align'
 NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
 NeoBundle       'kana/vim-smartinput'
@@ -71,7 +72,6 @@ NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'kana/vim-textobj-underscore'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'osyo-manga/vim-reanimate'
-NeoBundle       'osyo-manga/vim-operator-jump_side'
 NeoBundle       'rhysd/vim-textobj-word-column'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
@@ -84,6 +84,7 @@ NeoBundle       'Shougo/vimproc.vim'            , {
                 \     'mac'     : 'make -f make_mac.mak',
                 \     'unix'    : 'make -f make_unix.mak',
                 \    },}
+NeoBundle       'tpope/vim-markdown'
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-unite-history'  , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'thinca/vim-visualstar'
@@ -132,7 +133,7 @@ NeoBundleLazy   'Shougo/neocomplete', {
 NeoBundleLazy 'Shougo/vimfiler', {
       \ 'depends' : 'Shougo/unite.vim',
       \ 'autoload' : {
-      \   'commands' : [{ 'name'     : 'VimFiler',
+      \   'commands' : [{ 'name' : 'VimFiler',
       \                   'complete' : 'customlist,vimfiler#complete' },
       \                 'VimFilerExplorer',
       \                 'Edit', 'Read', 'Source', 'Write'],
@@ -142,7 +143,7 @@ NeoBundleLazy 'Shougo/vimfiler', {
 NeoBundleLazy 'Shougo/vimshell', {
       \ 'depends' : 'Shougo/vimproc.vim',
       \ 'autoload' : {
-      \   'commands' : [{ 'name'     : 'VimShell',
+      \   'commands' : [{ 'name' : 'VimShell',
       \                   'complete' : 'customlist,vimshell#complete'},
       \                 'VimShellExecute', 'VimShellInteractive',
       \                 'VimShellTerminal', 'VimShellPop'],
@@ -150,13 +151,15 @@ NeoBundleLazy 'Shougo/vimshell', {
       \ }}
 NeoBundleLazy   'thinca/vim-quickrun', {
       \ 'autoload' : {
-      \   'mappings' : ['<Plug>(quickrun)', '<Leader>r'],
+      \   'mappings' : '<Plug>(quickrun)',
       \   'commands' : 'QuickRun',
       \ }}
 " NeoBundleLazy   'thinca/vim-ref'
 NeoBundleLazy   'ujihisa/neco-look', {
-      \ 'depends'  : 'Shougo/neocomplete',
-      \ 'autoload' : {'insert' : 1},
+      \ 'depends' : 'Shougo/neocomplete',
+      \ 'autoload' : {
+      \   'insert' : 1,
+      \ },
       \ 'type' : 'nosync',
       \}
 
@@ -172,22 +175,18 @@ if neobundle#tap('vim-smartinput')
   " Disable default settings
   let g:smartinput_no_default_key_mappings = 1
 
-  " I know following description is too lengthy, but otherwise I would be not
-  " able to review them...
-
+  " I know following description is too lengthy, but otherwise I would be not able to review them...
   " doushite kounatta...
   " chottoshita kyoukiwo kanjiru...
 
-  " NOTE: 'Comment' syntax is somewhat unique, since it is not highlighted only
-  "       at the end of line.  Or any other syntax working in similar way might
-  "       be same. Note it.
+  " NOTE: 'Comment' syntax is somewhat unique, since it is not highlighted only at the end of line.
+  "       Or any other syntax working in similar way might be same. Note it.
   "       "oooooooooooooh, wahhoi!
   "       |<-   Comment        ->|#Here is not comment.
 
-  " NOTE: Usually 'String' can not be used for syntax group assignment, but as
-  "       far as using 'mckn' colorscheme 'String' is available.  Since 'mckn'
-  "       sets a color directly for 'String' group.  I mean, in case I want to
-  "       change the colorscheme this settings might not work as I expect.
+  " NOTE: Usually 'String' can not be used for syntax group assignment, but as far as using 'mckn' colorscheme 'String' is available.
+  "       Since 'mckn' sets a color directly for 'String' group.
+  "       I mean, in case I want to change the colorscheme this settings might not work as I expect.
 
   " map to trigger
   let trig = [
@@ -349,10 +348,10 @@ if neobundle#tap('vim-smartinput')
         \       {'char':  '"', 'at': '\\\%#',     'input': '"',          'mode': 'i:'},
         \       {'char': '''', 'at': '\w\%#',     'input': '''',         'mode': 'i:'},
         \       {'char': '''', 'at': '\w''\%#''', 'input': '<Del>',      'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',          'input': '""',       'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',         'input': '<Right>',  'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#',   'input': '''''',     'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#''', 'input': '<Right>',  'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%(\W\&[^"]\)"[^"]*\%#',           'input': '""',       'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%(\W\&[^"]\)"[^"]*\%#"',          'input': '<Right>',  'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%(\W\&[^'']\)''[^'']*\%#',   'input': '''''',     'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%(\W\&[^'']\)''[^'']*\%#''', 'input': '<Right>',  'mode': 'i:'},
         \      ]
 
   " correspondent parentheses
@@ -539,9 +538,6 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '.', 'at': '\.\%#',     'input': '<BS> . ',        'filetype': ['vim']},
         \       {'char': '.', 'at': ' \. \%#',   'input': '<BS><BS><BS>..', 'filetype': ['vim']},
         \       {'char': '.', 'at': '\.\.\%#',   'input': '.',              'filetype': ['vim']},
-        \       {'char': '.', 'at': ' \.\%#\S',  'input': ' ',              'filetype': ['vim']},
-        \       {'char': '.', 'at': '\S\.\%# ',  'input': '<BS> .<Right>',  'filetype': ['vim']},
-        \       {'char': '.', 'at': ' \.\%# ',   'input': '<Right>',        'filetype': ['vim']},
         \       ]
   " if the cursor is inside a single quote string literal
   let rules += [
@@ -720,6 +716,15 @@ if neobundle#tap('columnjump')
   nmap \w <Plug>(columnjump-forward)
 endif
 "}}}
+"*** easy-align *** {{{
+if neobundle#tap('vim-easy-align')
+  " Start interactive EasyAlign in visual mode
+  vmap <Enter> <Plug>(EasyAlign)
+
+  " Start interactive EasyAlign with a Vim movement
+  nmap <Leader>a <Plug>(EasyAlign)
+endif
+"}}}
 "*** indent_guides.vim *** {{{
 if neobundle#tap('vim-indent-guides')
   let g:indent_guides_enable_on_vim_startup = 1
@@ -768,6 +773,13 @@ if neobundle#tap('neocomplete')
       let g:neocomplete#text_mode_filetypes = {}
   endif
   let g:neocomplete#text_mode_filetypes.plaintex = 1
+
+  " Enable omni completion.
+  autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+  autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+  autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+  autocmd FileType python setlocal omnifunc=jedi#completions
+  autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 
   " Enable heavy omni completion.
   if !exists('g:neocomplete#sources#omni#input_patterns')
@@ -892,9 +904,12 @@ if neobundle#tap('vim-submode')
 endif
 "}}}
 "*** textobj-lastpaste *** {{{
-let g:textobj_lastpaste_no_default_key_mappings = 1
-omap iP <Plug>(textobj-lastpaste-i)
-xmap iP <Plug>(textobj-lastpaste-i)
+let g:textobj_comment_no_default_key_mappings = 1
+call textobj#user#plugin('lastpaste', {
+      \ '-': {
+      \     'select-i': 'iP', '*select-i-function*': 'textobj#lastpaste#select_i',
+      \ },
+      \})
 "}}}
 "*** unite.vim *** {{{
 if neobundle#tap('unite.vim')
@@ -902,7 +917,7 @@ if neobundle#tap('unite.vim')
   nmap     <Space>u [Unite]
   nnoremap [Unite]u :Unite<Space>
   nnoremap [Unite]c :Unite history/command command<CR>
-  nnoremap [Unite]y :Unite history/yank<CR>
+  nnoremap [Unite]y :Unite history/yank command<CR>
   nnoremap [Unite]m :Unite file_mru<CR>
   nnoremap [Unite]b :Unite buffer_tab<CR>
   nnoremap [Unite]h :Unite help:ja help<CR>
@@ -959,12 +974,6 @@ endif
 "   let g:ref_pydoc_cmd = 'pydoc'
 "   let g:ref_source_webdict_cmd = 'lynx -cfg "C:\Program Files (x86)\Lynx for Win32\lynx.cfg" -dump %s'
 " endif
-"}}}
-"*** vim-operator-jump_side ***"{{{
-if neobundle#tap('vim-operator-jump_side')
-  nmap \h <Plug>(operator-jump-head)
-  nmap \l <Plug>(operator-jump-tail)
-endif
 "}}}
 "*** vim-operator-replace *** {{{
 if neobundle#tap('vim-operator-replace')
@@ -1083,6 +1092,16 @@ if neobundle#tap('vim-watchdogs')
   unlet bundle
 endif
 "}}}
+" *** yankround.vim *** {{{
+if neobundle#tap('yankround.vim')
+  nmap p <Plug>(yankround-p)
+  nmap P <Plug>(yankround-P)
+  nmap <C-p> <Plug>(yankround-prev)
+  nmap <C-n> <Plug>(yankround-next)
+
+  let g:yankround_dir = $USERCACHEDIR . '/yankround'
+endif
+"}}}
 "}}}
 "***** fundamentals ***** {{{
 "-------------------------------------------------------------------------
@@ -1099,13 +1118,16 @@ set hidden                          " move out from current buffer without warni
 set history=100                     " the stored number of commands/searching history
 set iminsert=0                      " turn off ime when getting into insert mode
 set imsearch=0                      " turn off ime when getting into searching mode
+set scrolloff=5                     " vertical scroll margin
+set sidescroll=10                   " increment width of horizontal scroll
+set sidescrolloff=10                " horizontal scroll margin
+set showmode                        " display current mode
 set splitbelow                      " open new window below the current when splitting
 set splitright                      " open new window in right hand side of the current when splitting
 set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
 set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
 set viminfo+=n$USERCACHEDIR/viminfo.txt
                                     " assign path to viminfo file
-set regexpengine=2
 
 " set encoding{{{
 if &encoding !=# 'utf-8'
@@ -1234,21 +1256,24 @@ autocmd vimrc BufReadPost *
   \   exe "normal! g`\"" |
   \ endif
 
-" Enable omni completion.
-autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType python setlocal omnifunc=jedi#completions
-autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-
 " use syntax completion if nothing is assigned to omnifunc option
 " autocmd FileType *
 "   \ if &l:omnifunc == '' |
 "   \   setlocal omnifunc=syntaxcomplete#Complete |
 "   \ endif
 
-let g:verticalmove_use_strict_wbege = 1
-let g:verticalmove_fold_open        = 1
+" patternjump
+let g:patternjump_patterns = {
+      \ '_' : {
+      \   'pre'     : [',\s*', ')', ']', '}'],
+      \   'post'    : ['\w\ze(', '\w\ze\s\+[-+<>~!]\?=', '\w\ze\s\+[<>]=\?', '\w\ze\s\+&&', '\w\ze\s\+||', '\w\ze\s\+[-+*/%]'],
+      \   },
+      \ 'vim' : {
+      \   'include' : '_',
+      \   'pre'     : [':\k*]', '\s\+\'],
+      \   'post'    : ['\w\ze\s\+\.=', '\w\ze\s\+[=!<>][=~][#?]\?', '\w\ze\s\+is\%(not\)\?\s\+', '\w\ze[']
+      \   },
+      \ }
 
 function! Speed_gun(...)
   let l:count = a:0 > 0 ? a:1 : 10
@@ -1277,9 +1302,6 @@ set listchars=tab:>-,trail:-,eol:$,nbsp:%,extends:>,precedes:<
                                     " assign alternative expression for special characters
 set number                          " display row number
 set showcmd                         " display command information in commandline
-set showmode                        " display current mode
-set scrolloff=5                     " vertical scroll margin
-set sidescrolloff=10                " horizontal scroll margin
 set t_Co=256                        " use 256 coloring in modern terminal emulator
 set title                           " display title
 set nowrap                          " do not wrap in long line
@@ -1813,130 +1835,33 @@ function! g:show_up_gui() "{{{
   new
   let winwidth  = winwidth(0)
   let winheight = winheight(0)
-  if winwidth < 18
+  if winwidth < 9
     echohl WarningMsg
     echo "colormod.vim : current window is too narrow for me!"
     echohl None
     return
   endif
-
   if winheight > 7
     resize 7
   endif
-
   setlocal nowrap
   setlocal nonumber
-  setlocal nolist
-  " 1st line : hilight groups
-"   redir => hi_conf
-"     execute "silent highlight"
-"   redir END
-"   let hi_list = split(hi_conf, "\n")
-  call s:labeller_over(winwidth, ['aaaaaaaaaa', 'bbbbbbbbbb', 'cccccccccc', 'dddddddddd', 'eeeeeeeeee', 'ffffffffff', 'gggggggggg', 'hhhhhhhhhh', 'iiiiiiiiii', 'jjjjjjjjjj', 'kkkkkkkkkk', 'llllllllll', 'mmmmmmmmmm', 'nnnnnnnnnn', 'oooooooooo', 'pppppppppp'], 1)
-  normal! G
-  normal! o
-
-  " 2nd line : highlight items
-  call s:labeller_full(winwidth, ['guifg', 'guibg', 'gui', 'guisp'], 1)
-  normal! G
-  normal! o
-
-  " 3rd line : color spaces
-  call s:labeller_full(winwidth, ['RGB', 'HSL', 'HSV'], 1)
-  normal! G
-  normal! o
-
-  " 4th line : preview
-  let preview = 'foobar'
-  let left_padding = float2nr(floor((winwidth - len(preview)) / 2.0))
-  let right_padding = float2nr(ceil((winwidth - len(preview)) / 2.0))
-  call setline(col('.'), repeat(' ', left_padding) . preview . repeat(' ', right_padding))
-endfunction
-"}}}
-function! s:labeller_over(winwidth, tags, sel) "{{{
-  let idx = -1
-  let width = 1
-  let line = line('.')
-  while width <= a:winwidth
-    let idx  += 1
-    let text = join(a:tags[: idx], ' ')
-    let width = len(text)
-  endwhile
-  let text = text[0: a:winwidth-1]
-  call setline(line, text)
-
-  if idx < 1
-    let tags = []
-    let minimum_length = a:winwidth
-    let room = 0
-  else
-    let tags = a:tags[: idx-1]
-    let minimum_length = len(join(a:tags[: idx-1], ''))
-    let room = a:winwidth - minimum_length
+  if winwidth > 17
+    let padding = (winwidth - 18) / 8
+    let room    = (winwidth - 18) % 8
+    let  left_room = float2nr(floor(room / 2.0))
+    let right_room = float2nr( ceil(room / 2.0))
+    let text  = ''
+    let text .= repeat(' ', left_room)
+    let text .= repeat(' ', padding) . 'guifg' . repeat(' ', padding)
+    let text .= repeat(' ', padding) . 'guibg' . repeat(' ', padding)
+    let text .= repeat(' ', padding) . 'gui' . repeat(' ', padding)
+    let text .= repeat(' ', padding) . 'guisp' . repeat(' ', padding)
+    let text .= repeat(' ', right_room)
+    call setline(1, text)
   endif
-
-  highlight! link HighlightModTabLine     TabLine
-  highlight! link HighlightModTabLineSel  TabLineSel
-  highlight! link HighlightModTabLineFill TabLineFill
-
-  let l:count = 1
-  let [start, end] = [1, 1]
-  for tag in tags
-    let [start, end] = [end - 1, end + len(tag)]
-    let highlight = (l:count == a:sel) ? "HighlightModTabLineSel" : "HighlightModTabLine"
-    call matchadd(highlight, '\%' . line . 'l\%>' . start . 'c\%<' . end . 'c')
-
-    let l:count += 1
-  endfor
-
-  let [start, end] = [end - 1, a:winwidth + 1]
-  call matchadd("HighlightModTabLine", '\%' . line . 'l\%>' . start . 'c\%<' . end . 'c')
-
-  return (idx - 1)
 endfunction
 "}}}
-function! s:labeller_full(winwidth, tags, sel) "{{{
-  let tag_num = len(a:tags)
-  let minimum_length = len(join(a:tags, '')) + tag_num - 1
-  let line = line('.')
-
-  let padding    = (a:winwidth - minimum_length) / (tag_num * 2)
-  let room       = (a:winwidth - minimum_length) % (tag_num * 2)
-  let separator  = ' '
-  let  left_room = float2nr(floor(room / 2.0))
-  let right_room = float2nr( ceil(room / 2.0))
-
-  let text  = ''
-  let text .= repeat(' ', left_room)
-  let text .= join(map(copy(a:tags), "repeat(' ', padding) . v:val . repeat(' ', padding)"), separator)
-  let text .= repeat(' ', right_room)
-  call setline(line, text)
-
-  highlight! link HighlightModTabLine     TabLine
-  highlight! link HighlightModTabLineSel  TabLineSel
-  highlight! link HighlightModTabLineFill TabLineFill
-
-  let l:count = 1
-  let [start, end] = [0, left_room + 1]
-  call matchadd("HighlightModTabLineFill", '\%' . line . 'l\%<' . end . 'c')
-
-  for tag in a:tags
-    let [start, end] = [end - 1, end + padding * 2 + len(tag)]
-    let highlight = (l:count == a:sel) ? "HighlightModTabLineSel" : "HighlightModTabLine"
-    call matchadd(highlight, '\%' . line . 'l\%>' . start . 'c\%<' . end . 'c')
-
-    if l:count != tag_num
-      let [start, end] = [end - 1, end + 1]
-      call matchadd("HighlightModTabLine" , '\%' . line . 'l\%>' . start . 'c\%<' . end . 'c')
-    endif
-
-    let l:count += 1
-  endfor
-
-  call matchadd("HighlightModTabLineFill", '\%' . line . 'l\%>' . (end-1) . 'c')
-endfunction
-"}}}
-command! -nargs=0 HighlightMod call g:show_up_gui()
 "}}}
 "***** filetype settings ***** {{{
 " These settings would be moved to ftplugin/$filetype.vim gradually
@@ -1973,7 +1898,7 @@ autocmd vimrc FileType vim setlocal shiftwidth=2
 
 "*** help ***"
 autocmd vimrc FileType help vertical resize 78
-" autocmd vimrc FileType help setlocal sidescrolloff=0
+autocmd vimrc FileType help setlocal sidescrolloff=0
 
 "*** int-maxima ***"
 autocmd vimrc FileType int-maxima nnoremap <buffer> yy 0f<Space>ly$G0f<Space>"_d$a<Space>*
@@ -2027,6 +1952,91 @@ endfunction
 "}}}
 "***** user defined commands ***** {{{
 "-------------------------------------------------------------------------
+"*** scilab script editing assistance *** {{{
+"Vim-users.jp - Vim Advent Calendar 2012 ujihisa 4
+"http://vim-users.jp/2013/02/vim-advent-calendar-2012-ujihisa-4/
+function! s:start_scilab()
+  let t:scilab_source = expand("%:p")
+  if has('win32') || has('win64')
+    execute 'VimShellInteractive --encoding=utf-8 Scilex'
+  else
+    execute 'VimShellInteractive --split=edit scilab-adv-cli'
+  end
+  stopinsert
+  let t:scilab_bufname = bufname('%')
+"   if !has_key(t:, 'scilab_cmds')
+"     let t:scilab_cmds = [input('t:scilab_cmds[0] = ')]
+"   endif
+  wincmd p
+endfunction
+
+command! -nargs=0 StartScilab call <SID>start_scilab()
+
+function! s:scilab_run()
+  let cmds = get(t:, 'scilab_cmds', 'exec("' . t:scilab_source . '")')
+
+  let scilab_bufname = get(t:, 'scilab_bufname')
+  if scilab_bufname !=# ''
+    call vimshell#interactive#set_send_buffer(scilab_bufname)
+    call vimshell#interactive#send(cmds)
+  else
+    echoerr 'try StartScilab'
+  endif
+endfunction
+
+function! s:vimrc_scilab()
+  nnoremap <buffer> <Space>m :<C-u>write<Cr>:call <SID>scilab_run()<Cr>
+endfunction
+
+augroup vimrc_scilab
+  autocmd!
+  autocmd FileType scilab call s:vimrc_scilab()
+  autocmd FileType scilab nnoremap <buffer> <Space>st :<C-u>StartScilab
+augroup END
+
+"}}}
+"*** maxima script editing assistance *** {{{
+"Vim-users.jp - Vim Advent Calendar 2012 ujihisa 4
+"http://vim-users.jp/2013/02/vim-advent-calendar-2012-ujihisa-4/
+function! s:start_maxima()
+  execute 'VimShellInteractive maxima'
+  stopinsert
+  let t:maxima_bufname = bufname('%')
+"   if !has_key(t:, 'maxima_cmds')
+"     let t:maxima_cmds = [input('t:maxima_cmds[0] = ')]
+"   endif
+  wincmd p
+endfunction
+
+command! -nargs=0 StartMaxima call <SID>start_maxima()
+
+function! s:maxima_run()
+  let delimiter_conf = &shellslash
+  setl shellslash
+  let t:maxima_source = expand("%:p")
+  let &shellslash = delimiter_conf
+  let cmds = get(t:, 'maxima_cmds', 'batch("' . t:maxima_source . '");')
+
+  let maxima_bufname = get(t:, 'maxima_bufname')
+  if maxima_bufname !=# ''
+    call vimshell#interactive#set_send_buffer(maxima_bufname)
+    call vimshell#interactive#send(cmds)
+  else
+    echoerr 'try StartMaxima'
+  endif
+endfunction
+
+function! s:vimrc_maxima()
+  nnoremap <buffer> <Space>m :<C-u>write<Cr>:call <SID>maxima_run()<Cr>
+endfunction
+
+augroup vimrc_maxima
+  autocmd!
+  autocmd FileType maxima call s:vimrc_maxima()
+  autocmd FileType maxima nnoremap <buffer> <Space>st :<C-u>StartMaxima
+augroup END
+
+"}}}
 "*** edit japanese *** {{{
 command! -nargs=0 EditJapaneseTXT :call <SID>edit_ja()
 function! s:edit_ja()
@@ -2283,136 +2293,73 @@ nnoremap \s :echo map(synstack(line('.'), col('.')), 'synIDattr(synIDtrans(v:val
 nnoremap <M-i> bi
 nnoremap <M-a> ea
 
-" reserve black hole register for the next operator
-nnoremap <M-d> "_
-" " enabling 'f' and 't' commands to use string class {{{
-" function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
-"   let line = line('.')
-"   let col  = col('.')
-"   let flag = ''
-"   if a:is_capital
-"     let flag .= 'b'
-"   endif
-"
-"   let l:count = 0
-"   while l:count < v:count1
-"     let l:count += 1
-"     let dest = searchpos(a:pattern, flag, line)[1]
-"   endwhile
-"
-"   if dest > 0
-"     if a:is_capital
-"       if a:is_t
-"         let displ = col - dest + 1
-"       else
-"         let displ = col - dest
-"       endif
-"
-"       let key = 'h'
-"     else
-"       if a:is_t
-"         let displ = dest - col - 1
-"       else
-"         let displ = dest - col
-"       endif
-"
-"       let key = 'l'
-"     endif
-"
-"     if a:mode ==# 'n'
-"       let command = "\<Esc>" . displ . key
-"     elseif a:mode ==# 'v'
-"       let command = "oo" . displ . key
-"     endif
-"   else
-"     if a:mode ==# 'n'
-"       let command = "\<Esc>"
-"     elseif a:mode ==# 'v'
-"       let command = "oo"
-"     endif
-"   endif
-"
-"   return command
-" endfunction
-"
-" nnoremap f\\ f\
-" nnoremap F\\ F\
-" nnoremap t\\ t\
-" nnoremap T\\ T\
-" let string_class = [ '\i',  '\I',  '\k',  '\K',  '\f',  '\F',  '\p',  '\P',  '\s',  '\S',  '\d',  '\D',  '\x',  '\X',  '\o',  '\O',  '\w',  '\W',  '\h',  '\H',  '\a',  '\A',  '\l',  '\L',  '\u',  '\U',
-"       \             '\_i', '\_I', '\_k', '\_K', '\_f', '\_F', '\_p', '\_P', '\_s', '\_S', '\_d', '\_D', '\_x', '\_X', '\_o', '\_O', '\_w', '\_W', '\_h', '\_H', '\_a', '\_A', '\_l', '\_L', '\_u', '\_U' ]
-" for key in string_class
-"   execute 'nmap <expr> f' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 0)"
-"   execute 'nmap <expr> t' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 0)"
-"   execute 'nmap <expr> F' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 1)"
-"   execute 'nmap <expr> T' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 1)"
-"   execute 'vmap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
-"   execute 'vmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
-"   execute 'vmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
-"   execute 'vmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
-" endfor
-" "}}}
-
-" kind-f
-function! s:kind_f(mode)  "{{{
+" enabling 'f' and 't' commands to use string class {{{
+function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
   let line = line('.')
   let col  = col('.')
-
-  if a:mode =~# '[ft]'
-    let chars = split(getline('.')[col :], '\zs')
-  elseif a:mode =~# '[FT]'
-    let chars = reverse(split(getline('.')[:col-2], '\zs'))
+  let flag = ''
+  if a:is_capital
+    let flag .= 'b'
   endif
 
-  let uniq_chars = g:Sl.uniq_by(copy(chars), 'v:val')
+  let l:count = 0
+  while l:count < v:count1
+    let l:count += 1
+    let dest = searchpos(a:pattern, flag, line)[1]
+  endwhile
 
-  if a:mode =~# '[ft]'
-    let indexes = filter(map(copy(uniq_chars), 'match(chars, v:val, 0, v:count1) + col'), 'v:val > col')
-  elseif a:mode =~# '[FT]'
-    let indexes = filter(map(copy(uniq_chars), 'col - match(chars, v:val, 0, v:count1)'), 'v:val > col')
+  if dest > 0
+    if a:is_capital
+      if a:is_t
+        let displ = col - dest + 1
+      else
+        let displ = col - dest
+      endif
+
+      let key = 'h'
+    else
+      if a:is_t
+        let displ = dest - col - 1
+      else
+        let displ = dest - col
+      endif
+
+      let key = 'l'
+    endif
+
+    if a:mode ==# 'n'
+      let command = "\<Esc>" . displ . key
+    elseif a:mode ==# 'v'
+      let command = "oo" . displ . key
+    endif
+  else
+    if a:mode ==# 'n'
+      let command = "\<Esc>"
+    elseif a:mode ==# 'v'
+      let command = "oo"
+    endif
   endif
 
-  " highlighting candidates
-  let s:id_list = map(copy(indexes), "s:highlight_add(line, v:val+1)")
-  redraw
-
-  " reserving cleaner
-  augroup kind-f:cleaner
-    au!
-    au CursorMoved,CursorMovedI <buffer> call g:kind_f_cleaner()
-  augroup END
-
-  return a:mode
+  return command
 endfunction
-"}}}
-function! g:kind_f_cleaner() "{{{
-  " delete highlighting
-  call map(s:id_list, "s:highlight_del(v:val)")
-  let s:id_list = []
-  redraw
 
-  augroup patternjump:cleaner
-    au!
-  augroup END
-endfunction
+nnoremap f\\ f\
+nnoremap F\\ F\
+nnoremap t\\ t\
+nnoremap T\\ T\
+let string_class = [ '\i',  '\I',  '\k',  '\K',  '\f',  '\F',  '\p',  '\P',  '\s',  '\S',  '\d',  '\D',  '\x',  '\X',  '\o',  '\O',  '\w',  '\W',  '\h',  '\H',  '\a',  '\A',  '\l',  '\L',  '\u',  '\U',
+      \             '\_i', '\_I', '\_k', '\_K', '\_f', '\_F', '\_p', '\_P', '\_s', '\_S', '\_d', '\_D', '\_x', '\_X', '\_o', '\_O', '\_w', '\_W', '\_h', '\_H', '\_a', '\_A', '\_l', '\_L', '\_u', '\_U' ]
+for key in string_class
+  execute 'nmap <expr> f' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 0)"
+  execute 'nmap <expr> t' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 0)"
+  execute 'nmap <expr> F' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 1)"
+  execute 'nmap <expr> T' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 1)"
+  execute 'vmap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
+  execute 'vmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
+  execute 'vmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
+  execute 'vmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
+endfor
 "}}}
-function! s:highlight_add(row, col) "{{{
-  let pattern   = '\%' . a:row . 'l\%' . a:col . 'c.'
-  PP! pattern
-  let id = matchadd("IncSearch", pattern)
-  return id
-endfunction
-"}}}
-function! s:highlight_del(id) "{{{
-  call matchdelete(a:id)
-
-  return
-endfunction
-"}}}
-nnoremap <expr> f <SID>kind_f('f')
-nnoremap <expr> t <SID>kind_f('t')
-nnoremap <expr> F <SID>kind_f('F')
-nnoremap <expr> T <SID>kind_f('T')
 "}}}
 "***** macros ***** {{{
 " increment big number
@@ -2421,6 +2368,7 @@ call setreg('x', "0t.7hi \<Esc>t.\<C-x>F xj")
 " copy&paste   original : call setreg('u', "\<Esc>:let @u='\"=@u[11:]\<C-v>\<CR>p`u'\<CR>gv\"Uy")
 call setreg('u', "\<Esc>:let @u='\"\<Del>=@u[13:]\<C-v>\<CR>p`u'\<CR>gv\"Uy")
 call setreg('i', "\<Esc>:let @i='\"\<Del>=@i[13:]\<C-v>\<CR>p`i'\<CR>gv\"iy")
+call setreg('u', "\<Esc>:let @u='\"\<Del>=@u[13:]\<C-v>\<CR>p`u'\<CR>gv\"Uy")
 "}}}
 "***** loading local settings ***** {{{
 "-------------------------------------------------------------------------
