@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 18-Feb-2014.
+" Last Change: 02-Mar-2014.
 "
 "***** Todo *****
 " improve columnjump
@@ -288,13 +288,20 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '&', 'at': '&\%#',    'input': '<BS> && ',               'mode': 'i'},
         \       {'char': '&', 'at': ' && \%#', 'input': '<BS><BS><BS><BS>&&',     'mode': 'i'},
         \       {'char': '&', 'at': '&&\+\%#', 'input': '&',                      'mode': 'i'},
+        \       {'char': '&', 'at': ' &\%#\S', 'input': '& ',                     'mode': 'i'},
+        \       {'char': '&', 'at': '\S&\%# ', 'input': '<BS> &&<Right>',         'mode': 'i'},
+        \       {'char': '&', 'at': ' &\%# ',  'input': '&<Right>',               'mode': 'i'},
         \      ]
-  " '|' -> ' || ' -> '||' -> '|||' -> '||||' ...
+  " '|' -> ' | ' -> ' || ' -> '||' -> '|||' -> '||||' ...
   let rules += [
         \       {'char': '<Bar>', 'at': '\%#',     'input': '|',                  'mode': 'i'},
-        \       {'char': '<Bar>', 'at': '|\%#',    'input': '<BS> || ',           'mode': 'i'},
+        \       {'char': '<Bar>', 'at': '|\%#',    'input': '<BS> | ',            'mode': 'i'},
+        \       {'char': '<Bar>', 'at': ' | \%#',  'input': '<BS>| ',             'mode': 'i'},
         \       {'char': '<Bar>', 'at': ' || \%#', 'input': '<BS><BS><BS><BS>||', 'mode': 'i'},
         \       {'char': '<Bar>', 'at': '||\+\%#', 'input': '|',                  'mode': 'i'},
+        \       {'char': '<Bar>', 'at': ' |\%#\S', 'input': '| ',                 'mode': 'i'},
+        \       {'char': '<Bar>', 'at': '\S|\%# ', 'input': '<BS> ||<Right>',     'mode': 'i'},
+        \       {'char': '<Bar>', 'at': ' |\%# ',  'input': '|<Right>',           'mode': 'i'},
         \      ]
 
   " do not apply on 'Comment' or 'String' syntax
@@ -1248,7 +1255,9 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 "   \ endif
 
 let g:verticalmove_use_strict_wbege = 1
-let g:verticalmove_fold_open        = 1
+" let g:verticalmove_fold_open = 1
+let patternjump_highlight = 1
+let patternjump_caching = 1
 
 function! Speed_gun(...)
   let l:count = a:0 > 0 ? a:1 : 10
@@ -2272,6 +2281,9 @@ nnoremap S :%s///g<left><left>
 " match 'Y' behavior with 'D' : Y = yy -> y$
 nnoremap Y y$
 
+" move cursor to the end of selected area after yank
+xnoremap Y ygv<Esc>
+
 " line-break without any change to current line in insert mode
 inoremap <C-J> <Esc>o
 " inoremap <C-K> <Esc>O
@@ -2369,7 +2381,7 @@ function! s:kind_f(mode)  "{{{
   if a:mode =~# '[ft]'
     let indexes = filter(map(copy(uniq_chars), 'match(chars, v:val, 0, v:count1) + col'), 'v:val > col')
   elseif a:mode =~# '[FT]'
-    let indexes = filter(map(copy(uniq_chars), 'col - match(chars, v:val, 0, v:count1)'), 'v:val > col')
+    let indexes = filter(map(copy(uniq_chars), 'col - match(chars, v:val, 0, v:count1) - 2'), 'v:val < col-1')
   endif
 
   " highlighting candidates
@@ -2387,26 +2399,27 @@ endfunction
 "}}}
 function! g:kind_f_cleaner() "{{{
   " delete highlighting
-  call map(s:id_list, "s:highlight_del(v:val)")
-  let s:id_list = []
+  call filter(map(s:id_list, "s:highlight_del(v:val)"), 'v:val > 0')
   redraw
 
-  augroup patternjump:cleaner
-    au!
-  augroup END
+  if s:id_list == []
+    augroup patternjump:cleaner
+      au!
+    augroup END
+  endif
 endfunction
 "}}}
 function! s:highlight_add(row, col) "{{{
   let pattern   = '\%' . a:row . 'l\%' . a:col . 'c.'
-  PP! pattern
   let id = matchadd("IncSearch", pattern)
   return id
 endfunction
 "}}}
 function! s:highlight_del(id) "{{{
-  call matchdelete(a:id)
+  let result = matchdelete(a:id)
 
-  return
+  let output = (result == 0) ? result : a:id
+  return output
 endfunction
 "}}}
 nnoremap <expr> f <SID>kind_f('f')
