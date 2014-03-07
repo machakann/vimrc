@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 02-Mar-2014.
+" Last Change: 07-Mar-2014.
 "
 "***** Todo *****
 " improve columnjump
@@ -75,6 +75,7 @@ NeoBundle       'osyo-manga/vim-operator-jump_side'
 NeoBundle       'rhysd/vim-textobj-word-column'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
+NeoBundle       'Shougo/neomru.vim'
 NeoBundle       'Shougo/unite-help'        , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'Shougo/unite.vim'
 NeoBundle       'Shougo/vimproc.vim'            , {
@@ -795,8 +796,8 @@ if neobundle#tap('neocomplete')
     call neocomplete#custom_source('file', 'rank', 100)
     " Change default converter.
     call neocomplete#custom#source('_', 'converters',
-    \ ['converter_remove_next_keyword', 'converter_remove_last_paren',
-    \  'converter_delimiter', 'converter_case', 'converter_abbr'])
+    \ ['converter_remove_last_paren', 'converter_delimiter',
+    \  'converter_case', 'converter_abbr'])
 
     " Recommended key-mappings.
     " <CR>: close popup and save indent.
@@ -813,6 +814,12 @@ if neobundle#tap('neocomplete')
     inoremap <expr><C-l> neocomplete#complete_common_string()
   endfunction
   unlet bundle
+endif
+"}}}
+"*** neomru.vim *** {{{
+if neobundle#tap('neomru.vim')
+  let g:neomru#file_mru_path = $USERCACHEDIR . '/.neomru/file'
+  let g:neomru#directory_mru_path = $USERCACHEDIR . '/.neomru/directly'
 endif
 "}}}
 "*** neosnippet.vim *** {{{
@@ -1254,10 +1261,9 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 "   \   setlocal omnifunc=syntaxcomplete#Complete |
 "   \ endif
 
-let g:verticalmove_use_strict_wbege = 1
-" let g:verticalmove_fold_open = 1
-let patternjump_highlight = 1
-let patternjump_caching = 1
+" let g:columnmove_auto_scroll = 1
+" let g:patternjump_highlight = 1
+" let g:patternjump_caching = 1
 
 function! Speed_gun(...)
   let l:count = a:0 > 0 ? a:1 : 10
