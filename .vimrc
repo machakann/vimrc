@@ -10,7 +10,6 @@
 "    Thus I decided to make a independent plugin.
 " matlabcomplete, matlabdoc
 " color modulation
-" The automated hight modulation of quickfix window
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
@@ -2052,6 +2051,22 @@ autocmd vimrc FileType tex setlocal wrap
 autocmd vimrc FileType tex setlocal iminsert=0
 autocmd vimrc FileType tex setlocal spellcapcheck
 
+"*** quickfix ***"
+autocmd vimrc FileType qf call s:qf_resize()
+
+function! s:qf_resize()
+  let Nerror = len(getqflist())
+  if Nerror > 0
+    let maximum = floor(winheight(bufnr("#")) / 3)
+
+    if Nerror > maximum
+      execute 'resize ' . maximum
+    else
+      execute 'resize ' . Nerror
+    endif
+  endif
+endfunction
+
 "*** anonymous ***"
 " Close non-named buffer without any warning.
 " Imperfect...
@@ -2344,6 +2359,7 @@ nnoremap <M-a> ea
 
 " reserve black hole register for the next operator
 nnoremap <M-d> "_
+
 " " enabling 'f' and 't' commands to use string class {{{
 " function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
 "   let line = line('.')
@@ -2438,7 +2454,7 @@ function! s:kind_f(mode)  "{{{
   " reserving cleaner
   augroup kind-f:cleaner
     au!
-    au CursorMoved,CursorMovedI <buffer> call g:kind_f_cleaner()
+    au CursorMoved,CursorMovedI,WinLeave <buffer> call g:kind_f_cleaner()
   augroup END
 
   return a:mode
