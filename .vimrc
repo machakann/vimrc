@@ -2,14 +2,14 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 07-Mar-2014.
+" Last Change: 10-Mar-2014.
 "
 "***** Todo *****
 " improve columnjump
+" -> Finally my request getting too huge, I felt nervous to send it.
+"    Thus I decided to make a independent plugin.
 " matlabcomplete, matlabdoc
 " color modulation
-" alignment operator
-" make a switch to toggle on/off of the smartinput function
 " The automated hight modulation of quickfix window
 
 "***** startup ***** {{{
@@ -88,7 +88,9 @@ NeoBundle       'Shougo/vimproc.vim'            , {
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-unite-history'  , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'thinca/vim-visualstar'
+NeoBundle       'tpope/vim-markdown'
 NeoBundle       'tyru/caw.vim'
+NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'vim-jp/vimdoc-ja'
 NeoBundle       'vim-jp/vital.vim'
@@ -169,9 +171,11 @@ if !has('vim_starting')
 endif
 "}}}
 "*** smartinput *** {{{
+" Disable default settings
+let g:smartinput_no_default_key_mappings = 1
+
 if neobundle#tap('vim-smartinput')
-  " Disable default settings
-  let g:smartinput_no_default_key_mappings = 1
+  call smartinput#clear_rules()
 
   " I know following description is too lengthy, but otherwise I would be not
   " able to review them...
@@ -191,7 +195,7 @@ if neobundle#tap('vim-smartinput')
   "       change the colorscheme this settings might not work as I expect.
 
   " map to trigger
-  let trig = [
+  let s:trig = [
         \     ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',  '<BS>'],
         \     ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',  '<CR>'],
         \     ['(',     '(',     '('    ],
@@ -222,7 +226,7 @@ if neobundle#tap('vim-smartinput')
         \     ['<C-k>', '<C-k>', '<C-k>'],
         \    ]
 
-  for item in trig
+  for item in s:trig
     call smartinput#map_to_trigger('i', item[0], item[1], item[2])
     call smartinput#map_to_trigger('c', item[0], item[1], item[2])
   endfor
@@ -357,10 +361,12 @@ if neobundle#tap('vim-smartinput')
         \       {'char':  '"', 'at': '\\\%#',     'input': '"',          'mode': 'i:'},
         \       {'char': '''', 'at': '\w\%#',     'input': '''',         'mode': 'i:'},
         \       {'char': '''', 'at': '\w''\%#''', 'input': '<Del>',      'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',          'input': '""',       'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',         'input': '<Right>',  'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#',   'input': '''''',     'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#''', 'input': '<Right>',  'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',               'input': '""<Left>',   'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',          'input': '""',         'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',         'input': '<Right>',    'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',         'input': '''''<Left>', 'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
         \      ]
 
   " correspondent parentheses
@@ -700,8 +706,43 @@ if neobundle#tap('vim-smartinput')
     call smartinput#define_rule(item)
   endfor
   unlet item
+  unlet rules
+  let g:is_smartinput_valid = 1
 
   cmap <BS> <Plug>(smartinput_BS)
+
+  " toggle switch
+  command! -nargs=0 SmartinputToggle call Smartinput_toggle_switch()
+  nnoremap <silent> <M-s> :SmartinputToggle<CR>
+  inoremap <silent> <M-s> <C-r>=Smartinput_toggle_switch()<CR>
+  cnoremap          <M-s> <C-r>=Smartinput_toggle_switch()<CR>
+
+  function! Smartinput_toggle_switch()
+    if g:is_smartinput_valid
+      for item in s:trig
+        if item[0] == item[2]
+          execute "iunmap " . item[0]
+        else
+          if item[0] =~# '^<Plug>.\+'
+            execute "imap " . item[0] . " " . item[2]
+          else
+            execute "inoremap " . item[0] . " " . item[2]
+          endif
+        endif
+      endfor
+
+      let g:is_smartinput_valid = 0
+    else
+      for item in s:trig
+        call smartinput#map_to_trigger('i', item[0], item[1], item[2])
+        call smartinput#map_to_trigger('c', item[0], item[1], item[2])
+      endfor
+
+      let g:is_smartinput_valid = 1
+    endif
+
+    return ''
+  endfunction
 endif
 "}}}
 " *** anzu.vim *** {{{
