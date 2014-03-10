@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 10-Mar-2014.
+" Last Change: 11-Mar-2014.
 "
 "***** Todo *****
 " improve columnjump
@@ -779,6 +779,13 @@ if neobundle#tap('vim-indent-guides')
   nmap <silent> <Space>i <Plug>IndentGuidesToggle
 endif
 "}}}
+"*** jedi.vim *** {{{
+if neobundle#tap('jedi-vim')
+  let g:jedi#auto_initialization = 1
+  let g:jedi#rename_command = "<leader>R"
+  let g:jedi#popup_on_dot = 0
+endif
+"}}}
 "*** neocomplete.vim *** {{{
 if neobundle#tap('neocomplete')
   " Use neocomplete.
@@ -1403,18 +1410,38 @@ autocmd vimrc FileType vim setlocal shiftwidth=2
 
 "*** help ***"
 autocmd vimrc FileType help vertical resize 78
-" autocmd vimrc FileType help setlocal sidescrolloff=0
+
+augroup help_optimizer
+  au!
+  autocmd FileType help call s:help_bootstrap()
+augroup END
+
+function! s:help_bootstrap()
+  augroup help_optimizer
+    au!
+    autocmd BufEnter *           call s:help_conf_optimizer()
+    autocmd BufLeave *.txt,*.jax call s:help_conf_restorer()
+  augroup END
+endfunction
+
+function! s:help_conf_optimizer()
+  if &buftype ==# 'help'
+    let s:sidescrolloff = &sidescrolloff
+    set sidescrolloff=0
+  endif
+
+  doautocmd FileType
+endfunction
+
+function! s:help_conf_restorer()
+  if &buftype ==# 'help'
+    let &sidescrolloff = s:sidescrolloff
+    unlet s:sidescrolloff
+  endif
+endfunction
 
 "*** int-maxima ***"
 autocmd vimrc FileType int-maxima nnoremap <buffer> yy 0f<Space>ly$G0f<Space>"_d$a<Space>*
-
-"*** python ***"
-" jedi.vim"
-let g:jedi#auto_initialization = 1
-let g:jedi#rename_command = "<leader>R"
-let g:jedi#popup_on_dot = 0
-
-"*** lua ***"
 
 "*** markdown ***"
 autocmd vimrc FileType markdown setlocal wrap
@@ -1722,8 +1749,8 @@ nnoremap Y y$
 xnoremap Y ygv<Esc>
 
 " line-break without any change to current line in insert mode
-inoremap <C-J> <Esc>o
-" inoremap <C-K> <Esc>O
+inoremap <C-j> <Esc>o
+" inoremap <C-k> <Esc>O
 
 " check syntax group of the character under the cursor
 nnoremap \s :echo map(synstack(line('.'), col('.')), 'synIDattr(synIDtrans(v:val), "name")')<CR>
@@ -1870,8 +1897,8 @@ nnoremap <expr> T <SID>kind_f('T')
 call setreg('a', "0t.7hi \<Esc>t.\<C-a>F xj")
 call setreg('x', "0t.7hi \<Esc>t.\<C-x>F xj")
 " copy&paste   original : call setreg('u', "\<Esc>:let @u='\"=@u[11:]\<C-v>\<CR>p`u'\<CR>gv\"Uy")
-call setreg('u', "\<Esc>:let @u='\"\<Del>=@u[13:]\<C-v>\<CR>p`u'\<CR>gv\"Uy")
-call setreg('i', "\<Esc>:let @i='\"\<Del>=@i[13:]\<C-v>\<CR>p`i'\<CR>gv\"iy")
+call setreg('u', "\<Esc>:let @u='\"\<Del>=@u[13:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
+call setreg('i', "\<Esc>:let @i='\"\<Del>=@i[13:]\<C-v>\<CR>p1000fa'\<CR>gv\"iy")
 "}}}
 "***** loading local settings ***** {{{
 "-------------------------------------------------------------------------
