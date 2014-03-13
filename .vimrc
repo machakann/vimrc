@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 11-Mar-2014.
+" Last Change: 14-Mar-2014.
 "
 "***** Todo *****
 " improve columnjump
@@ -68,6 +68,8 @@ NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'kana/vim-textobj-underscore'
+NeoBundle       'machakann/vim-columnmove'
+NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'osyo-manga/vim-operator-jump_side'
@@ -768,6 +770,13 @@ if neobundle#tap('columnjump')
   nmap \w <Plug>(columnjump-forward)
 endif
 "}}}
+"*** columnmove *** {{{
+if neobundle#tap('vim-columnmove')
+  let g:columnmove_auto_scroll = 1
+  let g:columnmove_strict_wbege = 0
+  let g:columnmove_fold_open = {'x' : &foldnestmax}
+endif
+"}}}
 "*** indent_guides.vim *** {{{
 if neobundle#tap('vim-indent-guides')
   let g:indent_guides_enable_on_vim_startup = 1
@@ -882,6 +891,12 @@ endif
 "     set conceallevel=2 concealcursor=i
 "   endif
 " endif
+"}}}
+"*** patternjump *** {{{
+if neobundle#tap('vim-patternjump')
+"   let g:patternjump_highlight = 1
+  let g:patternjump_caching = 1
+endif
 "}}}
 "*** quickrun.vim *** {{{
 if neobundle#tap('vim-quickrun')
@@ -1307,17 +1322,13 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 "   \   setlocal omnifunc=syntaxcomplete#Complete |
 "   \ endif
 
-" let g:columnmove_auto_scroll = 1
-" let g:patternjump_highlight = 1
-" let g:patternjump_caching = 1
-
 function! Speed_gun(...)
   let l:count = a:0 > 0 ? a:1 : 10
   let g:time = []
   while l:count > 0
     normal! $
     let start_time = reltime()
-    normal h
+    normal <M-l>
     let g:time += [reltimestr(reltime(start_time))]
     let l:count -= 1
   endwhile
@@ -1899,6 +1910,42 @@ call setreg('x', "0t.7hi \<Esc>t.\<C-x>F xj")
 " copy&paste   original : call setreg('u', "\<Esc>:let @u='\"=@u[11:]\<C-v>\<CR>p`u'\<CR>gv\"Uy")
 call setreg('u', "\<Esc>:let @u='\"\<Del>=@u[13:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
 call setreg('i', "\<Esc>:let @i='\"\<Del>=@i[13:]\<C-v>\<CR>p1000fa'\<CR>gv\"iy")
+"}}}
+"***** playpit ***** {{{
+onoremap <silent> if <Esc>:call Textobj_vim('o')<CR>
+xnoremap <silent> if <Esc>:call Textobj_vim('x')<CR>
+
+function! Textobj_vim(mode)
+  " What kinds of characters can be used for <Plug>?
+  let patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})', '\<[abglstvw]:\k\+\>']
+
+  " search for the target
+  let output = patternjump#forward('n', [[], patterns], v:count1, {'raw' : 2})
+
+  if output.column > 0
+    " derive the matched pattern
+    let matched_pattern = output.patterns[match(output.candidates, output.column)][0]
+
+    " re-set operator or re-entering to the visual mode (if necessary)
+    if a:mode ==# 'o'
+      let virtualedit  = &virtualedit
+      let &virtualedit = 'onemore'
+      normal! l
+
+      execute 'normal! ' . v:operator . ":call search('" . matched_pattern . "', 'cb', line('.'))\<CR>"
+    elseif a:mode ==# 'x'
+      normal! v
+
+      " move to the head of matched pattern
+      call search(matched_pattern, 'cb', line('.'))
+    endif
+
+
+    if a:mode ==# 'o'
+      let &virtualedit = virtualedit
+    endif
+  endif
+endfunction
 "}}}
 "***** loading local settings ***** {{{
 "-------------------------------------------------------------------------
