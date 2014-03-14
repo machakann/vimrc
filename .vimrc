@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 14-Mar-2014.
+" Last Change: 15-Mar-2014.
 "
 "***** Todo *****
 " improve columnjump
@@ -708,7 +708,7 @@ if neobundle#tap('vim-smartinput')
   endfor
   unlet item
   unlet rules
-  let g:is_smartinput_valid = 1
+  let g:is_smartinput_active = 1
 
   cmap <BS> <Plug>(smartinput_BS)
 
@@ -719,7 +719,7 @@ if neobundle#tap('vim-smartinput')
   cnoremap          <M-s> <C-r>=Smartinput_toggle_switch()<CR>
 
   function! Smartinput_toggle_switch()
-    if g:is_smartinput_valid
+    if g:is_smartinput_active
       for item in s:trig
         if item[0] == item[2]
           execute "iunmap " . item[0]
@@ -732,14 +732,14 @@ if neobundle#tap('vim-smartinput')
         endif
       endfor
 
-      let g:is_smartinput_valid = 0
+      let g:is_smartinput_active = 0
     else
       for item in s:trig
         call smartinput#map_to_trigger('i', item[0], item[1], item[2])
         call smartinput#map_to_trigger('c', item[0], item[1], item[2])
       endfor
 
-      let g:is_smartinput_valid = 1
+      let g:is_smartinput_active = 1
     endif
 
     return ''
@@ -857,17 +857,17 @@ if neobundle#tap('neocomplete')
 
     " Recommended key-mappings.
     " <CR>: close popup and save indent.
-    imap <silent> <expr><CR> neocomplete#smart_close_popup() . "\<Plug>(smartinput_CR)"
+    imap <silent><expr> <CR> neocomplete#smart_close_popup() . "\<Plug>(smartinput_CR)"
     " <TAB>: completion.
     " inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
     " <C-h>, <BS>: close popup and delete backword char.
-    imap <expr><C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-    imap <expr><BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-    inoremap <expr><C-y>  neocomplete#close_popup()
-    inoremap <expr><C-e>  neocomplete#cancel_popup()
+    imap <expr> <C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
+    imap <expr> <BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
+    inoremap <expr> <C-y> neocomplete#close_popup()
+    inoremap <expr> <C-e> neocomplete#cancel_popup()
     " Plugin key-mappings.
-    inoremap <expr><C-g> neocomplete#undo_completion()
-    inoremap <expr><C-l> neocomplete#complete_common_string()
+    inoremap <expr> <C-g> neocomplete#undo_completion()
+    inoremap <expr> <C-l> neocomplete#complete_common_string()
   endfunction
   unlet bundle
 endif
@@ -1321,20 +1321,6 @@ autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 "   \ if &l:omnifunc == '' |
 "   \   setlocal omnifunc=syntaxcomplete#Complete |
 "   \ endif
-
-function! Speed_gun(...)
-  let l:count = a:0 > 0 ? a:1 : 10
-  let g:time = []
-  while l:count > 0
-    normal! $
-    let start_time = reltime()
-    normal <M-l>
-    let g:time += [reltimestr(reltime(start_time))]
-    let l:count -= 1
-  endwhile
-  execute "let mean_time = (" . join(g:time, '+') . ")/" . len(g:time)
-  PP! mean_time
-endfunction
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
@@ -1439,6 +1425,9 @@ function! s:help_conf_optimizer()
   if &buftype ==# 'help'
     let s:sidescrolloff = &sidescrolloff
     set sidescrolloff=0
+
+    let s:sidescroll = &sidescroll
+    set sidescroll=1
   endif
 
   doautocmd FileType
@@ -1447,7 +1436,10 @@ endfunction
 function! s:help_conf_restorer()
   if &buftype ==# 'help'
     let &sidescrolloff = s:sidescrolloff
+    let &sidescroll = s:sidescroll
+
     unlet s:sidescrolloff
+    unlet s:sidescroll
   endif
 endfunction
 
@@ -1457,7 +1449,6 @@ autocmd vimrc FileType int-maxima nnoremap <buffer> yy 0f<Space>ly$G0f<Space>"_d
 "*** markdown ***"
 autocmd vimrc FileType markdown setlocal wrap
 autocmd vimrc FileType markdown setlocal iminsert=0
-autocmd vimrc FileType markdown setlocal spellcapcheck
 
 "*** tex ***"
 autocmd vimrc FileType tex setlocal wrap
@@ -1904,6 +1895,9 @@ nnoremap <expr> F <SID>kind_f('F')
 nnoremap <expr> T <SID>kind_f('T')
 "}}}
 "***** macros ***** {{{
+" I think macros can be regarded as keymappings which can be re-written
+" casually and instantly starting from '@' prefix.
+
 " increment big number
 call setreg('a', "0t.7hi \<Esc>t.\<C-a>F xj")
 call setreg('x', "0t.7hi \<Esc>t.\<C-x>F xj")
@@ -1951,6 +1945,20 @@ function! Textobj_vim(mode)
       let &virtualedit = virtualedit
     endif
   endif
+endfunction
+
+function! Speed_gun(...)
+  let l:count = a:0 > 0 ? a:1 : 10
+  let g:time = []
+  while l:count > 0
+    normal! $
+    let start_time = reltime()
+    normal <M-l>
+    let g:time += [reltimestr(reltime(start_time))]
+    let l:count -= 1
+  endwhile
+  execute "let mean_time = (" . join(g:time, '+') . ")/" . len(g:time)
+  PP! mean_time
 endfunction
 "}}}
 "***** loading local settings ***** {{{
