@@ -1919,6 +1919,12 @@ function! Textobj_vim(mode)
   " What kinds of characters can be used for <Plug>?
   let patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})', '\<[abglstvw]:\k\+\>']
 
+  " A kind of workaround
+  " need the equivalent option with the 'c' flag of search() function
+  if col('.') != 1
+    normal! h
+  endif
+
   " search for the target
   let output = patternjump#forward('n', [[], patterns], v:count1, {'raw' : 2})
 
