@@ -1,15 +1,11 @@
-" vim:set ts=8 sts=2 sw=2 tw=0:
+" vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 15-Mar-2014.
+" Last Change: 17-Mar-2014.
 "
 "***** Todo *****
-" improve columnjump
-" -> Finally my request getting too huge, I felt nervous to send it.
-"    Thus I decided to make a independent plugin.
 " matlabcomplete, matlabdoc
-" color modulation
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
@@ -121,12 +117,6 @@ NeoBundleLazy   'osyo-manga/vim-watchdogs', {
       \ },
       \ 'depends' : ['thinca/vim-quickrun','Shougo/vimproc.vim','osyo-manga/shabadou.vim'],
       \ }
-NeoBundleLazy   'rbtnn/vimconsole.vim', {
-      \ 'autoload' : {
-      \   'commands' : ['VimConsole', 'VimConsoleLog', 'VimConsoleWarn', 'VimConsoleError',
-      \                 'VimConsoleOpen', 'VimConsoleClose', 'VimConsoleToggle',
-      \                 'VimConsoleCrear', 'VimConsoleRedraw', 'VimConsoleDump'],
-      \}}
 NeoBundleLazy   'sjl/gundo.vim', {
       \ 'autoload' : {'commands': 'GundoToggle'}
       \ }
@@ -149,7 +139,7 @@ NeoBundleLazy 'Shougo/vimshell', {
       \   'commands' : [{ 'name'     : 'VimShell',
       \                   'complete' : 'customlist,vimshell#complete'},
       \                 'VimShellExecute', 'VimShellInteractive',
-      \                 'VimShellTerminal', 'VimShellPop'],
+      \                 'VimShellTerminal', 'VimShellPop', 'VimShellTab'],
       \   'mappings' : ['<Plug>(vimshell_'],
       \ }}
 NeoBundleLazy   'thinca/vim-quickrun', {
@@ -385,23 +375,23 @@ if neobundle#tap('vim-smartinput')
 
   " delete correspondent parentheses and quotes
   let rules += [
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>',       'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',        'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>',       'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',        'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>',       'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',        'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>',       'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',        'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''',  'input': '<BS><BS>',        'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>',       'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',      'input': '<BS><BS>',        'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',     'input': '<BS><BS>',        'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',        'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',        'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '<>\%#',      'input': '<BS><BS>',        'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',        'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',        'mode': ':'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''',  'input': '<BS><BS>',  'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',      'input': '<BS><BS>',  'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',     'input': '<BS><BS>',  'mode': 'i:'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': ':'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': ':'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '<>\%#',      'input': '<BS><BS>',  'mode': ':'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': ':'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': ':'},
         \      ]
 
   " Delete operaters together with vicinal spaces
@@ -520,26 +510,26 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '?', 'at': '=\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
         \       {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
         \       {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=? \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ># \%#',   'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >? \%#',   'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=# \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=? \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <# \%#',   'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <? \%#',   'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=# \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=? \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~ \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~# \%#', 'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~? \%#', 'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~ \%#',  'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~# \%#', 'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~? \%#', 'input': '<BS><BS> ',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\s\%#',    'input': '<BS><BS>',      'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' \. \%#',   'input': '<BS><BS><BS>',  'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ># \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >? \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <# \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <? \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~ \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~# \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~? \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~ \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~# \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~? \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\s\%#',    'input': '<BS><BS>',     'filetype': ['vim']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': ' \. \%#',   'input': '<BS><BS><BS>', 'filetype': ['vim']},
         \       {'char': '=', 'at': '\. \%#',   'input': '<BS>= ',                                    'mode': 'i:', 'filetype': ['vim']},
         \       {'char': '=', 'at': ' \.\%#\S', 'input': '= ',                                        'mode': 'i:', 'filetype': ['vim']},
         \       {'char': '=', 'at': ' \.\%#$',  'input': '= ',                                        'mode': 'i:', 'filetype': ['vim']},
@@ -1330,7 +1320,7 @@ set cursorline                      " highlight corsor line
 set guioptions-=m                   " menu bar is not required
 set guioptions-=T                   " tool bar is not required
 set laststatus=2                    " always display status line
-set list                            " visalize special characters
+set list                            " visualize special characters
 set listchars=tab:>-,trail:-,eol:$,nbsp:%,extends:>,precedes:<
                                     " assign alternative expression for special characters
 set number                          " display row number
@@ -1725,7 +1715,7 @@ nnoremap <Space>h :Help<Space>
 "}}}
 "***** key mapping ***** {{{
 "--------------------------------------------------------------------------
-" do not add the char cut by x,s
+" do not store a character cut by x,s
 nnoremap x "_x
 nnoremap s "_s
 
@@ -1740,9 +1730,6 @@ cnoremap <C-p> <Up>
 cnoremap <Up> <C-p>
 cnoremap <C-n> <Down>
 cnoremap <Down> <C-n>
-
-" substitute selected region
-nnoremap S :%s///g<left><left>
 
 " match 'Y' behavior with 'D' : Y = yy -> y$
 nnoremap Y y$
@@ -1818,6 +1805,10 @@ nnoremap <M-d> "_
 " nnoremap F\\ F\
 " nnoremap t\\ t\
 " nnoremap T\\ T\
+" xnoremap f\\ f\
+" xnoremap F\\ F\
+" xnoremap t\\ t\
+" xnoremap T\\ T\
 " let string_class = [ '\i',  '\I',  '\k',  '\K',  '\f',  '\F',  '\p',  '\P',  '\s',  '\S',  '\d',  '\D',  '\x',  '\X',  '\o',  '\O',  '\w',  '\W',  '\h',  '\H',  '\a',  '\A',  '\l',  '\L',  '\u',  '\U',
 "       \             '\_i', '\_I', '\_k', '\_K', '\_f', '\_F', '\_p', '\_P', '\_s', '\_S', '\_d', '\_D', '\_x', '\_X', '\_o', '\_O', '\_w', '\_W', '\_h', '\_H', '\_a', '\_A', '\_l', '\_L', '\_u', '\_U' ]
 " for key in string_class
@@ -1825,10 +1816,10 @@ nnoremap <M-d> "_
 "   execute 'nmap <expr> t' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 0)"
 "   execute 'nmap <expr> F' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 1)"
 "   execute 'nmap <expr> T' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 1)"
-"   execute 'vmap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
-"   execute 'vmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
-"   execute 'vmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
-"   execute 'vmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
+"   execute 'xmap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
+"   execute 'xmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
+"   execute 'xmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
+"   execute 'xmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
 " endfor
 " "}}}
 
@@ -1858,13 +1849,13 @@ function! s:kind_f(mode)  "{{{
   " reserving cleaner
   augroup kind-f:cleaner
     au!
-    au CursorMoved,CursorMovedI,WinLeave <buffer> call g:kind_f_cleaner()
+    au CursorMoved,CursorMovedI,WinLeave <buffer> call s:kind_f_cleaner()
   augroup END
 
   return a:mode
 endfunction
 "}}}
-function! g:kind_f_cleaner() "{{{
+function! s:kind_f_cleaner() "{{{
   " delete highlighting
   call filter(map(s:id_list, "s:highlight_del(v:val)"), 'v:val > 0')
   redraw
@@ -1920,7 +1911,7 @@ function! Textobj_vim(mode)
   endif
 
   " search for the target
-  let output = patternjump#forward('n', [[], patterns], v:count1, {'raw' : 2})
+  let output = patternjump#forward('n', [[], patterns], v:count1, {'raw' : 2, 'highlight' : 0, 'caching' : 0, 'debug_mode' : 0})
 
   if output.column > 0
     " derive the matched pattern
@@ -1939,7 +1930,6 @@ function! Textobj_vim(mode)
       " move to the head of matched pattern
       call search(matched_pattern, 'cb', line('.'))
     endif
-
 
     if a:mode ==# 'o'
       let &virtualedit = virtualedit
