@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 17-Mar-2014.
+" Last Change: 22-Mar-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -327,6 +327,9 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '=', 'at': ' \%#',           'input': '= ',                                        'mode': 'i'},
         \       {'char': '=', 'at': '\S\%# ',         'input': ' =<Right>',                                 'mode': 'i'},
         \       {'char': '=', 'at': ' \%# ',          'input': '=<Right>',                                  'mode': 'i'},
+        \       {'char': '=', 'at': ' \%#=',          'input': '=<Right> ',                                 'mode': 'i'},
+        \       {'char': '=', 'at': ' =\%#',          'input': '= ',                                        'mode': 'i'},
+        \       {'char': '=', 'at': ' =\%# ',         'input': '=<Right>',                                  'mode': 'i'},
         \       {'char': '=', 'at': '[-+<>~!] \%#',   'input': '<BS>= ',                                    'mode': 'i'},
         \       {'char': '=', 'at': ' [-+<>~!]\%#\S', 'input': '= ',                                        'mode': 'i'},
         \       {'char': '=', 'at': ' [-+<>~!]\%#$',  'input': '= ',                                        'mode': 'i'},
@@ -843,7 +846,7 @@ if neobundle#tap('neocomplete')
     " Change default converter.
     call neocomplete#custom#source('_', 'converters',
     \ ['converter_remove_last_paren', 'converter_delimiter',
-    \  'converter_case', 'converter_abbr'])
+    \  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
 
     " Recommended key-mappings.
     " <CR>: close popup and save indent.
