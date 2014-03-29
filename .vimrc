@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 22-Mar-2014.
+" Last Change: 29-Mar-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -60,6 +60,7 @@ NeoBundle       'kana/vim-operator-replace'
 NeoBundle       'kana/vim-smartinput'
 NeoBundle       'kana/vim-submode'
 NeoBundle       'kana/vim-surround'
+NeoBundle       'kana/vim-textobj-function'
 NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
@@ -325,7 +326,7 @@ if neobundle#tap('vim-smartinput')
   let rules += [
         \       {'char': '=', 'at': '\%# = ',         'input': '<Del><Right><Del><Left>=',                  'mode': 'i'},
         \       {'char': '=', 'at': ' \%#',           'input': '= ',                                        'mode': 'i'},
-        \       {'char': '=', 'at': '\S\%# ',         'input': ' =<Right>',                                 'mode': 'i'},
+        \       {'char': '=', 'at': '[^= ]\%# ',      'input': ' =<Right>',                                 'mode': 'i'},
         \       {'char': '=', 'at': ' \%# ',          'input': '=<Right>',                                  'mode': 'i'},
         \       {'char': '=', 'at': ' \%#=',          'input': '=<Right> ',                                 'mode': 'i'},
         \       {'char': '=', 'at': ' =\%#',          'input': '= ',                                        'mode': 'i'},
@@ -478,17 +479,17 @@ if neobundle#tap('vim-smartinput')
   "     -[<C-k>]-> \%(#\) -[<C-k>]-> \(#\) -[<C-k>]-> \%(#\)
 
   let rules += [
-        \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',        'mode': '/?'},
-        \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',        'mode': '/?'},
-        \       {'char': '<C-k>', 'at': '(\%#',       'input': '<BS>\%(\)<Left><Left>', 'mode': '/?'},
-        \       {'char': '<C-k>', 'at': '\\%(\%#\\)', 'input': '<Left><BS><Right>',     'mode': '/?'},
-        \       {'char': '<C-k>', 'at': '\\(\%#\\)',  'input': '<Left>%<Right>',        'mode': '/?'},
-        \       {'char': '<C-k>', 'at': '\\)\%#',     'input': '<Left><Left>)',         'mode': '/?'},
-        \       {'char': '<C-k>', 'at': '\[\%#',      'input': '<BS>\[\]<Left><Left>',  'mode': '/?'},
-        \       {'char': '<C-k>', 'at': '\\]\%#',     'input': '<Left><Left>]',         'mode': '/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>', 'mode': '/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',     'mode': '/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',     'mode': '/?'},
+        \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',        'mode': ':/?'},
+        \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',        'mode': ':/?'},
+        \       {'char': '<C-k>', 'at': '(\%#',       'input': '<BS>\%(\)<Left><Left>', 'mode': ':/?'},
+        \       {'char': '<C-k>', 'at': '\\%(\%#\\)', 'input': '<Left><BS><Right>',     'mode': ':/?'},
+        \       {'char': '<C-k>', 'at': '\\(\%#\\)',  'input': '<Left>%<Right>',        'mode': ':/?'},
+        \       {'char': '<C-k>', 'at': '\\)\%#',     'input': '<Left><Left>)',         'mode': ':/?'},
+        \       {'char': '<C-k>', 'at': '\[\%#',      'input': '<BS>\[\]<Left><Left>',  'mode': ':/?'},
+        \       {'char': '<C-k>', 'at': '\\]\%#',     'input': '<Left><Left>]',         'mode': ':/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>', 'mode': ':/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',     'mode': ':/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',     'mode': ':/?'},
         \      ]
 
   " filetype option
@@ -717,7 +718,7 @@ if neobundle#tap('vim-smartinput')
         if item[0] == item[2]
           execute "iunmap " . item[0]
         else
-          if item[0] =~# '^<Plug>.\+'
+          if item[2] =~# '^<Plug>.\+'
             execute "imap " . item[0] . " " . item[2]
           else
             execute "inoremap " . item[0] . " " . item[2]
@@ -888,6 +889,7 @@ endif
 "*** patternjump *** {{{
 if neobundle#tap('vim-patternjump')
 "   let g:patternjump_highlight = 1
+  let g:patternjump_swap_head_tail = 1
   let g:patternjump_caching = 1
 endif
 "}}}
@@ -1379,8 +1381,9 @@ autocmd vimrc FileType scilab setlocal shiftwidth=4
 autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
 
 "*** FORTRAN ***"
-autocmd vimrc FileType fortran setlocal shiftwidth=2
-autocmd vimrc FileType fortran setlocal softtabstop=2
+let g:fortran_free_source = 1
+autocmd vimrc FileType fortran setlocal shiftwidth=4
+autocmd vimrc FileType fortran setlocal softtabstop=4
 autocmd vimrc FileType fortran compiler gfortran
 autocmd vimrc FileType fortran let b:fortran_fold=1
 autocmd vimrc FileType fortran let b:fortran_more_precise=1
@@ -1409,35 +1412,30 @@ augroup END
 function! s:help_bootstrap()
   augroup help_optimizer
     au!
-    autocmd BufEnter *           call s:help_conf_optimizer()
-    autocmd BufLeave *.txt,*.jax call s:help_conf_restorer()
+    autocmd BufEnter * call s:help_conf_optimizer()
   augroup END
 endfunction
 
 function! s:help_conf_optimizer()
-  if &buftype ==# 'help'
+  if (&buftype ==# 'help') && !(exists('s:sidescrolloff') && exists('s:sidescroll') && (s:sidescrolloff == 0) && (s:sidescroll == 1))
     let s:sidescrolloff = &sidescrolloff
     set sidescrolloff=0
 
     let s:sidescroll = &sidescroll
     set sidescroll=1
-  endif
-
-  doautocmd FileType
-endfunction
-
-function! s:help_conf_restorer()
-  if &buftype ==# 'help'
+  elseif (&buftype !=# 'help') && exists("s:sidescroll")
     let &sidescrolloff = s:sidescrolloff
     let &sidescroll = s:sidescroll
 
     unlet s:sidescrolloff
     unlet s:sidescroll
   endif
+
+  doautocmd FileType
 endfunction
 
 "*** int-maxima ***"
-autocmd vimrc FileType int-maxima nnoremap <buffer> yy 0f<Space>ly$G0f<Space>"_d$a<Space>*
+autocmd vimrc FileType int-maxima nnoremap <buffer> yy 0f<Space>ly$G0f<Space>"_d$a<Space><C-r>*
 
 "*** markdown ***"
 autocmd vimrc FileType markdown setlocal wrap
@@ -1467,8 +1465,10 @@ endfunction
 "*** anonymous ***"
 " Close non-named buffer without any warning.
 " Imperfect...
-autocmd vimrc QuitPre * call s:namaenonaikohainegala()
-autocmd vimrc BufEnter * call s:tobacchirigomen()
+augroup anonymous
+  au!
+  autocmd QuitPre * call s:namaenonaikohainegala()
+augroup END
 
 function! s:namaenonaikohainegala()
   if winnr('$') == 1
@@ -1479,6 +1479,10 @@ function! s:namaenonaikohainegala()
         call setbufvar(nr, '&buftype', 'nowrite')
       endif
     endfor
+
+    augroup anonymous
+      autocmd BufEnter * call s:tobacchirigomen()
+    augroup END
   endif
 endfunction
 
@@ -1490,6 +1494,10 @@ function! s:tobacchirigomen()
       endif
     endfor
     unlet g:namaenonaiko
+
+    augroup anonymous
+      au! BufEnter
+    augroup END
   endif
 endfunction
 "}}}
@@ -1602,7 +1610,6 @@ command! -nargs=+ RegExchange call RegExchange(<f-args>)
 "TODO
 " unite source... -> found it : buffer_tab
 " IsolateTabBuffers command
-" still imperfect...
 
 let g:ignore_pattern = ['vimfiler:.*']
 
@@ -1630,17 +1637,13 @@ function! s:isolate_tab_add()
   endif
 endfunction
 
-function! s:isolate_tab_delete()
+function! s:isolate_tab_delete(nr)
   if has_key(t:, 'isolated_buf_list')
     " delete buffer number from 't:isolated_buf_list'
-    let delbuf_num = bufnr("%")
-    let temp = []
-    for buf_num in t:isolated_buf_list
-      if buf_num != delbuf_num
-        call add(temp, buf_num)
-      endif
-    endfor
-    let t:isolated_buf_list = temp
+    let delbuf_idx = match(t:isolated_buf_list, a:nr)
+    if delbuf_idx >= 0
+      call remove(t:isolated_buf_list, delbuf_idx)
+    endif
   endif
 endfunction
 
@@ -1677,7 +1680,7 @@ function! s:isolate_tab_do(order)
 endfunction
 
 au vimrc BufEnter,BufWinEnter,BufFilePost * call s:isolate_tab_add()
-au vimrc BufDelete * call s:isolate_tab_delete()
+au vimrc BufDelete * call s:isolate_tab_delete(expand("<abuf>"))
 command! -nargs=? IsolateTabNext call s:isolate_tab_next(<args>)
 command! -nargs=? IsolateTabPrevious call s:isolate_tab_previous(<args>)
 command! -nargs=1 IsolateTabDo call s:isolate_tab_do(<args>)
@@ -1738,7 +1741,7 @@ cnoremap <Down> <C-n>
 nnoremap Y y$
 
 " move cursor to the end of selected area after yank
-xnoremap Y ygv<Esc>
+xnoremap Y y`>
 
 " line-break without any change to current line in insert mode
 inoremap <C-j> <Esc>o
@@ -1827,6 +1830,7 @@ nnoremap <M-d> "_
 " "}}}
 
 " kind-f
+" To tell the truth, it is not so useful. I realize that after finished to write.
 function! s:kind_f(mode)  "{{{
   let line = line('.')
   let col  = col('.')
@@ -1892,16 +1896,37 @@ nnoremap <expr> T <SID>kind_f('T')
 " I think macros can be regarded as keymappings which can be re-written
 " casually and instantly starting from '@' prefix.
 
-" increment big number
-call setreg('a', "0t.7hi \<Esc>t.\<C-a>F xj")
-call setreg('x', "0t.7hi \<Esc>t.\<C-x>F xj")
-" copy&paste   original : call setreg('u', "\<Esc>:let @u='\"=@u[11:]\<C-v>\<CR>p`u'\<CR>gv\"Uy")
-call setreg('u', "\<Esc>:let @u='\"\<Del>=@u[13:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
-call setreg('i', "\<Esc>:let @i='\"\<Del>=@i[13:]\<C-v>\<CR>p1000fa'\<CR>gv\"iy")
+" Is there any difference between the descriptions like 'let @a = "hoge"' and
+" 'call setreg('a', "hoge")'?
+
+" presets
+function! s:preset_macros(...)
+  let g:macros   = {}
+  " increment file number
+  let g:macros.a = "0t.7hi \<Esc>t.\<C-a>F xj"
+  let g:macros.x = "0t.7hi \<Esc>t.\<C-x>F xj"
+  " delete spaces at line-end
+  let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>`]"
+  " call unite for pasting what I want
+  let g:macros.p = ":Unite register history/yank\<CR>"
+  " copy selected area & paste. (a kind of joke)   original : call setreg('u', "\<Esc>:let @u='\"=@u[15:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
+  let g:macros.u = "\<Esc>:let @u='\"\<Del>=@u[17:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy"
+
+  let targets = (a:0 > 0) ? split(a:1, '\zs') : keys(g:macros)
+
+  for target in targets
+    if has_key(g:macros, target)
+      execute "let @" . target . " = '" . substitute(g:macros[target], "'", "''", 'g') . "'"
+    endif
+  endfor
+endfunction
+
+command! -nargs=1 PresetMacros call s:preset_macros()
+call s:preset_macros()
 "}}}
 "***** playpit ***** {{{
-onoremap <silent> if <Esc>:call Textobj_vim('o')<CR>
-xnoremap <silent> if <Esc>:call Textobj_vim('x')<CR>
+onoremap <silent> iF <Esc>:call Textobj_vim('o')<CR>
+xnoremap <silent> iF <Esc>:call Textobj_vim('x')<CR>
 
 function! Textobj_vim(mode)
   " What kinds of characters can be used for <Plug>?
@@ -1918,7 +1943,7 @@ function! Textobj_vim(mode)
 
   if output.column > 0
     " derive the matched pattern
-    let matched_pattern = output.patterns[match(output.candidates, output.column)][0]
+    let matched_pattern = output.candidates[1][match(output.candidates[0], output.column)][0]
 
     " re-set operator or re-entering to the visual mode (if necessary)
     if a:mode ==# 'o'
@@ -1944,9 +1969,9 @@ function! Speed_gun(...)
   let l:count = a:0 > 0 ? a:1 : 10
   let g:time = []
   while l:count > 0
-    normal! $
+    normal! 0
     let start_time = reltime()
-    normal <M-l>
+    execute "normal \<M-l>"
     let g:time += [reltimestr(reltime(start_time))]
     let l:count -= 1
   endwhile
