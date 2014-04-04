@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 29-Mar-2014.
+" Last Change: 04-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -60,13 +60,12 @@ NeoBundle       'kana/vim-operator-replace'
 NeoBundle       'kana/vim-smartinput'
 NeoBundle       'kana/vim-submode'
 NeoBundle       'kana/vim-surround'
-NeoBundle       'kana/vim-textobj-function'
 NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'kana/vim-textobj-underscore'
 NeoBundle       'machakann/vim-columnmove'
-NeoBundle       'machakann/vim-patternjump'
+" NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'osyo-manga/vim-operator-jump_side'
@@ -167,8 +166,6 @@ endif
 let g:smartinput_no_default_key_mappings = 1
 
 if neobundle#tap('vim-smartinput')
-  call smartinput#clear_rules()
-
   " I know following description is too lengthy, but otherwise I would be not
   " able to review them...
 
@@ -223,6 +220,9 @@ if neobundle#tap('vim-smartinput')
     call smartinput#map_to_trigger('c', item[0], item[1], item[2])
   endfor
   unlet item
+
+  " clear default rules
+  call smartinput#clear_rules()
 
   let rules = []
 
@@ -286,6 +286,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '&', 'at': ' && \%#', 'input': '<BS><BS><BS><BS>&&',     'mode': 'i'},
         \       {'char': '&', 'at': '&&\+\%#', 'input': '&',                      'mode': 'i'},
         \       {'char': '&', 'at': ' &\%#\S', 'input': '& ',                     'mode': 'i'},
+        \       {'char': '&', 'at': ' &\%#$',  'input': '& ',                     'mode': 'i'},
         \       {'char': '&', 'at': '\S&\%# ', 'input': '<BS> &&<Right>',         'mode': 'i'},
         \       {'char': '&', 'at': ' &\%# ',  'input': '&<Right>',               'mode': 'i'},
         \      ]
@@ -297,6 +298,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '<Bar>', 'at': ' || \%#', 'input': '<BS><BS><BS><BS>||', 'mode': 'i'},
         \       {'char': '<Bar>', 'at': '||\+\%#', 'input': '|',                  'mode': 'i'},
         \       {'char': '<Bar>', 'at': ' |\%#\S', 'input': '| ',                 'mode': 'i'},
+        \       {'char': '<Bar>', 'at': ' |\%#$',  'input': '| ',                 'mode': 'i'},
         \       {'char': '<Bar>', 'at': '\S|\%# ', 'input': '<BS> ||<Right>',     'mode': 'i'},
         \       {'char': '<Bar>', 'at': ' |\%# ',  'input': '|<Right>',           'mode': 'i'},
         \      ]
@@ -341,10 +343,6 @@ if neobundle#tap('vim-smartinput')
         \      ]
 
   " smart '<CR>' input
-  let rules += [
-        \       {'char': '<Plug>(smartinput_CR)', 'at': '(\%#)',     'input': '<CR><Enter><Up><Esc>"_S'},
-        \       {'char': '<Plug>(smartinput_CR)', 'at': '{\%#}',     'input': '<CR><CR><Up><Esc>"_S'},
-        \      ]
   " delete line end spaces when line-breaking
   let rules += [{'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call setline(line(''.'')-1, substitute(getline(line(''.'')-1), ''\s\+$'', '''', ''''))<CR>'}]
 
@@ -973,7 +971,7 @@ if neobundle#tap('unite.vim')
   nmap     <Space>u [Unite]
   nnoremap [Unite]u :Unite<Space>
   nnoremap [Unite]c :Unite history/command command<CR>
-  nnoremap [Unite]y :Unite history/yank<CR>
+  nnoremap [Unite]y :Unite register history/yank<CR>
   nnoremap [Unite]m :Unite file_mru<CR>
   nnoremap [Unite]b :Unite buffer_tab<CR>
   nnoremap [Unite]h :Unite help:ja help<CR>
@@ -1177,60 +1175,17 @@ set timeoutlen=2000                 " The time in milliseconds that is waited fo
 set viminfo+=n$USERCACHEDIR/viminfo.txt
                                     " assign path to viminfo file
 
-" set encoding{{{
-if &encoding !=# 'utf-8'
-  set encoding=japan
-  set fileencoding=japan
+" encoding and file format
+if has('win64') || has('win32')
+  set encoding=cp932
+  set fileformat=dos
+else
+  set encoding=utf-8
+  set fileformat=unix
 endif
-if has('iconv')
-  let s:enc_euc = 'euc-jp'
-  let s:enc_jis = 'iso-2022-jp'
-  if iconv("\x87\x64\x87\x6a", 'cp932', 'eucjp-ms') ==# "\xad\xc5\xad\xcb"
-    let s:enc_euc = 'eucjp-ms'
-    let s:enc_jis = 'iso-2022-jp-3'
-  elseif iconv("\x87\x64\x87\x6a", 'cp932', 'euc-jisx0213') ==# "\xad\xc5\xad\xcb"
-    let s:enc_euc = 'euc-jisx0213'
-    let s:enc_jis = 'iso-2022-jp-3'
-  endif
-  if &encoding ==# 'utf-8'
-    let s:fileencodings_default = &fileencodings
-    let &fileencodings = s:enc_jis .','. s:enc_euc .',cp932'
-    let &fileencodings = &fileencodings .','. s:fileencodings_default
-    unlet s:fileencodings_default
-  else
-    let &fileencodings = &fileencodings .','. s:enc_jis
-    set fileencodings+=utf-8,ucs-2le,ucs-2
-    if &encoding =~# '^\(euc-jp\|euc-jisx0213\|eucjp-ms\)$'
-      set fileencodings+=cp932
-      set fileencodings-=euc-jp
-      set fileencodings-=euc-jisx0213
-      set fileencodings-=eucjp-ms
-      let &encoding = s:enc_euc
-      let &fileencoding = s:enc_euc
-    else
-      let &fileencodings = &fileencodings .','. s:enc_euc
-    endif
-  endif
-  unlet s:enc_euc
-  unlet s:enc_jis
-endif
-if has('autocmd')
-  function! AU_ReCheck_FENC()
-    if &fileencoding =~# 'iso-2022-jp' && search("[^\x01-\x7e]", 'n') == 0
-      let &fileencoding=&encoding
-    endif
-  endfunction
-  autocmd BufReadPost * call AU_ReCheck_FENC()
-endif
-if has('unix')
-  set fileformats=unix,dos,mac
-elseif has('win32') || has('win64')
-  set fileformats=dos,unix,mac
-endif
-if exists('&ambiwidth')
-  set ambiwidth=double
-endif
-"}}}
+
+set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
+set fileformats=unix,dos
 
 " always set current directory to the directory of current file
 " au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
@@ -1247,9 +1202,9 @@ autocmd vimrc CmdwinEnter * call s:init_cmdwin()
 function! s:init_cmdwin()
   nnoremap <buffer> q :<C-u>quit<CR>
   nnoremap <buffer> <CR> i<CR>
-  inoremap <buffer><expr><CR> pumvisible() ? "\<C-y>\<CR>" : "\<CR>"
-  inoremap <buffer><expr><C-h> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
-  inoremap <buffer><expr><BS> pumvisible() ? "\<C-y>\<C-h>" : "\<C-h>"
+  inoremap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)>"
+  inoremap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)>"
+  inoremap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)>"
 
   setlocal iminsert=0
 endfunction
@@ -1277,7 +1232,12 @@ set smartcase                       " do not ignore upper/lower case when search
 set wrapscan                        " go back to the top candidate after getting to the end of file
 if has('migemo')
   set migemo                        " use g? sequence of migemo
-  set migemodict=$USERDIR/dict/utf-8/migemo-dict
+
+  if &encoding == 'cp932'
+    set migemodict=$USERDIR/dict/cp932/migemo-dict
+  else
+    set migemodict=$USERDIR/dict/utf-8/migemo-dict
+  endif
 endif
 "}}}
 "***** editing configuration ***** {{{
@@ -1287,7 +1247,7 @@ set backspace=indent,eol,start      " allow backspace key to delete indent and b
 set cindent                         " use c style indentation
 set expandtab                       " use soft tabs
 set formatoptions+=mM               " handle line-breaking appropriately also with multi-byte
-set nrformats=alpha,hex             " use increment/decrement keys (<C-a>/<C-x>) also with alphabet and hex number
+set nrformats=hex                   " do not use increment/decrement keys (<C-a>/<C-x>) for octal numbers and alphabets
 set switchbuf=useopen,usetab        " switch to it when trying to open file which has already opened elsewhere
 set showmatch                       " emphasize correspondent parenthesis
 set shiftwidth=4                    " indent width
@@ -1304,18 +1264,6 @@ autocmd vimrc BufReadPost *
   \   exe "normal! g`\"" |
   \ endif
 
-" Enable omni completion.
-autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType python setlocal omnifunc=jedi#completions
-autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-
-" use syntax completion if nothing is assigned to omnifunc option
-" autocmd FileType *
-"   \ if &l:omnifunc == '' |
-"   \   setlocal omnifunc=syntaxcomplete#Complete |
-"   \ endif
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
@@ -1382,8 +1330,8 @@ autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
 
 "*** FORTRAN ***"
 let g:fortran_free_source = 1
-autocmd vimrc FileType fortran setlocal shiftwidth=4
-autocmd vimrc FileType fortran setlocal softtabstop=4
+autocmd vimrc FileType fortran setlocal shiftwidth=2
+autocmd vimrc FileType fortran setlocal softtabstop=2
 autocmd vimrc FileType fortran compiler gfortran
 autocmd vimrc FileType fortran let b:fortran_fold=1
 autocmd vimrc FileType fortran let b:fortran_more_precise=1
@@ -1396,6 +1344,9 @@ autocmd vimrc FileType matlab setlocal softtabstop=4
 autocmd vimrc FileType matlab setlocal shiftwidth=4
 autocmd vimrc FileType matlab syn keyword matlabfunc syms solve colormap
 autocmd vimrc FileType matlab setlocal commentstring=%%s
+
+"*** python ***"
+autocmd FileType python setlocal omnifunc=jedi#completions
 
 "*** vim ***"
 autocmd vimrc FileType vim setlocal softtabstop=2
@@ -1447,18 +1398,37 @@ autocmd vimrc FileType tex setlocal iminsert=0
 autocmd vimrc FileType tex setlocal spellcapcheck
 
 "*** quickfix ***"
-autocmd vimrc FileType qf call s:qf_resize()
+autocmd vimrc FileType        qf call s:qf_resize()
+autocmd vimrc QuickFixCmdPost *  call s:qf_cmdpost()
 
 function! s:qf_resize()
-  let Nerror = len(getqflist())
-  if Nerror > 0
-    let maximum = floor(winheight(bufnr("#")) / 3)
+  let qflist = getqflist()
 
-    if Nerror > maximum
-      execute 'resize ' . maximum
-    else
-      execute 'resize ' . Nerror
+  " validation check of qflist
+  let validation = filter(qflist, 'v:val["valid"] > 0')
+
+  if validation != []
+    let Nerror = len(qflist)
+    if Nerror > 0
+      let maximum = float2nr(&lines / 3)
+
+      if Nerror > maximum
+        execute 'resize ' . maximum
+      else
+        execute 'resize ' . Nerror
+      endif
     endif
+  endif
+endfunction
+
+function! s:qf_cmdpost()
+  let qflist = getqflist()
+
+  if len(qflist) == 0
+    cclose
+  elseif exists(':HierUpdate') == 2
+    HierUpdate
+    copen
   endif
 endfunction
 
@@ -1504,7 +1474,7 @@ endfunction
 "***** user defined commands ***** {{{
 "-------------------------------------------------------------------------
 "*** edit japanese *** {{{
-command! -nargs=0 EditJapaneseTXT :call <SID>edit_ja()
+command! -nargs=0 EditJapaneseTXT :call s:edit_ja()
 function! s:edit_ja()
   setlocal wrap                     " use wrap in long line
   setlocal iminsert=2               " turn on ime when getting into insert mode
@@ -1516,7 +1486,7 @@ function! s:edit_ja()
     let JpCountOverChars = 1
   endif
 
-  if has('kaoriya')
+  if has('kaoriya') || has('gui_running')
     setlocal ambiwidth=auto         " cursor displaying optimization
   else
     setlocal ambiwidth=double
@@ -1524,7 +1494,7 @@ function! s:edit_ja()
 endfunction
 "}}}
 "*** edit english ***""{{{
-command! -nargs=0 EditEnglishTXT :call <SID>edit_en()
+command! -nargs=0 EditEnglishTXT :call s:edit_en()
 function! s:edit_en()
   setlocal wrap                     " use wrap in long line
   setlocal iminsert=0               " turn off ime when getting into insert mode
@@ -1607,13 +1577,14 @@ endfunction "}}}
 command! -nargs=+ RegExchange call RegExchange(<f-args>)
 "}}}
 "isolate-tab {{{
-"TODO
+" TODO
 " unite source... -> found it : buffer_tab
 " IsolateTabBuffers command
 
-let g:ignore_pattern = ['vimfiler:.*']
+let g:ignore_filename_pattern = ['vimfiler:.*']
+let g:ignore_filetype_pattern = ['qf']
 
-function! s:isolate_tab_add()
+function! s:isolate_tab_add(nr, filename)
   " define 't:isolated_buf_list' in new tab
   if !has_key(t:, 'isolated_buf_list')
     let t:isolated_buf_list = []
@@ -1621,17 +1592,17 @@ function! s:isolate_tab_add()
 
   " check ignore pattern
   let matched = 0
-  for pattern in g:ignore_pattern
-    if bufname("%") !~# pattern
+  for pattern in g:ignore_filename_pattern
+    if a:filename !~# pattern
       let matched = 1
     endif
   endfor
 
   " add new buffer to 't:isolated_buf_list'
   if matched > 0
-    if match(t:isolated_buf_list,bufnr("%")) == -1
-      if buflisted(bufnr("%"))
-        call add(t:isolated_buf_list, bufnr("%"))
+    if match(t:isolated_buf_list, a:nr) == -1
+      if buflisted(a:nr)
+        call add(t:isolated_buf_list, a:nr)
       endif
     endif
   endif
@@ -1679,11 +1650,19 @@ function! s:isolate_tab_do(order)
   endfor
 endfunction
 
-au vimrc BufEnter,BufWinEnter,BufFilePost * call s:isolate_tab_add()
+function! s:isolate_tab_ignore_filetypes()
+  for filetype in g:ignore_filetype_pattern
+    execute 'au vimrc FileType ' . ' call s:isolate_tab_delete(bufnr("%"))'
+  endfor
+endfunction
+
+au vimrc BufAdd    * call s:isolate_tab_add(expand("<abuf>"), expand("<afile>"))
 au vimrc BufDelete * call s:isolate_tab_delete(expand("<abuf>"))
-command! -nargs=? IsolateTabNext call s:isolate_tab_next(<args>)
+call s:isolate_tab_ignore_filetypes()
+
+command! -nargs=? IsolateTabNext     call s:isolate_tab_next(<args>)
 command! -nargs=? IsolateTabPrevious call s:isolate_tab_previous(<args>)
-command! -nargs=1 IsolateTabDo call s:isolate_tab_do(<args>)
+command! -nargs=1 IsolateTabDo       call s:isolate_tab_do(<args>)
 "}}}
 " preferable alternate of help command. {{{
 function! s:pref_alt_help(...)
@@ -1906,9 +1885,7 @@ function! s:preset_macros(...)
   let g:macros.a = "0t.7hi \<Esc>t.\<C-a>F xj"
   let g:macros.x = "0t.7hi \<Esc>t.\<C-x>F xj"
   " delete spaces at line-end
-  let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>`]"
-  " call unite for pasting what I want
-  let g:macros.p = ":Unite register history/yank\<CR>"
+  let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>j"
   " copy selected area & paste. (a kind of joke)   original : call setreg('u', "\<Esc>:let @u='\"=@u[15:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
   let g:macros.u = "\<Esc>:let @u='\"\<Del>=@u[17:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy"
 
@@ -1934,16 +1911,18 @@ function! Textobj_vim(mode)
 
   " A kind of workaround
   " need the equivalent option with the 'c' flag of search() function
+  let slipped = 0
   if col('.') != 1
     normal! h
+    let slipped = 1
   endif
 
   " search for the target
-  let output = patternjump#forward('n', [[], patterns], v:count1, {'raw' : 2, 'highlight' : 0, 'caching' : 0, 'debug_mode' : 0})
+  let output = patternjump#forward('n', [[], patterns], v:count1, {'raw' : 2, 'highlight' : 0, 'caching' : 0, 'debug_mode' : 0, 'wrap_line' : 0, 'move_afap' : 0})
 
-  if output.column > 0
+  if output.destination[0][1] > 0
     " derive the matched pattern
-    let matched_pattern = output.candidates[1][match(output.candidates[0], output.column)][0]
+    let matched_pattern = output.candidates[match(map(copy(output.candidates), 'v:val[0][1]'), output.destination[0][1])][1]
 
     " re-set operator or re-entering to the visual mode (if necessary)
     if a:mode ==# 'o'
@@ -1961,6 +1940,10 @@ function! Textobj_vim(mode)
 
     if a:mode ==# 'o'
       let &virtualedit = virtualedit
+    endif
+  else
+    if slipped
+      normal! l
     endif
   endif
 endfunction
