@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 04-Apr-2014.
+" Last Change: 05-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -65,7 +65,7 @@ NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'kana/vim-textobj-underscore'
 NeoBundle       'machakann/vim-columnmove'
-" NeoBundle       'machakann/vim-patternjump'
+NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'osyo-manga/vim-operator-jump_side'
