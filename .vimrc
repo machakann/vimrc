@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 05-Apr-2014.
+" Last Change: 08-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -888,7 +888,48 @@ endif
 if neobundle#tap('vim-patternjump')
 "   let g:patternjump_highlight = 1
   let g:patternjump_swap_head_tail = 1
-  let g:patternjump_caching = 1
+  let g:patternjump_caching        = 1
+  let g:patternjump_move_afap      = 1
+
+  let g:patternjump_patterns = {
+    \ '_' : {
+    \   'i' : {
+    \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
+    \     'tail' : ['\<\h\k*\>'],
+    \     },
+    \   'n' : {
+    \     'head' : ['\<\h\k*\>'],
+    \     },
+    \   'x' : {
+    \     'tail' : ['\<\h\k*\>'],
+    \     },
+    \   'o' : {
+    \     'forward'  : {'tail_inclusive' : ['\<\h\k*\>']},
+    \     'backward' : {'head_inclusive' : ['\<\h\k*\>']},
+    \     },
+    \   },
+    \ '*' : {
+    \   'c' : {
+    \     'head' : ['^', ' ', '/', '[A-Z]', ',', ')', ']', '}', '$'],
+    \     },
+    \   },
+    \ 'vim' : {
+    \   'i' : {
+    \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
+    \     'tail' : ['\<\h\k*\>'],
+    \     },
+    \   'n' : {
+    \     'head' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'],
+    \     },
+    \   'x' : {
+    \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'],
+    \     },
+    \   'o' : {
+    \     'forward'  : {'tail_inclusive' : ['\<\h\k*\>']},
+    \     'backward' : {'head_inclusive' : ['\<\h\k*\>']},
+    \     },
+    \   },
+    \ }
 endif
 "}}}
 "*** quickrun.vim *** {{{
@@ -1032,7 +1073,7 @@ endif
 "*** vim-operator-jump_side ***"{{{
 if neobundle#tap('vim-operator-jump_side')
   nmap \h <Plug>(operator-jump-head)
-  nmap \l <Plug>(operator-jump-tail)
+  nmap \t <Plug>(operator-jump-tail)
 endif
 "}}}
 "*** vim-operator-replace *** {{{
@@ -1902,10 +1943,47 @@ command! -nargs=1 PresetMacros call s:preset_macros()
 call s:preset_macros()
 "}}}
 "***** playpit ***** {{{
-onoremap <silent> iF <Esc>:call Textobj_vim('o')<CR>
-xnoremap <silent> iF <Esc>:call Textobj_vim('x')<CR>
+" textobj-functioncall
+" Is there any better idea about the name?
+" There is known problem in operator-pending mode.
+"   -> In the case there is no matched pattern, '*' register is updated by empty string.
+"   -> This contaminates '<' and '>' marks.
+onoremap <silent> if :<C-u>call Textobj_functioncall()<CR>
+xnoremap <silent> if :<C-u>call Textobj_functioncall()<CR>
 
-function! Textobj_vim(mode)
+function! Textobj_functioncall()
+  let orig_pos = [line('.'), col('.')]
+
+  let flag = 'cb'
+  let l:count = 0
+  while l:count < v:count1
+    let head_pos = searchpos('\<\%([abglstvw]:\)\?\h\k*(', flag, orig_pos[0])
+    let flag = 'b'
+    if synIDattr(synIDtrans(synID(head_pos[0], head_pos[1], 1)), "name") !~# '\%(String\|Comment\)'
+      let l:count += 1
+    endif
+  endwhile
+
+  if head_pos != [0, 0]
+    normal! f(
+    let tail_pos = searchpairpos('(', '', ')', '', 'synIDattr(synIDtrans(synID(line("."), col("."), 1)), "name") =~# ''\%(String\|Comment\)''')
+
+    if tail_pos != [0, 0]
+      normal! v
+      call cursor(head_pos)
+    else
+      call cursor(orig_pos)
+    endif
+  else
+    call cursor(orig_pos)
+  endif
+endfunction
+
+" Filetype textobj
+onoremap <silent> iF :<C-u>call Textobj_vim()<CR>
+xnoremap <silent> iF :<C-u>call Textobj_vim()<CR>
+
+function! Textobj_vim()
   " What kinds of characters can be used for <Plug>?
   let patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})', '\<[abglstvw]:\k\+\>']
 
@@ -1924,23 +2002,11 @@ function! Textobj_vim(mode)
     " derive the matched pattern
     let matched_pattern = output.candidates[match(map(copy(output.candidates), 'v:val[0][1]'), output.destination[0][1])][1]
 
-    " re-set operator or re-entering to the visual mode (if necessary)
-    if a:mode ==# 'o'
-      let virtualedit  = &virtualedit
-      let &virtualedit = 'onemore'
-      normal! l
+    " (re-)entering to the visual mode
+    normal! v
 
-      execute 'normal! ' . v:operator . ":call search('" . matched_pattern . "', 'cb', line('.'))\<CR>"
-    elseif a:mode ==# 'x'
-      normal! v
-
-      " move to the head of matched pattern
-      call search(matched_pattern, 'cb', line('.'))
-    endif
-
-    if a:mode ==# 'o'
-      let &virtualedit = virtualedit
-    endif
+    " move to the head of matched pattern
+    call search(matched_pattern, 'cb', line('.'))
   else
     if slipped
       normal! l
@@ -1948,6 +2014,43 @@ function! Textobj_vim(mode)
   endif
 endfunction
 
+" operator-insertion
+" In constraction...
+" It seems there is a misunderstanding about the mark '[' and ']'.
+nnoremap <silent> \i :<C-u>call Operator_insertion_map_clerk('n', 'i')<CR>
+vnoremap <silent> \i :<C-u>call Operator_insertion_map_clerk('v', 'i')<CR>
+nnoremap <silent> \a :<C-u>call Operator_insertion_map_clerk('n', 'a')<CR>
+vnoremap <silent> \a :<C-u>call Operator_insertion_map_clerk('v', 'a')<CR>
+
+function! Operator_insertion_map_clerk(mode, iora)
+  let g:last_insertion = input("Insertion:", "", "buffer")
+
+  if a:iora ==# 'i'
+    set operatorfunc=Operator_insertion
+  elseif a:iora ==# 'a'
+    set operatorfunc=Operator_addition
+  endif
+
+  if a:mode ==# 'v'
+    normal! gv
+  endif
+
+  call feedkeys('g@', 'n')
+endfunction
+
+function! Operator_insertion(type)
+  if g:last_insertion != ''
+    execute "normal! '[i" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount))
+  endif
+endfunction
+
+function! Operator_addition(type)
+  if g:last_insertion != ''
+    execute "normal! ']a" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount))
+  endif
+endfunction
+
+" simple speed checker
 function! Speed_gun(...)
   let l:count = a:0 > 0 ? a:1 : 10
   let g:time = []
