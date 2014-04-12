@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 08-Apr-2014.
+" Last Change: 12-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -68,7 +68,6 @@ NeoBundle       'machakann/vim-columnmove'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'osyo-manga/vim-reanimate'
-NeoBundle       'osyo-manga/vim-operator-jump_side'
 NeoBundle       'rhysd/vim-textobj-word-column'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
@@ -91,6 +90,7 @@ NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'vim-jp/vimdoc-ja'
 NeoBundle       'vim-jp/vital.vim'
+NeoBundle       'yuratomo/dbg.vim'
 
 NeoBundleLazy   'jceb/vim-hier', {
       \ 'autoload' : {
@@ -477,17 +477,17 @@ if neobundle#tap('vim-smartinput')
   "     -[<C-k>]-> \%(#\) -[<C-k>]-> \(#\) -[<C-k>]-> \%(#\)
 
   let rules += [
-        \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',        'mode': ':/?'},
-        \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',        'mode': ':/?'},
-        \       {'char': '<C-k>', 'at': '(\%#',       'input': '<BS>\%(\)<Left><Left>', 'mode': ':/?'},
-        \       {'char': '<C-k>', 'at': '\\%(\%#\\)', 'input': '<Left><BS><Right>',     'mode': ':/?'},
-        \       {'char': '<C-k>', 'at': '\\(\%#\\)',  'input': '<Left>%<Right>',        'mode': ':/?'},
-        \       {'char': '<C-k>', 'at': '\\)\%#',     'input': '<Left><Left>)',         'mode': ':/?'},
-        \       {'char': '<C-k>', 'at': '\[\%#',      'input': '<BS>\[\]<Left><Left>',  'mode': ':/?'},
-        \       {'char': '<C-k>', 'at': '\\]\%#',     'input': '<Left><Left>]',         'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>', 'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',     'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',     'mode': ':/?'},
+        \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',        'mode': 'i:/?'},
+        \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',        'mode': 'i:/?'},
+        \       {'char': '<C-k>', 'at': '(\%#',       'input': '<BS>\%(\)<Left><Left>', 'mode': 'i:/?'},
+        \       {'char': '<C-k>', 'at': '\\%(\%#\\)', 'input': '<Left><BS><Right>',     'mode': 'i:/?'},
+        \       {'char': '<C-k>', 'at': '\\(\%#\\)',  'input': '<Left>%<Right>',        'mode': 'i:/?'},
+        \       {'char': '<C-k>', 'at': '\\)\%#',     'input': '<Left><Left>)',         'mode': 'i:/?'},
+        \       {'char': '<C-k>', 'at': '\[\%#',      'input': '<BS>\[\]<Left><Left>',  'mode': 'i:/?'},
+        \       {'char': '<C-k>', 'at': '\\]\%#',     'input': '<Left><Left>]',         'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>', 'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',     'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',     'mode': 'i:/?'},
         \      ]
 
   " filetype option
@@ -769,6 +769,14 @@ if neobundle#tap('vim-columnmove')
   let g:columnmove_fold_open = {'x' : &foldnestmax}
 endif
 "}}}
+"*** dbg.vim *** {{{
+if neobundle#tap('dbg.vim')
+  let g:dbg#command_shell = 'cmd.exe'
+  let g:dbg#shell_prompt = '> '
+
+  let g:dbg#command_gdb = 'gdb'
+endif
+"}}}
 "*** indent_guides.vim *** {{{
 if neobundle#tap('vim-indent-guides')
   let g:indent_guides_enable_on_vim_startup = 1
@@ -904,8 +912,8 @@ if neobundle#tap('vim-patternjump')
     \     'tail' : ['\<\h\k*\>'],
     \     },
     \   'o' : {
-    \     'forward'  : {'tail_inclusive' : ['\<\h\k*\>']},
-    \     'backward' : {'head_inclusive' : ['\<\h\k*\>']},
+    \     'forward'  : {'head' : [',', ')', ']', '}', '$']},
+    \     'backward' : {'head_inclusive' : ['^\s*\zs\S']},
     \     },
     \   },
     \ '*' : {
@@ -1063,19 +1071,6 @@ if neobundle#tap('vim-reanimate')
   nnoremap <Space>ur :Unite reanimate<CR>
 endif
 "}}}
-"*** ref.vim *** {{{
-" if neobundle#tap('vim-ref')
-"   let g:ref_cache_dir = $USERCACHEDIR . '/.ref'
-"   let g:ref_pydoc_cmd = 'pydoc'
-"   let g:ref_source_webdict_cmd = 'lynx -cfg "C:\Program Files (x86)\Lynx for Win32\lynx.cfg" -dump %s'
-" endif
-"}}}
-"*** vim-operator-jump_side ***"{{{
-if neobundle#tap('vim-operator-jump_side')
-  nmap \h <Plug>(operator-jump-head)
-  nmap \t <Plug>(operator-jump-tail)
-endif
-"}}}
 "*** vim-operator-replace *** {{{
 if neobundle#tap('vim-operator-replace')
   map _ <Plug>(operator-replace)
@@ -1217,16 +1212,15 @@ set viminfo+=n$USERCACHEDIR/viminfo.txt
                                     " assign path to viminfo file
 
 " encoding and file format
+set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
+
 if has('win64') || has('win32')
   set encoding=cp932
-  set fileformat=dos
+  set fileformats=dos,unix
 else
   set encoding=utf-8
-  set fileformat=unix
+  set fileformats=unix,dos
 endif
-
-set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
-set fileformats=unix,dos
 
 " always set current directory to the directory of current file
 " au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
@@ -1360,38 +1354,21 @@ let &stl.="COL %c%V |"
 " These settings would be moved to ftplugin/$filetype.vim gradually
 "-------------------------------------------------------------------------
 "*** AutoHotkey ***
-autocmd vimrc FileType autohotkey setlocal dictionary+=$USERDIR/dict/AHK.dict
-autocmd vimrc FileType autohotkey setlocal foldmethod=marker
-autocmd vimrc FileType autohotkey setlocal commentstring=;%s
+autocmd vimrc FileType autohotkey setlocal dictionary+=$USERDIR/dict/AHK.dict foldmethod=marker commentstring=;%s
 
 "*** scilab ***"
-autocmd vimrc FileType scilab setlocal softtabstop=4
-autocmd vimrc FileType scilab setlocal shiftwidth=4
 autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
 
 "*** FORTRAN ***"
-let g:fortran_free_source = 1
-autocmd vimrc FileType fortran setlocal shiftwidth=2
-autocmd vimrc FileType fortran setlocal softtabstop=2
-autocmd vimrc FileType fortran compiler gfortran
-autocmd vimrc FileType fortran let b:fortran_fold=1
-autocmd vimrc FileType fortran let b:fortran_more_precise=1
 autocmd BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
-" au vimrc FileType fortran setlocal textwidth=72
-
-"*** matlab ***"
-autocmd vimrc FileType matlab compiler mlint
-autocmd vimrc FileType matlab setlocal softtabstop=4
-autocmd vimrc FileType matlab setlocal shiftwidth=4
-autocmd vimrc FileType matlab syn keyword matlabfunc syms solve colormap
-autocmd vimrc FileType matlab setlocal commentstring=%%s
+                              \| let b:fortran_fold=1
+                              \| let b:fortran_more_precise=1
 
 "*** python ***"
 autocmd FileType python setlocal omnifunc=jedi#completions
 
 "*** vim ***"
-autocmd vimrc FileType vim setlocal softtabstop=2
-autocmd vimrc FileType vim setlocal shiftwidth=2
+autocmd vimrc FileType vim setlocal softtabstop=2 shiftwidth=2
 
 "*** help ***"
 autocmd vimrc FileType help vertical resize 78
@@ -1409,16 +1386,14 @@ function! s:help_bootstrap()
 endfunction
 
 function! s:help_conf_optimizer()
-  if (&buftype ==# 'help') && !(exists('s:sidescrolloff') && exists('s:sidescroll') && (s:sidescrolloff == 0) && (s:sidescroll == 1))
+  if (&buftype ==# 'help') && !(exists('s:sidescrolloff') && exists('s:sidescroll') && (&sidescrolloff == 0) && (&sidescroll == 1))
+    let s:sidescroll    = &sidescroll
     let s:sidescrolloff = &sidescrolloff
-    set sidescrolloff=0
-
-    let s:sidescroll = &sidescroll
-    set sidescroll=1
+    let &sidescroll     = 1
+    let &sidescrolloff  = 0
   elseif (&buftype !=# 'help') && exists("s:sidescroll")
-    let &sidescrolloff = s:sidescrolloff
-    let &sidescroll = s:sidescroll
-
+    let &sidescroll     = s:sidescroll
+    let &sidescrolloff  = s:sidescrolloff
     unlet s:sidescrolloff
     unlet s:sidescroll
   endif
@@ -1430,13 +1405,10 @@ endfunction
 autocmd vimrc FileType int-maxima nnoremap <buffer> yy 0f<Space>ly$G0f<Space>"_d$a<Space><C-r>*
 
 "*** markdown ***"
-autocmd vimrc FileType markdown setlocal wrap
-autocmd vimrc FileType markdown setlocal iminsert=0
+autocmd vimrc FileType markdown setlocal wrap iminsert=0
 
 "*** tex ***"
-autocmd vimrc FileType tex setlocal wrap
-autocmd vimrc FileType tex setlocal iminsert=0
-autocmd vimrc FileType tex setlocal spellcapcheck
+autocmd vimrc FileType tex setlocal wrap iminsert=0 spellcapcheck
 
 "*** quickfix ***"
 autocmd vimrc FileType        qf call s:qf_resize()
@@ -1467,8 +1439,10 @@ function! s:qf_cmdpost()
 
   if len(qflist) == 0
     cclose
-  elseif exists(':HierUpdate') == 2
-    HierUpdate
+  else
+    if exists(':HierUpdate') == 2
+      HierUpdate
+    endif
     copen
   endif
 endfunction
@@ -1634,15 +1608,15 @@ function! s:isolate_tab_add(nr, filename)
   " check ignore pattern
   let matched = 0
   for pattern in g:ignore_filename_pattern
-    if a:filename !~# pattern
+    if a:filename =~# pattern
       let matched = 1
     endif
   endfor
 
   " add new buffer to 't:isolated_buf_list'
-  if matched > 0
+  if matched == 0
     if match(t:isolated_buf_list, a:nr) == -1
-      if buflisted(a:nr)
+      if !buflisted(a:nr)
         call add(t:isolated_buf_list, a:nr)
       endif
     endif
@@ -1916,9 +1890,6 @@ nnoremap <expr> T <SID>kind_f('T')
 " I think macros can be regarded as keymappings which can be re-written
 " casually and instantly starting from '@' prefix.
 
-" Is there any difference between the descriptions like 'let @a = "hoge"' and
-" 'call setreg('a', "hoge")'?
-
 " presets
 function! s:preset_macros(...)
   let g:macros   = {}
@@ -1927,6 +1898,8 @@ function! s:preset_macros(...)
   let g:macros.x = "0t.7hi \<Esc>t.\<C-x>F xj"
   " delete spaces at line-end
   let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>j"
+  " change the type of v:register content to linewise type
+  let g:macros.l = ":call setreg(v:register, getreg(), 'l')\<CR>"
   " copy selected area & paste. (a kind of joke)   original : call setreg('u', "\<Esc>:let @u='\"=@u[15:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
   let g:macros.u = "\<Esc>:let @u='\"\<Del>=@u[17:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy"
 
@@ -1939,43 +1912,72 @@ function! s:preset_macros(...)
   endfor
 endfunction
 
-command! -nargs=1 PresetMacros call s:preset_macros()
+command! -nargs=? PresetMacros call s:preset_macros()
 call s:preset_macros()
 "}}}
 "***** playpit ***** {{{
 " textobj-functioncall
 " Is there any better idea about the name?
-" There is known problem in operator-pending mode.
-"   -> In the case there is no matched pattern, '*' register is updated by empty string.
-"   -> This contaminates '<' and '>' marks.
-onoremap <silent> if :<C-u>call Textobj_functioncall()<CR>
-xnoremap <silent> if :<C-u>call Textobj_functioncall()<CR>
+" There are known problems in operator-pending mode.
+"   -> In the case there is no matched pattern, v:register is updated by empty string.
+"   -> This contaminates '<' and '>' marks. But I think there is no any other better way.
 
-function! Textobj_functioncall()
-  let orig_pos = [line('.'), col('.')]
+" 'if' and 'af' behave differently when the cursor is on a string literal.
+" 'if' can also affect to function calls inside the string literal.
+" 'af' always ignore the string literal region.
+" 'if' might not be always correct...
 
-  let flag = 'cb'
+"                                 #              : cursor position
+" call map(['1', '3', '2'], 'sugoi_func(v:val)')
+"
+"                            |<-------if------>|
+" call map(['1', '3', '2'], 's:sugoi_func(v:val)')
+"      |<------------------af------------------->|
+
+onoremap <silent> if :<C-u>call Textobj_functioncall('i')<CR>
+xnoremap <silent> if :<C-u>call Textobj_functioncall('i')<CR>
+onoremap <silent> af :<C-u>call Textobj_functioncall('a')<CR>
+xnoremap <silent> af :<C-u>call Textobj_functioncall('a')<CR>
+
+function! Textobj_functioncall(iora)
+  let orig_pos  = [line('.'), col('.')]
+  let judge_syn = (!s:is_string_literal(1, orig_pos) || (a:iora ==# 'a'))
+
+  let flag = 'bc'
   let l:count = 0
   while l:count < v:count1
-    let head_pos = searchpos('\<\%([abglstvw]:\)\?\h\k*(', flag, orig_pos[0])
+    let head_pos = searchpairpos('\<\%(\%([abglstvw]:\)\?\h\k*\)\?(', '', ')', flag, 's:is_string_literal(judge_syn, [line("."), col(".")])', orig_pos[0])
+
+    if head_pos == [0, 0]
+      return
+    endif
+
     let flag = 'b'
-    if synIDattr(synIDtrans(synID(head_pos[0], head_pos[1], 1)), "name") !~# '\%(String\|Comment\)'
-      let l:count += 1
+    if !s:is_string_literal(judge_syn, head_pos)
+      if searchpos('\%([abglstvw]:\)\?\h\k*(', 'bcn', orig_pos[0]) == head_pos
+        let l:count += 1
+      endif
     endif
   endwhile
 
-  if head_pos != [0, 0]
-    normal! f(
-    let tail_pos = searchpairpos('(', '', ')', '', 'synIDattr(synIDtrans(synID(line("."), col("."), 1)), "name") =~# ''\%(String\|Comment\)''')
+  let judge_syn = (!s:is_string_literal(1, head_pos))
 
-    if tail_pos != [0, 0]
-      normal! v
-      call cursor(head_pos)
-    else
-      call cursor(orig_pos)
-    endif
+  normal! f(
+  let tail_pos = searchpairpos('(', '', ')', '', 's:is_string_literal(judge_syn, [line("."), col(".")])')
+
+  if tail_pos != [0, 0]
+    normal! v
+    call cursor(head_pos)
   else
     call cursor(orig_pos)
+  endif
+endfunction
+
+function! s:is_string_literal(flag, pos)
+  if a:flag
+    return synIDattr(synIDtrans(synID(a:pos[0], a:pos[1], 1)), "name") =~# 'String'
+  else
+    return 0
   endif
 endfunction
 
@@ -2015,38 +2017,143 @@ function! Textobj_vim()
 endfunction
 
 " operator-insertion
-" In constraction...
-" It seems there is a misunderstanding about the mark '[' and ']'.
+" To use with textobject 'gn', I optimized the final position of cursor.
+" But now I found the current situation has a problem with 'gN'.
+
+" Solution : Use ':%s/\(bar\)/foo\1/gc' to convert 'bar' to 'foobar'.
+" Shitteta.
+
 nnoremap <silent> \i :<C-u>call Operator_insertion_map_clerk('n', 'i')<CR>
 vnoremap <silent> \i :<C-u>call Operator_insertion_map_clerk('v', 'i')<CR>
 nnoremap <silent> \a :<C-u>call Operator_insertion_map_clerk('n', 'a')<CR>
 vnoremap <silent> \a :<C-u>call Operator_insertion_map_clerk('v', 'a')<CR>
+nnoremap <silent> \p :<C-u>set operatorfunc=Operator_paste_to_tail<CR>g@
+vnoremap <silent> \p <Esc>:set operatorfunc=Operator_paste_to_tail<CR>gvg@
+nnoremap <silent> \P :<C-u>set operatorfunc=Operator_paste_to_head<CR>g@
+vnoremap <silent> \P <Esc>:set operatorfunc=Operator_paste_to_head<CR>gvg@
 
 function! Operator_insertion_map_clerk(mode, iora)
-  let g:last_insertion = input("Insertion:", "", "buffer")
+  let text = input("Insertion:", "", "buffer")
+  let g:last_insertion = (text != '') ? text :
+                       \ exists('g:last_insertion') ? g:last_insertion : ''
 
-  if a:iora ==# 'i'
-    set operatorfunc=Operator_insertion
-  elseif a:iora ==# 'a'
-    set operatorfunc=Operator_addition
+  if g:last_insertion != ''
+    if a:iora ==# 'i'
+      set operatorfunc=Operator_insertion
+    elseif a:iora ==# 'a'
+      set operatorfunc=Operator_addition
+    endif
+
+    if a:mode ==# 'v'
+      normal! gv
+    endif
+
+    call feedkeys('g@', 'n')
   endif
-
-  if a:mode ==# 'v'
-    normal! gv
-  endif
-
-  call feedkeys('g@', 'n')
 endfunction
 
 function! Operator_insertion(type)
-  if g:last_insertion != ''
-    execute "normal! '[i" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount))
+  let head_edge = [line("'["), col("'[")]
+  let tail_edge = [line("']"), col("']")]
+  let final_pos = copy(tail_edge)
+
+  let text = repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount))
+
+  let text_lines = split(text, "\n", 1)
+  let line_inc   = len(text_lines) - 1
+
+  if head_edge[0] == tail_edge[0]
+    if line_inc > 0
+      let final_pos[0] += line_inc
+      let final_pos[1]  = len(get(text_lines, -1, '')) + (tail_edge[1] - head_edge[1]) + 2
+    else
+      let final_pos[0] += line_inc
+      let final_pos[1] += len(get(text_lines, -1, '')) + 1
+    endif
+  else
+    if (col([line("']"), "$"]) - 1) == tail_edge[1]
+      let final_pos[0] += line_inc + 1
+      let final_pos[1]  = 1
+    else
+      let final_pos[0] += line_inc
+      let final_pos[1] += 1
+    endif
   endif
+
+  execute "normal! `[i" . text . "\<Esc>`["
+  call cursor(final_pos)
 endfunction
 
 function! Operator_addition(type)
-  if g:last_insertion != ''
-    execute "normal! ']a" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount))
+  execute "normal! `]a" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount)) . "\<Esc>`["
+endfunction
+
+function! Operator_paste_to_head(type)
+  let reg_value = getreg()
+  let reg_type  = getregtype()
+
+  if reg_type != ""
+    let head_edge = [line("'["), col("'[")]
+    let tail_edge = [line("']"), col("']")]
+    let final_pos = copy(tail_edge)
+
+    if reg_type ==# 'v'
+      " characterwise
+      let text = repeat(reg_value, (v:prevcount == 0 ? 1 : v:prevcount))
+      call setreg(v:register, text, reg_type)
+
+      let text_lines = split(text, "\n", 1)
+      let line_inc   = len(text_lines) - 1
+
+      if head_edge[0] == tail_edge[0]
+        if line_inc > 0
+          let final_pos[0] += line_inc
+          let final_pos[1]  = len(get(text_lines, -1, '')) + (tail_edge[1] - head_edge[1]) + 2
+        else
+          let final_pos[0] += line_inc
+          let final_pos[1] += len(get(text_lines, -1, '')) + 1
+        endif
+      else
+        if (col([line("']"), "$"]) - 1) == tail_edge[1]
+          let final_pos[0] += line_inc + 1
+          let final_pos[1]  = 1
+        else
+          let final_pos[0] += line_inc
+          let final_pos[1] += 1
+        endif
+      endif
+    elseif reg_type ==# "V"
+      " linewise
+      let text = repeat(reg_value, (v:prevcount == 0 ? 1 : v:prevcount))
+      call setreg(v:register, text, reg_type)
+      let final_pos[0] += len(split(reg_value, "\n")) + 1
+      let final_pos[1]  = 0
+    elseif reg_type =~# "\<C-v>\\d\\+"
+      " blockwise
+      let text = join(map(split(reg_value, "\n", 1), 'repeat(v:val, (v:prevcount == 0 ? 1 : v:prevcount))'), "\n")
+      call setreg(v:register, text, reg_type)
+      let final_pos[1] += len(split(text, "\n")[0]) + 1
+    endif
+
+    execute 'normal! `["' . v:register . 'P'
+    call setreg(v:register, reg_value, reg_type)
+    call cursor(final_pos)
+  endif
+endfunction
+
+function! Operator_paste_to_tail(type)
+  let reg_value = getreg()
+  let reg_type  = getregtype()
+
+  if reg_type != ""
+    if reg_type ==? 'v'
+      call setreg(v:register, repeat(reg_value, (v:prevcount == 0 ? 1 : v:prevcount)), reg_type)
+    else
+      call setreg(v:register, join(map(split(reg_value, "\n", 1), 'repeat(v:val, (v:prevcount == 0 ? 1 : v:prevcount)'), "\n"), reg_type)
+    endif
+
+    execute 'normal! `]"' . v:register . 'p`['
+    call setreg(v:register, reg_value, reg_type)
   endif
 endfunction
 
