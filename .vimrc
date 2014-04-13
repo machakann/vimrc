@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 12-Apr-2014.
+" Last Change: 14-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -66,9 +66,12 @@ NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'kana/vim-textobj-underscore'
 NeoBundle       'machakann/vim-columnmove'
 NeoBundle       'machakann/vim-patternjump'
+NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'mattn/learn-vimscript'
+NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'rhysd/vim-textobj-word-column'
+NeoBundle       'rhysd/vim-operator-surround'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
 NeoBundle       'Shougo/neomru.vim'
@@ -81,10 +84,12 @@ NeoBundle       'Shougo/vimproc.vim'            , {
                 \     'mac'     : 'make -f make_mac.mak',
                 \     'unix'    : 'make -f make_unix.mak',
                 \    },}
+NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-unite-history'  , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'thinca/vim-visualstar'
 NeoBundle       'tpope/vim-markdown'
+NeoBundle       'tpope/vim-repeat'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
@@ -354,12 +359,12 @@ if neobundle#tap('vim-smartinput')
         \       {'char':  '"', 'at': '\\\%#',     'input': '"',          'mode': 'i:'},
         \       {'char': '''', 'at': '\w\%#',     'input': '''',         'mode': 'i:'},
         \       {'char': '''', 'at': '\w''\%#''', 'input': '<Del>',      'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',               'input': '""<Left>',   'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',          'input': '""',         'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',         'input': '<Right>',    'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',         'input': '''''<Left>', 'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',                        'input': '""<Left>',   'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',                   'input': '""',         'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',                  'input': '<Right>',    'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',                  'input': '''''<Left>', 'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z]''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z]''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
         \      ]
 
   " correspondent parentheses
@@ -754,6 +759,7 @@ endif
 if neobundle#tap('caw.vim')
   nmap <Space>c <Plug>(caw:I:toggle)
   vmap <Space>c <Plug>(caw:I:toggle)
+  command! -nargs=0 CawToggle normal <Plug>(caw:I:toggle)
 endif
 "}}}
 "*** columnjump *** {{{
@@ -892,6 +898,14 @@ endif
 "   endif
 " endif
 "}}}
+"*** operator-surround *** {{{
+if neobundle#tap('vim-operator-surround')
+  " operator mappings
+  map <silent> sa <Plug>(operator-surround-append)
+  map <silent> sd <Plug>(operator-surround-delete)
+  map <silent> sr <Plug>(operator-surround-replace)
+endif
+"}}}
 "*** patternjump *** {{{
 if neobundle#tap('vim-patternjump')
 "   let g:patternjump_highlight = 1
@@ -957,6 +971,7 @@ if neobundle#tap('vim-quickrun')
         \       'runner/process_manager/prompt': '(%[io]\d\+)'
         \       },
         \ 'markdown' : {
+        \       'type' : 'markdown/gfm',
         \       'outputter': 'browser',
         \       'hook/time/enable' : 0,
         \       },
@@ -1192,6 +1207,7 @@ endif
 "***** fundamentals ***** {{{
 "-------------------------------------------------------------------------
 set backup                          " use backup
+set swapfile                        " use swap file
 set backupdir=$USERCACHEDIR/backup  " assign path to make backup files
 let &directory=&backupdir           " assign that path to make swap files is same as that for backup file
 set clipboard=unnamed               " share clipboard with OS
@@ -1737,6 +1753,9 @@ nnoremap Y y$
 " move cursor to the end of selected area after yank
 xnoremap Y y`>
 
+" line-break even in normal mode
+nnoremap <CR>   i<CR><Esc>
+
 " line-break without any change to current line in insert mode
 inoremap <C-j> <Esc>o
 " inoremap <C-k> <Esc>O
@@ -1751,140 +1770,93 @@ nnoremap <M-a> ea
 " reserve black hole register for the next operator
 nnoremap <M-d> "_
 
-" " enabling 'f' and 't' commands to use string class {{{
-" function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
-"   let line = line('.')
-"   let col  = col('.')
-"   let flag = ''
-"   if a:is_capital
-"     let flag .= 'b'
-"   endif
-"
-"   let l:count = 0
-"   while l:count < v:count1
-"     let l:count += 1
-"     let dest = searchpos(a:pattern, flag, line)[1]
-"   endwhile
-"
-"   if dest > 0
-"     if a:is_capital
-"       if a:is_t
-"         let displ = col - dest + 1
-"       else
-"         let displ = col - dest
-"       endif
-"
-"       let key = 'h'
-"     else
-"       if a:is_t
-"         let displ = dest - col - 1
-"       else
-"         let displ = dest - col
-"       endif
-"
-"       let key = 'l'
-"     endif
-"
-"     if a:mode ==# 'n'
-"       let command = "\<Esc>" . displ . key
-"     elseif a:mode ==# 'v'
-"       let command = "oo" . displ . key
-"     endif
-"   else
-"     if a:mode ==# 'n'
-"       let command = "\<Esc>"
-"     elseif a:mode ==# 'v'
-"       let command = "oo"
-"     endif
-"   endif
-"
-"   return command
-" endfunction
-"
-" nnoremap f\\ f\
-" nnoremap F\\ F\
-" nnoremap t\\ t\
-" nnoremap T\\ T\
-" xnoremap f\\ f\
-" xnoremap F\\ F\
-" xnoremap t\\ t\
-" xnoremap T\\ T\
-" let string_class = [ '\i',  '\I',  '\k',  '\K',  '\f',  '\F',  '\p',  '\P',  '\s',  '\S',  '\d',  '\D',  '\x',  '\X',  '\o',  '\O',  '\w',  '\W',  '\h',  '\H',  '\a',  '\A',  '\l',  '\L',  '\u',  '\U',
-"       \             '\_i', '\_I', '\_k', '\_K', '\_f', '\_F', '\_p', '\_P', '\_s', '\_S', '\_d', '\_D', '\_x', '\_X', '\_o', '\_O', '\_w', '\_W', '\_h', '\_H', '\_a', '\_A', '\_l', '\_L', '\_u', '\_U' ]
-" for key in string_class
-"   execute 'nmap <expr> f' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 0)"
-"   execute 'nmap <expr> t' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 0)"
-"   execute 'nmap <expr> F' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 1)"
-"   execute 'nmap <expr> T' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 1)"
-"   execute 'xmap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
-"   execute 'xmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
-"   execute 'xmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
-"   execute 'xmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
-" endfor
-" "}}}
+" line-break for upper direction with hanging a following part
+" nnoremap <S-CR> DO<C-r>*<Esc>^
+" inoremap <S-CR> <Esc>lDO<C-r>*<Esc>I
+nnoremap <silent> <S-CR> :<C-u>call Linebreak_udhfp()<CR>
+inoremap <silent> <S-CR> <Esc>l:call Linebreak_udhfp()<CR>i
 
-" kind-f
-" To tell the truth, it is not so useful. I realize that after finished to write.
-function! s:kind_f(mode)  "{{{
+" countermeasure for flickering
+function! Linebreak_udhfp()
+  let a = @*
+
+  execute 'normal! "aDO' . "\<C-r>" . 'a' . "\<Esc>" . '^'
+
+  let @a = a
+  return ''
+endfunction
+
+" enabling 'f' and 't' commands to use string class {{{
+function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
   let line = line('.')
   let col  = col('.')
-
-  if a:mode =~# '[ft]'
-    let chars = split(getline('.')[col :], '\zs')
-  elseif a:mode =~# '[FT]'
-    let chars = reverse(split(getline('.')[:col-2], '\zs'))
+  let flag = ''
+  if a:is_capital
+    let flag .= 'b'
   endif
 
-  let uniq_chars = g:Sl.uniq_by(copy(chars), 'v:val')
+  let l:count = 0
+  while l:count < v:count1
+    let l:count += 1
+    let dest = searchpos(a:pattern, flag, line)[1]
+  endwhile
 
-  if a:mode =~# '[ft]'
-    let indexes = filter(map(copy(uniq_chars), 'match(chars, v:val, 0, v:count1) + col'), 'v:val > col')
-  elseif a:mode =~# '[FT]'
-    let indexes = filter(map(copy(uniq_chars), 'col - match(chars, v:val, 0, v:count1) - 2'), 'v:val < col-1')
+  if dest > 0
+    if a:is_capital
+      if a:is_t
+        let displ = col - dest + 1
+      else
+        let displ = col - dest
+      endif
+
+      let key = 'h'
+    else
+      if a:is_t
+        let displ = dest - col - 1
+      else
+        let displ = dest - col
+      endif
+
+      let key = 'l'
+    endif
+
+    if a:mode ==# 'n'
+      let command = "\<Esc>" . displ . key
+    elseif a:mode ==# 'v'
+      let command = "oo" . displ . key
+    endif
+  else
+    if a:mode ==# 'n'
+      let command = "\<Esc>"
+    elseif a:mode ==# 'v'
+      let command = "oo"
+    endif
   endif
 
-  " highlighting candidates
-  let s:id_list = map(copy(indexes), "s:highlight_add(line, v:val+1)")
-  redraw
-
-  " reserving cleaner
-  augroup kind-f:cleaner
-    au!
-    au CursorMoved,CursorMovedI,WinLeave <buffer> call s:kind_f_cleaner()
-  augroup END
-
-  return a:mode
+  return command
 endfunction
-"}}}
-function! s:kind_f_cleaner() "{{{
-  " delete highlighting
-  call filter(map(s:id_list, "s:highlight_del(v:val)"), 'v:val > 0')
-  redraw
 
-  if s:id_list == []
-    augroup patternjump:cleaner
-      au!
-    augroup END
-  endif
-endfunction
+nnoremap f\\ f\
+nnoremap F\\ F\
+nnoremap t\\ t\
+nnoremap T\\ T\
+xnoremap f\\ f\
+xnoremap F\\ F\
+xnoremap t\\ t\
+xnoremap T\\ T\
+let string_class = [ '\i',  '\I',  '\k',  '\K',  '\f',  '\F',  '\p',  '\P',  '\s',  '\S',  '\d',  '\D',  '\x',  '\X',  '\o',  '\O',  '\w',  '\W',  '\h',  '\H',  '\a',  '\A',  '\l',  '\L',  '\u',  '\U',
+      \             '\_i', '\_I', '\_k', '\_K', '\_f', '\_F', '\_p', '\_P', '\_s', '\_S', '\_d', '\_D', '\_x', '\_X', '\_o', '\_O', '\_w', '\_W', '\_h', '\_H', '\_a', '\_A', '\_l', '\_L', '\_u', '\_U' ]
+for key in string_class
+  execute 'nmap <expr> f' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 0)"
+  execute 'nmap <expr> t' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 0)"
+  execute 'nmap <expr> F' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 1)"
+  execute 'nmap <expr> T' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 1)"
+  execute 'xmap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
+  execute 'xmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
+  execute 'xmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
+  execute 'xmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
+endfor
 "}}}
-function! s:highlight_add(row, col) "{{{
-  let pattern   = '\%' . a:row . 'l\%' . a:col . 'c.'
-  let id = matchadd("IncSearch", pattern)
-  return id
-endfunction
-"}}}
-function! s:highlight_del(id) "{{{
-  let result = matchdelete(a:id)
-
-  let output = (result == 0) ? result : a:id
-  return output
-endfunction
-"}}}
-nnoremap <expr> f <SID>kind_f('f')
-nnoremap <expr> t <SID>kind_f('t')
-nnoremap <expr> F <SID>kind_f('F')
-nnoremap <expr> T <SID>kind_f('T')
 "}}}
 "***** macros ***** {{{
 " I think macros can be regarded as keymappings which can be re-written
@@ -1900,6 +1872,8 @@ function! s:preset_macros(...)
   let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>j"
   " change the type of v:register content to linewise type
   let g:macros.l = ":call setreg(v:register, getreg(), 'l')\<CR>"
+  " Toggle commenting of the lines starting from 'PP' or 'echo'
+  let g:macros.d = ':global/^.\?\s*\%(PP\|echo\)/CawToggle' . "\<CR>``"
   " copy selected area & paste. (a kind of joke)   original : call setreg('u', "\<Esc>:let @u='\"=@u[15:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
   let g:macros.u = "\<Esc>:let @u='\"\<Del>=@u[17:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy"
 
@@ -1916,71 +1890,6 @@ command! -nargs=? PresetMacros call s:preset_macros()
 call s:preset_macros()
 "}}}
 "***** playpit ***** {{{
-" textobj-functioncall
-" Is there any better idea about the name?
-" There are known problems in operator-pending mode.
-"   -> In the case there is no matched pattern, v:register is updated by empty string.
-"   -> This contaminates '<' and '>' marks. But I think there is no any other better way.
-
-" 'if' and 'af' behave differently when the cursor is on a string literal.
-" 'if' can also affect to function calls inside the string literal.
-" 'af' always ignore the string literal region.
-" 'if' might not be always correct...
-
-"                                 #              : cursor position
-" call map(['1', '3', '2'], 'sugoi_func(v:val)')
-"
-"                            |<-------if------>|
-" call map(['1', '3', '2'], 's:sugoi_func(v:val)')
-"      |<------------------af------------------->|
-
-onoremap <silent> if :<C-u>call Textobj_functioncall('i')<CR>
-xnoremap <silent> if :<C-u>call Textobj_functioncall('i')<CR>
-onoremap <silent> af :<C-u>call Textobj_functioncall('a')<CR>
-xnoremap <silent> af :<C-u>call Textobj_functioncall('a')<CR>
-
-function! Textobj_functioncall(iora)
-  let orig_pos  = [line('.'), col('.')]
-  let judge_syn = (!s:is_string_literal(1, orig_pos) || (a:iora ==# 'a'))
-
-  let flag = 'bc'
-  let l:count = 0
-  while l:count < v:count1
-    let head_pos = searchpairpos('\<\%(\%([abglstvw]:\)\?\h\k*\)\?(', '', ')', flag, 's:is_string_literal(judge_syn, [line("."), col(".")])', orig_pos[0])
-
-    if head_pos == [0, 0]
-      return
-    endif
-
-    let flag = 'b'
-    if !s:is_string_literal(judge_syn, head_pos)
-      if searchpos('\%([abglstvw]:\)\?\h\k*(', 'bcn', orig_pos[0]) == head_pos
-        let l:count += 1
-      endif
-    endif
-  endwhile
-
-  let judge_syn = (!s:is_string_literal(1, head_pos))
-
-  normal! f(
-  let tail_pos = searchpairpos('(', '', ')', '', 's:is_string_literal(judge_syn, [line("."), col(".")])')
-
-  if tail_pos != [0, 0]
-    normal! v
-    call cursor(head_pos)
-  else
-    call cursor(orig_pos)
-  endif
-endfunction
-
-function! s:is_string_literal(flag, pos)
-  if a:flag
-    return synIDattr(synIDtrans(synID(a:pos[0], a:pos[1], 1)), "name") =~# 'String'
-  else
-    return 0
-  endif
-endfunction
-
 " Filetype textobj
 onoremap <silent> iF :<C-u>call Textobj_vim()<CR>
 xnoremap <silent> iF :<C-u>call Textobj_vim()<CR>
