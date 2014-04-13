@@ -59,7 +59,6 @@ NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
 NeoBundle       'kana/vim-smartinput'
 NeoBundle       'kana/vim-submode'
-NeoBundle       'kana/vim-surround'
 NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
@@ -96,6 +95,7 @@ NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'vim-jp/vimdoc-ja'
 NeoBundle       'vim-jp/vital.vim'
 NeoBundle       'yuratomo/dbg.vim'
+NeoBundle       'https://bitbucket.org/anyakichi/vim-textobj-xbrackets'
 
 NeoBundleLazy   'jceb/vim-hier', {
       \ 'autoload' : {
@@ -1164,43 +1164,39 @@ endif
 "}}}
 " *** watchdogs *** {{{
 if neobundle#tap('vim-watchdogs')
-  let bundle = neobundle#get('vim-watchdogs')
-  function! bundle.hooks.on_source(bundle)
-    " add watchdogs configuration to g:quickrun_config
-    let g:quickrun_config['watchdogs_checker/pyflakes'] = {
-          \   'hook/time/enable' : 0,
-          \ }
-    let g:quickrun_config['watchdogs_checker/matlab'] = {
-          \   'command' : 'mlint',
-          \   'exec'    : '%c -id %s:p %s:r',
-          \   'quickfix/errorformat' : '%-P==========\ %f\ ==========,%-G%>==========\ %s\ ==========,%-G%>L\ %l\ (C\ %c):\ MDOTM%m,L\ %l\ (C\ %c):\ %m,L\ %l\ (C\ %c-%*[0-9]):\ %m,%-Q',
-          \   'hook/time/enable' : 0,
-          \ }
-    let g:quickrun_config['matlab/watchdogs_checker'] = {
-          \   'type'    : 'watchdogs_checker/matlab',
-          \ }
+  " add watchdogs configuration to g:quickrun_config
+  let g:quickrun_config['watchdogs_checker/pyflakes'] = {
+        \   'hook/time/enable' : 0,
+        \ }
+  let g:quickrun_config['watchdogs_checker/matlab'] = {
+        \   'command' : 'mlint',
+        \   'exec'    : '%c -id %s:p %s:r',
+        \   'quickfix/errorformat' : '%-P==========\ %f\ ==========,%-G%>==========\ %s\ ==========,%-G%>L\ %l\ (C\ %c):\ MDOTM%m,L\ %l\ (C\ %c):\ %m,L\ %l\ (C\ %c-%*[0-9]):\ %m,%-Q',
+        \   'hook/time/enable' : 0,
+        \ }
+  let g:quickrun_config['matlab/watchdogs_checker'] = {
+        \   'type'    : 'watchdogs_checker/matlab',
+        \ }
 
-    " please refer quickrun section about g:quickrun_config
-    call watchdogs#setup(g:quickrun_config)
+  " please refer quickrun section about g:quickrun_config
+  call watchdogs#setup(g:quickrun_config)
 
-    " run syntax check after writing file
-    let g:watchdogs_check_BufWritePost_enable = 1
-    " filetype settings
-    " let g:watchdogs_check_BufWritePost_enables = {
-    "       \ "python" : 1,
-    "       \ "matlab" : 1,
-    "       \ }
+  " run syntax check after writing file
+  let g:watchdogs_check_BufWritePost_enable = 1
+  " filetype settings
+  " let g:watchdogs_check_BufWritePost_enables = {
+  "       \ "python" : 1,
+  "       \ "matlab" : 1,
+  "       \ }
 
-    " run syntax check after stopping cursor for a while
-    " ! run only once after stopping cursor !
-    let g:watchdogs_check_CursorHold_enable = 0
-    " filetype settings
-    " let g:watchdogs_check_CursorHold_enables = {
-    "       \ "python" : 1,
-    "       \ "matlab" : 0,
-    "       \ }
-  endfunction
-  unlet bundle
+  " run syntax check after stopping cursor for a while
+  " ! run only once after stopping cursor !
+  let g:watchdogs_check_CursorHold_enable = 0
+  " filetype settings
+  " let g:watchdogs_check_CursorHold_enables = {
+  "       \ "python" : 1,
+  "       \ "matlab" : 0,
+  "       \ }
 endif
 "}}}
 "}}}
