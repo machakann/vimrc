@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 20-Apr-2014.
+" Last Change: 21-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -175,7 +175,7 @@ endif
 let g:smartinput_no_default_key_mappings = 1
 
 if neobundle#tap('vim-smartinput')
-  " I know following description is too lengthy, but otherwise I would be not
+  " I know following description is too lengthy, but otherwise I would not be
   " able to review them...
 
   " doushite kounatta...
