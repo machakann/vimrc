@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 14-Apr-2014.
+" Last Change: 20-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -87,6 +87,7 @@ NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-unite-history'  , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'thinca/vim-visualstar'
+NeoBundle       'tpope/vim-fugitive'
 NeoBundle       'tpope/vim-markdown'
 NeoBundle       'tpope/vim-repeat'
 NeoBundle       'tyru/caw.vim'
@@ -128,6 +129,10 @@ NeoBundleLazy   'sjl/gundo.vim', {
 NeoBundleLazy   'Shougo/neocomplete', {
       \ 'autoload' : {'insert' : 1},
       \ }
+NeoBundleLazy   'Shougo/neosnippet.vim', {
+      \ 'autoload' : {'insert' : 1},
+      \ }
+NeoBundle       'Shougo/neosnippet-snippets'
 NeoBundleLazy 'Shougo/vimfiler', {
       \ 'depends' : 'Shougo/unite.vim',
       \ 'autoload' : {
@@ -160,7 +165,6 @@ NeoBundleLazy   'ujihisa/neco-look', {
       \}
 
 filetype plugin indent on       " Required!
-NeoBundleCheck
 if !has('vim_starting')
   " Call on_source hook when reloading .vimrc.
   call neobundle#call_hook('on_source')
@@ -190,8 +194,9 @@ if neobundle#tap('vim-smartinput')
 
   " map to trigger
   let s:trig = [
-        \     ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',  '<BS>'],
-        \     ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',  '<CR>'],
+        \     ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',   '<BS>'],
+        \     ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',   '<CR>'],
+        \     ['<Plug>(smartinput_^k)', '<Plug>(smartinput_^k)',  '<C-k>'],
         \     ['(',     '(',     '('    ],
         \     [')',     ')',     ')'    ],
         \     ['[',     '[',     '['    ],
@@ -353,18 +358,19 @@ if neobundle#tap('vim-smartinput')
 
   " smart quotes input
   let rules += [
-        \       {'char': '''', 'at': '\%#',       'input': '''''<Left>', 'mode': 'i:'},
-        \       {'char': '''', 'at': '\\\%#',     'input': '''',         'mode': 'i:'},
-        \       {'char':  '"', 'at': '\%#',       'input': '""<Left>',   'mode': 'i:'},
-        \       {'char':  '"', 'at': '\\\%#',     'input': '"',          'mode': 'i:'},
-        \       {'char': '''', 'at': '\w\%#',     'input': '''',         'mode': 'i:'},
-        \       {'char': '''', 'at': '\w''\%#''', 'input': '<Del>',      'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',                        'input': '""<Left>',   'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',                   'input': '""',         'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',                  'input': '<Right>',    'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',                  'input': '''''<Left>', 'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z]''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z]''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
+        \       {'char': '''', 'at': '\%#',         'input': '''''<Left>', 'mode': 'i:'},
+        \       {'char': '''', 'at': '''''''\%#''', 'input': '<Right>',    'mode': 'i:'},
+        \       {'char': '''', 'at': '\\\%#',       'input': '''',         'mode': 'i:'},
+        \       {'char':  '"', 'at': '\%#',         'input': '""<Left>',   'mode': 'i:'},
+        \       {'char':  '"', 'at': '\\\%#',       'input': '"',          'mode': 'i:'},
+        \       {'char': '''', 'at': '\w\%#',       'input': '''',         'mode': 'i:'},
+        \       {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',                          'input': '""<Left>',   'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',                     'input': '""',         'mode': 'i:'},
+        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',                    'input': '<Right>',    'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',                    'input': '''''<Left>', 'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
+        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
         \      ]
 
   " correspondent parentheses
@@ -427,9 +433,9 @@ if neobundle#tap('vim-smartinput')
   " miscellaneous settings
   let rules += [
         \       {'char': '>', 'at': ' < \%#', 'input': '<BS>> ', 'mode': 'i:'},
-        \       {'char': ',', 'at': '\%#',    'input': ', ',     'mode': 'i:'},
-        \       {'char': ',', 'at': ', \%#',  'input': '<BS>',   'mode': 'i:'},
-        \       {'char': ',', 'at': '\%# ',   'input': ',',      'mode': 'i:'},
+        \       {'char': ',', 'at': '\%#',    'input': ', ',     'mode': 'i'},
+        \       {'char': ',', 'at': ', \%#',  'input': '<BS>',   'mode': 'i'},
+        \       {'char': ',', 'at': '\%# ',   'input': ',',      'mode': 'i'},
         \      ]
 
   " for commandline mode
@@ -482,17 +488,17 @@ if neobundle#tap('vim-smartinput')
   "     -[<C-k>]-> \%(#\) -[<C-k>]-> \(#\) -[<C-k>]-> \%(#\)
 
   let rules += [
-        \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',        'mode': 'i:/?'},
-        \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',        'mode': 'i:/?'},
-        \       {'char': '<C-k>', 'at': '(\%#',       'input': '<BS>\%(\)<Left><Left>', 'mode': 'i:/?'},
-        \       {'char': '<C-k>', 'at': '\\%(\%#\\)', 'input': '<Left><BS><Right>',     'mode': 'i:/?'},
-        \       {'char': '<C-k>', 'at': '\\(\%#\\)',  'input': '<Left>%<Right>',        'mode': 'i:/?'},
-        \       {'char': '<C-k>', 'at': '\\)\%#',     'input': '<Left><Left>)',         'mode': 'i:/?'},
-        \       {'char': '<C-k>', 'at': '\[\%#',      'input': '<BS>\[\]<Left><Left>',  'mode': 'i:/?'},
-        \       {'char': '<C-k>', 'at': '\\]\%#',     'input': '<Left><Left>]',         'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>', 'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',     'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',     'mode': 'i:/?'},
+        \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',             'mode': 'i:/?'},
+        \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',             'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_^k)', 'at': '(\%#',        'input': '<BS><Del>\%(\)<Left><Left>', 'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_^k)', 'at': '\\%(\%#\\)',  'input': '<Left><BS><Right>',          'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_^k)', 'at': '\\(\%#\\)',   'input': '<Left>%<Right>',             'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_^k)', 'at': '\\)\%#',      'input': '<Left><Left>)',              'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_^k)', 'at': '\[\%#',       'input': '<BS>\[\]<Left><Left>',       'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_^k)', 'at': '\\]\%#',      'input': '<Left><Left>]',              'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>',     'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',         'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',         'mode': 'i:/?'},
         \      ]
 
   " filetype option
@@ -707,7 +713,12 @@ if neobundle#tap('vim-smartinput')
   unlet rules
   let g:is_smartinput_active = 1
 
-  cmap <BS> <Plug>(smartinput_BS)
+  " These mappings would be re-written somewhere else.
+  " But required just for safety-net.
+  imap <BS>  <Plug>(smartinput_BS)
+  cmap <BS>  <Plug>(smartinput_BS)
+  imap <CR>  <Plug>(smartinput_CR)
+  imap <C-k> <Plug>(smartinput_^k)
 
   " toggle switch
   command! -nargs=0 SmartinputToggle call Smartinput_toggle_switch()
@@ -885,18 +896,20 @@ if neobundle#tap('neomru.vim')
 endif
 "}}}
 "*** neosnippet.vim *** {{{
-" if neobundle#tap('neosnippet')
-"   imap <C-k> <Plug>(neosnippet_expand_or_jump)
-"   smap <C-k> <Plug>(neosnippet_expand_or_jump)
-"
-"   " Tell Neosnippet about the other snippets
-"   let g:neosnippet#snippets_directory = $USERDIR . '/snippets'
-"
-"   " For snippet_complete marker.
-"   if has('conceal')
-"     set conceallevel=2 concealcursor=i
-"   endif
-" endif
+if neobundle#tap('neosnippet.vim')
+  imap <expr> <C-k> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<Plug>(smartinput_^k)"
+  smap        <C-k> <Plug>(neosnippet_expand_or_jump)
+  xmap        <C-k> <Plug>(neosnippet_expand_target)
+  xmap        <C-l> <Plug>(neosnippet_start_unite_snippet_target)
+
+  " Tell Neosnippet about the other snippets
+  let g:neosnippet#snippets_directory = $USERDIR . '/snippets'
+
+  " For snippet_complete marker.
+  if has('conceal')
+    set conceallevel=2 concealcursor=i
+  endif
+endif
 "}}}
 "*** operator-surround *** {{{
 if neobundle#tap('vim-operator-surround')
@@ -991,7 +1004,13 @@ if neobundle#tap('vim-quickrun')
         \ 'r'   : {
         \       'command': has('win32') || has('win64') ? 'Rscript' : 'R',
         \       'exec': has('win32') || has('win64') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
-        \       }
+        \       },
+        \ 'vim/owl_test' : {
+        \       'command': ':source',
+        \       'exec'   : ["%C %s", "call owl#run('%s')"],
+        \       'outputter' : "buffer",
+        \       'runner' : "vimscript",
+        \       },
         \ }
 endif
 "}}}
@@ -1080,7 +1099,7 @@ if neobundle#tap('vim-reanimate')
   let g:reanimate_default_save_name = ""
 
   " session options
-  let g:reanimate_sessionoptions="curdir,folds,globals,help,localoptions,slash,tabpages,winsize"
+  let g:reanimate_sessionoptions="curdir,globals,help,slash,tabpages,winsize"
 
   call unite#custom#default_action('reanimate', 'reanimate_load')
   nnoremap <Space>ur :Unite reanimate<CR>
@@ -1129,23 +1148,6 @@ if neobundle#tap('vimfiler')
   nnoremap <Space>E :VimFiler -tab<CR>
   " let g:vimfiler_as_default_explorer = 1
   let g:vimfiler_data_directory = $USERCACHEDIR . '/.vimfiler'
-  let g:vimfiler_execute_file_list = {
-    \ 'm'    : 'matlab',
-    \ 'doc'  : 'winword',
-    \ 'docx' : 'winword',
-    \ 'xls'  : 'excel',
-    \ 'xlsx' : 'excel',
-    \ 'ppt'  : 'powerpnt',
-    \ 'pptx' : 'powerpnt',
-    \ 'bmp'  : 'vieas',
-    \ 'gif'  : 'vieas',
-    \ 'jpeg' : 'vieas',
-    \ 'jpg'  : 'vieas',
-    \ 'png'  : 'vieas',
-    \ 'xcf'  : 'gimp-2.8',
-    \ 'svg'  : 'inkscape',
-    \ 'pdf'  : 'pdfxcview',
-    \ }
 
   autocmd vimrc FileType vimfiler setlocal nowrap
   autocmd vimrc FileType vimfiler setlocal nonumber
@@ -1756,6 +1758,22 @@ nnoremap <CR>   i<CR><Esc>
 inoremap <C-j> <Esc>o
 " inoremap <C-k> <Esc>O
 
+" line-break for upper direction with hanging a following part
+" nnoremap <S-CR> DO<C-r>*<Esc>^
+" inoremap <S-CR> <Esc>lDO<C-r>*<Esc>I
+nnoremap <silent> <S-CR> :<C-u>call Linebreak_udhfp()<CR>
+inoremap <silent> <S-CR> <Esc>l:call Linebreak_udhfp()<CR>i
+
+""" countermeasure for flickering
+function! Linebreak_udhfp()
+  let a = @*
+
+  execute 'normal! "aDO' . "\<C-r>" . 'a' . "\<Esc>" . '^'
+
+  let @a = a
+  return ''
+endfunction
+
 " check syntax group of the character under the cursor
 nnoremap \s :echo map(synstack(line('.'), col('.')), 'synIDattr(synIDtrans(v:val), "name")')<CR>
 
@@ -1765,22 +1783,6 @@ nnoremap <M-a> ea
 
 " reserve black hole register for the next operator
 nnoremap <M-d> "_
-
-" line-break for upper direction with hanging a following part
-" nnoremap <S-CR> DO<C-r>*<Esc>^
-" inoremap <S-CR> <Esc>lDO<C-r>*<Esc>I
-nnoremap <silent> <S-CR> :<C-u>call Linebreak_udhfp()<CR>
-inoremap <silent> <S-CR> <Esc>l:call Linebreak_udhfp()<CR>i
-
-" countermeasure for flickering
-function! Linebreak_udhfp()
-  let a = @*
-
-  execute 'normal! "aDO' . "\<C-r>" . 'a' . "\<Esc>" . '^'
-
-  let @a = a
-  return ''
-endfunction
 
 " enabling 'f' and 't' commands to use string class {{{
 function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
@@ -1851,6 +1853,10 @@ for key in string_class
   execute 'xmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
   execute 'xmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
   execute 'xmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
+  execute 'omap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
+  execute 'omap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
+  execute 'omap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
+  execute 'omap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
 endfor
 "}}}
 "}}}
@@ -1858,21 +1864,21 @@ endfor
 " I think macros can be regarded as keymappings which can be re-written
 " casually and instantly starting from '@' prefix.
 
+let g:macros   = {}
+" increment file number
+let g:macros.a = "0t.7hi \<Esc>t.\<C-a>F xj"
+let g:macros.x = "0t.7hi \<Esc>t.\<C-x>F xj"
+" delete spaces at line-end
+let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>j"
+" change the type of v:register content to linewise type
+let g:macros.l = ":call setreg(v:register, getreg(), 'l')\<CR>"
+" Toggle commenting of the lines starting from 'PP' or 'echo'
+let g:macros.d = 'm`:global/^"\?\s*\%(PP\|echo\)/CawToggle' . "\<CR>``:nohlsearch\<CR>"
+" copy selected area & paste. (a kind of joke)   original : call setreg('u', "\<Esc>:let @u='\"=@u[15:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
+let g:macros.u = "\<Esc>:let @u='\"\<Del>=@u[17:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy"
+
 " presets
 function! s:preset_macros(...)
-  let g:macros   = {}
-  " increment file number
-  let g:macros.a = "0t.7hi \<Esc>t.\<C-a>F xj"
-  let g:macros.x = "0t.7hi \<Esc>t.\<C-x>F xj"
-  " delete spaces at line-end
-  let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>j"
-  " change the type of v:register content to linewise type
-  let g:macros.l = ":call setreg(v:register, getreg(), 'l')\<CR>"
-  " Toggle commenting of the lines starting from 'PP' or 'echo'
-  let g:macros.d = ':global/^.\?\s*\%(PP\|echo\)/CawToggle' . "\<CR>``"
-  " copy selected area & paste. (a kind of joke)   original : call setreg('u', "\<Esc>:let @u='\"=@u[15:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy")
-  let g:macros.u = "\<Esc>:let @u='\"\<Del>=@u[17:]\<C-v>\<CR>p1000fa'\<CR>gv\"Uy"
-
   let targets = (a:0 > 0) ? split(a:1, '\zs') : keys(g:macros)
 
   for target in targets
