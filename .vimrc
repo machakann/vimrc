@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 21-Apr-2014.
+" Last Change: 22-Apr-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -1575,7 +1575,7 @@ function! RegCopy(bang, ...) "{{{
     endif
   endif
 
-  execute 'let @' . DestReg . ' = @' . SourceReg
+  call setreg(DestReg, getreg(SourceReg), getregtype(SourceReg))
   echo 'Regcopy : @' . SourceReg . ' ---> @' . DestReg
 endfunction "}}}
 command! -nargs=+ -bang RegCopy call RegCopy('<bang>',<f-args>)
@@ -1598,9 +1598,9 @@ function! RegExchange(...) "{{{
     let ExcReg2 = v:register
   endif
 
-  execute 'let temp = @' . ExcReg2
-  execute 'let @' . ExcReg2 . ' = @' . ExcReg1
-  execute 'let @' . ExcReg1 . ' = temp'
+  let temp = [getreg(ExcReg2), getregtype(ExcReg2)]
+  call setreg(ExcReg2, getreg(ExcReg1), getregtype(ExcReg1))
+  call setreg(ExcReg1,         temp[0],             temp[1])
   echo 'Regexc : @'.l:ExcReg1.' <--> @'.l:ExcReg2
 endfunction "}}}
 command! -nargs=+ RegExchange call RegExchange(<f-args>)
@@ -1787,51 +1787,25 @@ nnoremap <M-d> "_
 " enabling 'f' and 't' commands to use string class {{{
 function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
   let line = line('.')
-  let col  = col('.')
   let flag = ''
+
   if a:is_capital
     let flag .= 'b'
+  endif
+
+  if a:is_t
+    let pattern = '.' . a:pattern
+  else
+    let pattern = a:pattern
   endif
 
   let l:count = 0
   while l:count < v:count1
     let l:count += 1
-    let dest = searchpos(a:pattern, flag, line)[1]
+    let dest = searchpos(a:pattern, flag, line)
   endwhile
 
-  if dest > 0
-    if a:is_capital
-      if a:is_t
-        let displ = col - dest + 1
-      else
-        let displ = col - dest
-      endif
-
-      let key = 'h'
-    else
-      if a:is_t
-        let displ = dest - col - 1
-      else
-        let displ = dest - col
-      endif
-
-      let key = 'l'
-    endif
-
-    if a:mode ==# 'n'
-      let command = "\<Esc>" . displ . key
-    elseif a:mode ==# 'v'
-      let command = "oo" . displ . key
-    endif
-  else
-    if a:mode ==# 'n'
-      let command = "\<Esc>"
-    elseif a:mode ==# 'v'
-      let command = "oo"
-    endif
-  endif
-
-  return command
+  return
 endfunction
 
 nnoremap f\\ f\
@@ -1842,21 +1816,25 @@ xnoremap f\\ f\
 xnoremap F\\ F\
 xnoremap t\\ t\
 xnoremap T\\ T\
+onoremap f\\ f\
+onoremap F\\ F\
+onoremap t\\ t\
+onoremap T\\ T\
 let string_class = [ '\i',  '\I',  '\k',  '\K',  '\f',  '\F',  '\p',  '\P',  '\s',  '\S',  '\d',  '\D',  '\x',  '\X',  '\o',  '\O',  '\w',  '\W',  '\h',  '\H',  '\a',  '\A',  '\l',  '\L',  '\u',  '\U',
       \             '\_i', '\_I', '\_k', '\_K', '\_f', '\_F', '\_p', '\_P', '\_s', '\_S', '\_d', '\_D', '\_x', '\_X', '\_o', '\_O', '\_w', '\_W', '\_h', '\_H', '\_a', '\_A', '\_l', '\_L', '\_u', '\_U' ]
 for key in string_class
-  execute 'nmap <expr> f' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 0)"
-  execute 'nmap <expr> t' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 0)"
-  execute 'nmap <expr> F' . key . " \<SID>f_knows_string_class('n', '" . key . "', 0, 1)"
-  execute 'nmap <expr> T' . key . " \<SID>f_knows_string_class('n', '" . key . "', 1, 1)"
-  execute 'xmap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
-  execute 'xmap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
-  execute 'xmap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
-  execute 'xmap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
-  execute 'omap <expr> f' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 0)"
-  execute 'omap <expr> t' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 0)"
-  execute 'omap <expr> F' . key . " \<SID>f_knows_string_class('v', '" . key . "', 0, 1)"
-  execute 'omap <expr> T' . key . " \<SID>f_knows_string_class('v', '" . key . "', 1, 1)"
+  execute 'nnoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 0, 0)<CR>"
+  execute 'nnoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 1, 0)<CR>"
+  execute 'nnoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 0, 1)<CR>"
+  execute 'nnoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 1, 1)<CR>"
+  execute 'xnoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 0)<CR>"
+  execute 'xnoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 0)<CR>"
+  execute 'xnoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 1)<CR>"
+  execute 'xnoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 1)<CR>"
+  execute 'onoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 0)<CR>"
+  execute 'onoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 0)<CR>"
+  execute 'onoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 1)<CR>"
+  execute 'onoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 1)<CR>"
 endfor
 "}}}
 "}}}
