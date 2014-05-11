@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 22-Apr-2014.
+" Last Change: 10-May-2014.
 "
 "***** Todo *****
 " matlabcomplete, matlabdoc
@@ -76,6 +76,7 @@ NeoBundleFetch  'Shougo/neobundle.vim'
 NeoBundle       'Shougo/neomru.vim'
 NeoBundle       'Shougo/unite-help'        , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'Shougo/unite.vim'
+NeoBundle       'Shougo/unite-outline'
 NeoBundle       'Shougo/vimproc.vim'            , {
                 \ 'build' : {
                 \     'windows' : 'make -f make_mingw64.mak',
@@ -87,6 +88,7 @@ NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-unite-history'  , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'thinca/vim-visualstar'
+NeoBundle       'thinca/vim-localrc'
 NeoBundle       'tpope/vim-fugitive'
 NeoBundle       'tpope/vim-markdown'
 NeoBundle       'tpope/vim-repeat'
@@ -94,7 +96,6 @@ NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'vim-jp/vimdoc-ja'
-NeoBundle       'vim-jp/vital.vim'
 NeoBundle       'yuratomo/dbg.vim'
 NeoBundle       'https://bitbucket.org/anyakichi/vim-textobj-xbrackets'
 
@@ -120,7 +121,7 @@ NeoBundleLazy   'osyo-manga/vim-owl', {
 NeoBundleLazy   'osyo-manga/vim-watchdogs', {
       \ 'autoload' : {
       \   'filetypes' : ['python', 'matlab'],
-      \ },
+      \   },
       \ 'depends' : ['thinca/vim-quickrun','Shougo/vimproc.vim','osyo-manga/shabadou.vim'],
       \ }
 NeoBundleLazy   'sjl/gundo.vim', {
@@ -130,7 +131,10 @@ NeoBundleLazy   'Shougo/neocomplete', {
       \ 'autoload' : {'insert' : 1},
       \ }
 NeoBundleLazy   'Shougo/neosnippet.vim', {
-      \ 'autoload' : {'insert' : 1},
+      \ 'autoload' : {
+      \   'insert'    : 1,
+      \   'filetypes' : ['neosnippet'],
+      \   },
       \ }
 NeoBundle       'Shougo/neosnippet-snippets'
 NeoBundleLazy 'Shougo/vimfiler', {
@@ -163,6 +167,11 @@ NeoBundleLazy   'ujihisa/neco-look', {
       \ 'autoload' : {'insert' : 1},
       \ 'type' : 'nosync',
       \}
+NeoBundleLazy   'vim-jp/vital.vim', {
+      \ 'autoload' : {
+      \   'commands' : 'Vitalize',
+      \   }
+      \ }
 
 filetype plugin indent on       " Required!
 if !has('vim_starting')
@@ -262,10 +271,11 @@ if neobundle#tap('vim-smartinput')
         \      ]
   " '-' -> ' - ' -> '--' -> '---' -> '----' ...
   let rules += [
-        \       {'char': '-', 'at': '\%#',     'input': '-',                      'mode': 'i'},
-        \       {'char': '-', 'at': '-\%#',    'input': '<BS> - ',                'mode': 'i'},
-        \       {'char': '-', 'at': ' - \%#',  'input': '<BS><BS><BS>--',         'mode': 'i'},
-        \       {'char': '-', 'at': '--\+\%#', 'input': '-',                      'mode': 'i'},
+        \       {'char': '-', 'at': '\%#',          'input': '-',                 'mode': 'i'},
+        \       {'char': '-', 'at': '-\%#',         'input': '<BS> - ',           'mode': 'i'},
+        \       {'char': '-', 'at': ' - \%#',       'input': '<BS><BS><BS>--',    'mode': 'i'},
+        \       {'char': '-', 'at': '--\+\%#',      'input': '-',                 'mode': 'i'},
+        \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',                 'mode': 'i'},
         \      ]
   " '*' -> ' * ' -> ' ** ' -> '**' -> '***' -> '****' ...
   let rules += [
@@ -637,8 +647,43 @@ if neobundle#tap('vim-smartinput')
 
   " FORTRAN
   let rules += [
-        \       {'char': ':', 'at': '^\s*\(integer\|real\|double precision\|complex\|complex(kind(0d0))\|logical\|character\|type(\w\+)\)\((,\w\+)\)*\%#', 'input': ' :: ', 'filetype': ['fortran']},
-        \       {'char': ':', 'at': ' :: \%#', 'input': '<BS><BS><BS><BS>:', 'filetype': ['fortran']},
+        \       {'char': ':', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex(kind(0d0))\|logical\|character\)\%((\d\+)\)\?\%(\s*,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|intent(\%(in\|out\|inout\))\)\)\?\%#', 'input': ' :: ', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': ':', 'at': '^\s*type(\h\w\*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\)\)\?\%#', 'input': ' :: ', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': ':', 'at': ' :: \%#', 'input': '<BS><BS><BS><BS>:', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '=', 'at': '/ \%#',   'input': '<BS>= ',                                     'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '=', 'at': ' /\%#\S', 'input': '= ',                                         'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '=', 'at': ' /\%#$',  'input': '= ',                                         'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '=', 'at': ' /\%# ',  'input': '=',                                          'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '=', 'at': '\S/\%#',  'input': '<Left> <Right>= ',                           'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '=', 'at': ' /= \%#', 'input': '<Left><Left><Left><BS><Right><Right><Del>',  'mode': 'i', 'filetype': ['fortran']},
+        \      ]
+  " ' + ' -> '+' -> '++' -> '+++' ...
+  let rules += [
+        \       {'char': '+', 'at': '\%#',    'input': ' + ',           'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '+', 'at': '+\%#',   'input': '+',             'mode': 'i', 'filetype': ['fortran']},
+        \      ]
+  " ' - ' -> '-' -> '--' -> '---' ...
+  let rules += [
+        \       {'char': '-', 'at': '\%#',    'input': ' - ',           'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '-', 'at': '-\%#',   'input': '-',             'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',       'mode': 'i', 'filetype': ['fortran']},
+        \      ]
+
+  " ' * ' -> ' ** ' -> '*' -> '**' ...
+  let rules += [
+        \       {'char': '*', 'at': '\%#',       'input': ' * ',               'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '*', 'at': ' \* \%#',   'input': '<BS>* ',            'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '*', 'at': ' \*\* \%#', 'input': '<BS><BS><BS><BS>*', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '*', 'at': '\*\%#',     'input': '*',                 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '*', 'at': '\%(write\|read\)\s*(\s*\<\w\>\s*,\s*\%#', 'input': '*', 'mode': 'i', 'filetype': ['fortran']},
+        \      ]
+  " ' / ' -> '/' -> '//' -> '///' ...
+  let rules += [
+        \       {'char': '/', 'at': '\%#',    'input': ' / ',           'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '/', 'at': ' / \%#', 'input': '<BS><BS><BS>/', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '/', 'at': '/\%#',   'input': '/',             'mode': 'i', 'filetype': ['fortran']},
         \      ]
 
   " R
@@ -731,11 +776,14 @@ if neobundle#tap('vim-smartinput')
       for item in s:trig
         if item[0] == item[2]
           execute "iunmap " . item[0]
+          execute "cunmap " . item[0]
         else
           if item[2] =~# '^<Plug>.\+'
             execute "imap " . item[0] . " " . item[2]
+            execute "cmap " . item[0] . " " . item[2]
           else
             execute "inoremap " . item[0] . " " . item[2]
+            execute "cnoremap " . item[0] . " " . item[2]
           endif
         endif
       endfor
@@ -782,8 +830,8 @@ endif
 "*** columnmove *** {{{
 if neobundle#tap('vim-columnmove')
   let g:columnmove_auto_scroll = 1
-  let g:columnmove_strict_wbege = 0
-  let g:columnmove_fold_open = {'x' : &foldnestmax}
+"   let g:columnmove_strict_wbege = 0
+  let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 endif
 "}}}
 "*** dbg.vim *** {{{
@@ -960,11 +1008,17 @@ if neobundle#tap('vim-patternjump')
     \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'],
     \     },
     \   'o' : {
-    \     'forward'  : {'tail_inclusive' : ['\<\h\k*\>']},
-    \     'backward' : {'head_inclusive' : ['\<\h\k*\>']},
+    \     'forward'  : {'tail_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']},
+    \     'backward' : {'head_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']},
     \     },
     \   },
     \ }
+
+  " Be aggressive!
+  nnoremap <silent> w  :<C-u>call patternjump#forward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'], []], 0)<CR>
+  nnoremap <silent> e  :<C-u>call patternjump#forward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']], 0)<CR>
+  nnoremap <silent> b  :<C-u>call patternjump#backward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'], []], 0)<CR>
+  nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']], 0)<CR>
 endif
 "}}}
 "*** quickrun.vim *** {{{
@@ -1060,6 +1114,7 @@ if neobundle#tap('unite.vim')
   nnoremap [Unite]h :Unite help:ja help<CR>
   nnoremap [Unite]d :Unite directory_mru directory directory/new<CR>
   nnoremap [Unite]p :Unite neobundle/update<CR>
+  nnoremap [Unite]o :Unite outline<CR>
 
   if has('win32') || has('win64')
     nnoremap <Space>uf :Unite file_rec buffer<CR>
@@ -1099,7 +1154,7 @@ if neobundle#tap('vim-reanimate')
   let g:reanimate_default_save_name = ""
 
   " session options
-  let g:reanimate_sessionoptions="curdir,globals,help,slash,tabpages,winsize"
+  let g:reanimate_sessionoptions="curdir,globals,help,slash,tabpages"
 
   call unite#custom#default_action('reanimate', 'reanimate_load')
   nnoremap <Space>ur :Unite reanimate<CR>
@@ -1154,15 +1209,15 @@ if neobundle#tap('vimfiler')
 endif
 "}}}
 "*** vital.vim *** {{{
-if neobundle#tap('vital.vim')
-  " use vital in vimrc
-  if !exists('g:V')
-      let g:V  = vital#of("vital")
-      let g:Sl = g:V.import("Data.List")
-      let g:Sd = g:V.import("Data.String")
-      let g:s  = g:V.import("Prelude")
-  endif
-endif
+" if neobundle#tap('vital.vim')
+"   " use vital in vimrc
+"   if !exists('g:V')
+"       let g:V  = vital#of("vital")
+"       let g:Sl = g:V.import("Data.List")
+"       let g:Sd = g:V.import("Data.String")
+"       let g:s  = g:V.import("Prelude")
+"   endif
+" endif
 "}}}
 " *** watchdogs *** {{{
 if neobundle#tap('vim-watchdogs')
@@ -1251,9 +1306,9 @@ autocmd vimrc CmdwinEnter * call s:init_cmdwin()
 function! s:init_cmdwin()
   nnoremap <buffer> q :<C-u>quit<CR>
   nnoremap <buffer> <CR> i<CR>
-  inoremap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)>"
-  inoremap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)>"
-  inoremap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)>"
+  imap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)"
+  imap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
+  imap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
 
   setlocal iminsert=0
 endfunction
@@ -1274,10 +1329,10 @@ autocmd vimrc FileType * setlocal formatoptions-=o
 "}}}
 "***** searching behavior ***** {{{
 "--------------------------------------------------------------------------
-set hlsearch                        " highlight searched word
+set hlsearch                        " highlight searched words
 set incsearch                       " use incremental search
 set ignorecase                      " ignore upper/lower case of searching word
-set smartcase                       " do not ignore upper/lower case when searching word contains both of them
+" set smartcase                       " do not ignore upper/lower cases when the searching word contains both of them
 set wrapscan                        " go back to the top candidate after getting to the end of file
 if has('migemo')
   set migemo                        " use g? sequence of migemo
@@ -1528,6 +1583,7 @@ function! s:edit_en()
   setlocal wrap                     " use wrap in long line
   setlocal iminsert=0               " turn off ime when getting into insert mode
   setlocal spellcapcheck            " check sentence case
+  source $USERDIR/dict/auto_correct.vim
 endfunction
 "}}}
 " RegCopy     - Function to copy the content of a register to the other one. {{{
@@ -1601,7 +1657,7 @@ function! RegExchange(...) "{{{
   let temp = [getreg(ExcReg2), getregtype(ExcReg2)]
   call setreg(ExcReg2, getreg(ExcReg1), getregtype(ExcReg1))
   call setreg(ExcReg1,         temp[0],             temp[1])
-  echo 'Regexc : @'.l:ExcReg1.' <--> @'.l:ExcReg2
+  echo 'Regexc : @' . l:ExcReg1 . ' <--> @' . l:ExcReg2
 endfunction "}}}
 command! -nargs=+ RegExchange call RegExchange(<f-args>)
 "}}}
@@ -1739,6 +1795,11 @@ nnoremap k gk
 vnoremap j gj
 vnoremap k gk
 
+nnoremap gj j
+nnoremap gk k
+vnoremap gj j
+vnoremap gk k
+
 " I prefer to use <C-p>/<C-n> when ascending history
 cnoremap <C-p> <Up>
 cnoremap <Up> <C-p>
@@ -1750,9 +1811,6 @@ nnoremap Y y$
 
 " move cursor to the end of selected area after yank
 xnoremap Y y`>
-
-" line-break even in normal mode
-nnoremap <CR>   i<CR><Esc>
 
 " line-break without any change to current line in insert mode
 inoremap <C-j> <Esc>o
@@ -1782,21 +1840,20 @@ nnoremap <M-i> bi
 nnoremap <M-a> ea
 
 " reserve black hole register for the next operator
-nnoremap <M-d> "_
+nnoremap \d "_
 
 " enabling 'f' and 't' commands to use string class {{{
 function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
   let line = line('.')
+  let col  = col('.')
   let flag = ''
 
   if a:is_capital
     let flag .= 'b'
   endif
 
-  if a:is_t
-    let pattern = '.' . a:pattern
-  else
-    let pattern = a:pattern
+  if (a:mode ==# 'o') && !a:is_capital
+    normal! v
   endif
 
   let l:count = 0
@@ -1804,6 +1861,18 @@ function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
     let l:count += 1
     let dest = searchpos(a:pattern, flag, line)
   endwhile
+
+  if dest != [0, 0]
+    if a:is_t
+      if a:is_capital
+        normal! l
+      else
+        normal! h
+      endif
+    endif
+  else
+    call cursor(line, col)
+  endif
 
   return
 endfunction
@@ -1831,10 +1900,10 @@ for key in string_class
   execute 'xnoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 0)<CR>"
   execute 'xnoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 1)<CR>"
   execute 'xnoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 1)<CR>"
-  execute 'onoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 0)<CR>"
-  execute 'onoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 0)<CR>"
-  execute 'onoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 1)<CR>"
-  execute 'onoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 1)<CR>"
+  execute 'onoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 0, 0)<CR>"
+  execute 'onoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 1, 0)<CR>"
+  execute 'onoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 0, 1)<CR>"
+  execute 'onoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 1, 1)<CR>"
 endfor
 "}}}
 "}}}
@@ -1844,8 +1913,8 @@ endfor
 
 let g:macros   = {}
 " increment file number
-let g:macros.a = "0t.7hi \<Esc>t.\<C-a>F xj"
-let g:macros.x = "0t.7hi \<Esc>t.\<C-x>F xj"
+let g:macros.a = "0t.7hi \<Esc>\<C-a>F xj"
+let g:macros.x = "0t.7hi \<Esc>\<C-x>F xj"
 " delete spaces at line-end
 let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>j"
 " change the type of v:register content to linewise type
