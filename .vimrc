@@ -2,10 +2,9 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 10-May-2014.
+" Last Change: 05-Jul-2014.
 "
 "***** Todo *****
-" matlabcomplete, matlabdoc
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
@@ -50,11 +49,11 @@ endif
 if has('vim_starting')
   set rtp+=$USERDIR/bundle/neobundle.vim/
 end
-call neobundle#rc($USERDIR.'/bundle/')
+call neobundle#begin(expand($USERDIR . '/bundle/'))
 
 NeoBundle       'davidhalter/jedi-vim'
-NeoBundle       'deris/columnjump'
 NeoBundle       'gilligan/textobj-lastpaste'
+NeoBundle       'JuliaLang/julia-vim'
 NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
 NeoBundle       'kana/vim-smartinput'
@@ -62,10 +61,10 @@ NeoBundle       'kana/vim-submode'
 NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
-NeoBundle       'kana/vim-textobj-underscore'
-NeoBundle       'machakann/vim-columnmove'
+" NeoBundle       'machakann/vim-columnmove'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-textobj-functioncall'
+NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
@@ -79,7 +78,7 @@ NeoBundle       'Shougo/unite.vim'
 NeoBundle       'Shougo/unite-outline'
 NeoBundle       'Shougo/vimproc.vim'            , {
                 \ 'build' : {
-                \     'windows' : 'make -f make_mingw64.mak',
+                \     'windows' : 'make -f make_mingw32.mak',
                 \     'cygwin'  : 'make -f make_cygwin.mak',
                 \     'mac'     : 'make -f make_mac.mak',
                 \     'unix'    : 'make -f make_unix.mak',
@@ -96,28 +95,15 @@ NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'vim-jp/vimdoc-ja'
-NeoBundle       'yuratomo/dbg.vim'
-NeoBundle       'https://bitbucket.org/anyakichi/vim-textobj-xbrackets'
 
 NeoBundleLazy   'jceb/vim-hier', {
       \ 'autoload' : {
       \   'commands' : ['HierUpdate', 'HierClear', 'HierStart', 'HierStop'],
       \ }}
-NeoBundleLazy   'nathanaelkane/vim-indent-guides', {
-      \ 'autoload' : {
-      \   'mappings' : '<Plug>IndentGuides',
-      \ }}
 NeoBundleLazy   'osyo-manga/vim-anzu', {
       \ 'autoload' : {
       \   'mappings' : '<Plug>(anzu-',
       \ }}
-NeoBundleLazy   'osyo-manga/vim-owl', {
-      \ 'autoload' : {
-      \   'commands'  : ['OwlRun', 'OwlCheck'],
-      \   'functions' : ['owl#run', 'owl#run_function', 'owl#filename_to_SID'],
-      \ },
-      \ 'depends' : ['osyo-manga/vim-budou', 'osyo-manga/vim-chained'],
-      \ }
 NeoBundleLazy   'osyo-manga/vim-watchdogs', {
       \ 'autoload' : {
       \   'filetypes' : ['python', 'matlab'],
@@ -137,7 +123,7 @@ NeoBundleLazy   'Shougo/neosnippet.vim', {
       \   },
       \ }
 NeoBundle       'Shougo/neosnippet-snippets'
-NeoBundleLazy 'Shougo/vimfiler', {
+NeoBundleLazy   'Shougo/vimfiler', {
       \ 'depends' : 'Shougo/unite.vim',
       \ 'autoload' : {
       \   'commands' : [{ 'name'     : 'VimFiler',
@@ -147,7 +133,7 @@ NeoBundleLazy 'Shougo/vimfiler', {
       \   'mappings' : ['<Plug>(vimfiler_'],
       \   'explorer' : 1,
       \ }}
-NeoBundleLazy 'Shougo/vimshell', {
+NeoBundleLazy   'Shougo/vimshell', {
       \ 'depends' : 'Shougo/vimproc.vim',
       \ 'autoload' : {
       \   'commands' : [{ 'name'     : 'VimShell',
@@ -172,6 +158,8 @@ NeoBundleLazy   'vim-jp/vital.vim', {
       \   'commands' : 'Vitalize',
       \   }
       \ }
+
+call neobundle#end()
 
 filetype plugin indent on       " Required!
 if !has('vim_starting')
@@ -277,28 +265,6 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '-', 'at': '--\+\%#',      'input': '-',                 'mode': 'i'},
         \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',                 'mode': 'i'},
         \      ]
-  " '*' -> ' * ' -> ' ** ' -> '**' -> '***' -> '****' ...
-  let rules += [
-        \       {'char': '*', 'at': '\%#',       'input': '*',                    'mode': 'i'},
-        \       {'char': '*', 'at': '\*\%#',     'input': '<BS> * ',              'mode': 'i'},
-        \       {'char': '*', 'at': ' \* \%#',   'input': '<BS>* ',               'mode': 'i'},
-        \       {'char': '*', 'at': ' \*\* \%#', 'input': '<BS><BS><BS><BS>**',   'mode': 'i'},
-        \       {'char': '*', 'at': '\*\*\+\%#', 'input': '*',                    'mode': 'i'},
-        \      ]
-  " '/' -> ' / ' -> '//' -> '///' -> '////' ...
-  let rules += [
-        \       {'char': '/', 'at': '\%#',     'input': '/',                      'mode': 'i'},
-        \       {'char': '/', 'at': '/\%#',    'input': '<BS> / ',                'mode': 'i'},
-        \       {'char': '/', 'at': ' / \%#',  'input': '<BS><BS><BS>//',         'mode': 'i'},
-        \       {'char': '/', 'at': '//\+\%#', 'input': '/',                      'mode': 'i'},
-        \      ]
-  " '%' -> ' % ' -> '%%' -> '%%%' -> '%%%%' ...
-  let rules += [
-        \       {'char': '%', 'at': '\%#',     'input': '%',                      'mode': 'i'},
-        \       {'char': '%', 'at': '%\%#',    'input': '<BS> % ',                'mode': 'i'},
-        \       {'char': '%', 'at': ' % \%#',  'input': '<BS><BS><BS>%%',         'mode': 'i'},
-        \       {'char': '%', 'at': '%%\+\%#', 'input': '%',                      'mode': 'i'},
-        \      ]
   " '&' -> ' && ' -> '&&' -> '&&&' -> '&&&&' ...
   let rules += [
         \       {'char': '&', 'at': '\%#',     'input': '&',                      'mode': 'i'},
@@ -329,9 +295,6 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '>',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '>'},
         \       {'char': '+',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+'},
         \       {'char': '-',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-'},
-        \       {'char': '*',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '*'},
-        \       {'char': '/',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '/'},
-        \       {'char': '%',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '%'},
         \       {'char': '&',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '&'},
         \       {'char': '<Bar>', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '<Bar>'},
         \      ]
@@ -362,6 +325,37 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '=', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '=',                   'mode': 'i'},
         \      ]
 
+  " in constructing...
+  function! Align_equal(pattern, padding)
+    let orig_pos = [line("."), col(".")]
+    " count a number of words ahead to the pattern (upto 9...)
+    " FIXME: number limitation
+    let pattern  = '^\s*' . repeat('\(\<\h\k*\>\s*\)\?', 9) . '\s*' . a:pattern
+    let n_words  = len(filter(matchlist(getline(orig_pos[0])[0 : orig_pos[1] - 1], pattern), 'v:val != ""')) - 1
+
+    " change the pattern to fit the current line
+    let pattern  = '^\s*' . repeat('\(\<\h\k*\>\s*\)', n_words) . '\s*' . a:pattern
+
+    " check the vicinal lines
+    let end  = line("$")
+    let list = []
+
+    let line = orig_pos[0] - 1
+    while match(getline(line), pattern) == 0
+      let list += [line]
+      let line -= 1
+    endwhile
+
+    let line = orig_pos[0] + 1
+    while match(getline(line), pattern) == 0
+      let list += [line]
+      let line += 1
+    endwhile
+
+    PP! list
+
+  endfunction
+
   " smart '<CR>' input
   " delete line end spaces when line-breaking
   let rules += [{'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call setline(line(''.'')-1, substitute(getline(line(''.'')-1), ''\s\+$'', '''', ''''))<CR>'}]
@@ -385,15 +379,15 @@ if neobundle#tap('vim-smartinput')
 
   " correspondent parentheses
   let rules += [
-        \       {'char': '(',    'at': '\%#',       'input': '()<Left>',                                           'mode': 'i:'},
-        \       {'char': ')',    'at': '\%#\_s*)',  'input': '<C-r>=smartinput#_leave_block('')'')<Enter><Right>', 'mode': 'i:'},
-        \       {'char': '(',    'at': '\\\%#',     'input': '(',                                                  'mode': 'i:'},
-        \       {'char': '[',    'at': '\%#',       'input': '[]<Left>',                                           'mode': 'i:'},
-        \       {'char': ']',    'at': '\%#\_s*\]', 'input': '<C-r>=smartinput#_leave_block('']'')<Enter><Right>', 'mode': 'i:'},
-        \       {'char': '[',    'at': '\\\%#',     'input': '[',                                                  'mode': 'i:'},
-        \       {'char': '{',    'at': '\%#',       'input': '{}<Left>',                                           'mode': 'i:'},
-        \       {'char': '}',    'at': '\%#\_s*}',  'input': '<C-r>=smartinput#_leave_block(''}'')<Enter><Right>', 'mode': 'i:'},
-        \       {'char': '{',    'at': '\\\%#',     'input': '{',                                                  'mode': 'i:'},
+        \       {'char': '(',    'at': '\%#',       'input': '()<Left>',                                           'mode': 'i:/?'},
+        \       {'char': ')',    'at': '\%#\_s*)',  'input': '<C-r>=smartinput#_leave_block('')'')<Enter><Right>', 'mode': 'i:/?'},
+        \       {'char': '(',    'at': '\\\%#',     'input': '(',                                                  'mode': 'i:/?'},
+        \       {'char': '[',    'at': '\%#',       'input': '[]<Left>',                                           'mode': 'i:/?'},
+        \       {'char': ']',    'at': '\%#\_s*\]', 'input': '<C-r>=smartinput#_leave_block('']'')<Enter><Right>', 'mode': 'i:/?'},
+        \       {'char': '[',    'at': '\\\%#',     'input': '[',                                                  'mode': 'i:/?'},
+        \       {'char': '{',    'at': '\%#',       'input': '{}<Left>',                                           'mode': 'i:/?'},
+        \       {'char': '}',    'at': '\%#\_s*}',  'input': '<C-r>=smartinput#_leave_block(''}'')<Enter><Right>', 'mode': 'i:/?'},
+        \       {'char': '{',    'at': '\\\%#',     'input': '{',                                                  'mode': 'i:/?'},
         \      ]
 
   " delete correspondent parentheses and quotes
@@ -616,6 +610,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['matlab', 'scilab']},
         \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['matlab', 'scilab']},
         \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['matlab', 'scilab']},
+        \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',       'filetype': ['matlab', 'scilab']},
         \      ]
   " '.^' -> '^' -> '^^' -> '^^^' ...
   let rules += [
@@ -649,6 +644,7 @@ if neobundle#tap('vim-smartinput')
   let rules += [
         \       {'char': ':', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex(kind(0d0))\|logical\|character\)\%((\d\+)\)\?\%(\s*,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|intent(\%(in\|out\|inout\))\)\)\?\%#', 'input': ' :: ', 'mode': 'i', 'filetype': ['fortran']},
         \       {'char': ':', 'at': '^\s*type(\h\w\*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\)\)\?\%#', 'input': ' :: ', 'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': ':', 'at': '^\s*\%(private\|public\)\%#', 'input': ' :: ', 'mode': 'i', 'filetype': ['fortran']},
         \       {'char': ':', 'at': ' :: \%#', 'input': '<BS><BS><BS><BS>:', 'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '=', 'at': '/ \%#',   'input': '<BS>= ',                                     'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '=', 'at': ' /\%#\S', 'input': '= ',                                         'mode': 'i', 'filetype': ['fortran']},
@@ -662,28 +658,17 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '+', 'at': '\%#',    'input': ' + ',           'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '+', 'at': '+\%#',   'input': '+',             'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '+', 'at': ' \%#',   'input': '+ ',            'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '+', 'at': ' \%# ',  'input': '+<Right>',      'mode': 'i', 'filetype': ['fortran']},
         \      ]
   " ' - ' -> '-' -> '--' -> '---' ...
   let rules += [
         \       {'char': '-', 'at': '\%#',    'input': ' - ',           'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '-', 'at': '-\%#',   'input': '-',             'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',       'mode': 'i', 'filetype': ['fortran']},
-        \      ]
-
-  " ' * ' -> ' ** ' -> '*' -> '**' ...
-  let rules += [
-        \       {'char': '*', 'at': '\%#',       'input': ' * ',               'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '*', 'at': ' \* \%#',   'input': '<BS>* ',            'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '*', 'at': ' \*\* \%#', 'input': '<BS><BS><BS><BS>*', 'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '*', 'at': '\*\%#',     'input': '*',                 'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '*', 'at': '\%(write\|read\)\s*(\s*\<\w\>\s*,\s*\%#', 'input': '*', 'mode': 'i', 'filetype': ['fortran']},
-        \      ]
-  " ' / ' -> '/' -> '//' -> '///' ...
-  let rules += [
-        \       {'char': '/', 'at': '\%#',    'input': ' / ',           'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '/', 'at': ' / \%#', 'input': '<BS><BS><BS>/', 'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '/', 'at': '/\%#',   'input': '/',             'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '-', 'at': ' \%#',   'input': '- ',            'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '-', 'at': ' \%# ',  'input': '-<Right>',      'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '-', 'at': '[(=<>,]\s*\%#', 'input': '-',       'mode': 'i', 'filetype': ['fortran']},
         \      ]
 
   " R
@@ -731,24 +716,10 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '-', 'at': '-\%#',   'input': '--',             'filetype': ['c']},
         \       {'char': '-', 'at': '---\+\%#', 'input': '-',            'filetype': ['c']},
         \      ]
-  " ' * ' -> '*' -> ' *' -> '**' -> '***'
+
   let rules += [
-        \       {'char': '*', 'at': '\%#',       'input': ' * ',           'filetype': ['c']},
-        \       {'char': '*', 'at': ' \* \%#',   'input': '<BS><BS><BS>*', 'filetype': ['c']},
-        \       {'char': '*', 'at': '\*\%#',     'input': '<BS> *',        'filetype': ['c']},
-        \       {'char': '*', 'at': ' \*\%#',    'input': '<BS><BS>**',    'filetype': ['c']},
-        \       {'char': '*', 'at': '\*\*\+\%#', 'input': '*',             'filetype': ['c']},
-        \      ]
-  " ' / ' -> '// ' -> '/' -> '//' -> '///'
-  let rules += [
-        \       {'char': '/', 'at': '\%#',    'input': ' / ',             'filetype': ['c']},
-        \       {'char': '/', 'at': ' / \%#', 'input': '<BS><BS><BS>// ', 'filetype': ['c']},
-        \       {'char': '/', 'at': '// \%#', 'input': '<BS><BS>',        'filetype': ['c']},
-        \       {'char': '/', 'at': '/\%#',   'input': '/',               'filetype': ['c']},
         \       {'char': '+', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+', 'filetype': ['c']},
         \       {'char': '-', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-', 'filetype': ['c']},
-        \       {'char': '*', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '*', 'filetype': ['c']},
-        \       {'char': '/', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '/', 'filetype': ['c']},
         \      ]
 
   for item in rules
@@ -834,25 +805,6 @@ if neobundle#tap('vim-columnmove')
   let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 endif
 "}}}
-"*** dbg.vim *** {{{
-if neobundle#tap('dbg.vim')
-  let g:dbg#command_shell = 'cmd.exe'
-  let g:dbg#shell_prompt = '> '
-
-  let g:dbg#command_gdb = 'gdb'
-endif
-"}}}
-"*** indent_guides.vim *** {{{
-if neobundle#tap('vim-indent-guides')
-  let g:indent_guides_enable_on_vim_startup = 1
-  let g:indent_guides_start_level = 2
-  let g:indent_guides_guide_size = 1
-  let g:indent_guides_auto_colors = 1
-  let g:indent_guides_default_mapping = 0
-  let g:indent_guides_exclude_filetypes = ['help']
-  nmap <silent> <Space>i <Plug>IndentGuidesToggle
-endif
-"}}}
 "*** jedi.vim *** {{{
 if neobundle#tap('jedi-vim')
   let g:jedi#auto_initialization = 1
@@ -866,6 +818,8 @@ if neobundle#tap('neocomplete')
   let g:neocomplete#enable_at_startup = 1
   " Use smartcase.
   let g:neocomplete#enable_smart_case = 1
+  " Set completion start length
+  let g:neocomplete#auto_completion_start_length = 3
   " Set minimum syntax keyword length.
   let g:neocomplete#sources#syntax#min_keyword_length = 3
   let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
@@ -932,7 +886,7 @@ if neobundle#tap('neocomplete')
     inoremap <expr> <C-e> neocomplete#cancel_popup()
     " Plugin key-mappings.
     inoremap <expr> <C-g> neocomplete#undo_completion()
-    inoremap <expr> <C-l> neocomplete#complete_common_string()
+    " inoremap <expr> <C-l> neocomplete#complete_common_string()
   endfunction
   unlet bundle
 endif
@@ -961,6 +915,8 @@ endif
 "}}}
 "*** operator-surround *** {{{
 if neobundle#tap('vim-operator-surround')
+  map s <NOP>
+
   " operator mappings
   map <silent> sa <Plug>(operator-surround-append)
   map <silent> sd <Plug>(operator-surround-delete)
@@ -978,13 +934,13 @@ if neobundle#tap('vim-patternjump')
     \ '_' : {
     \   'i' : {
     \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
-    \     'tail' : ['\<\h\k*\>'],
+    \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
     \     },
     \   'n' : {
-    \     'head' : ['\<\h\k*\>'],
+    \     'head' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
     \     },
     \   'x' : {
-    \     'tail' : ['\<\h\k*\>'],
+    \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
     \     },
     \   'o' : {
     \     'forward'  : {'head' : [',', ')', ']', '}', '$']},
@@ -999,26 +955,26 @@ if neobundle#tap('vim-patternjump')
     \ 'vim' : {
     \   'i' : {
     \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
-    \     'tail' : ['\<\h\k*\>'],
+    \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
     \     },
     \   'n' : {
-    \     'head' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'],
+    \     'head' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
     \     },
     \   'x' : {
-    \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'],
+    \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
     \     },
     \   'o' : {
-    \     'forward'  : {'tail_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']},
-    \     'backward' : {'head_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']},
+    \     'forward'  : {'tail_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
+    \     'backward' : {'head_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
     \     },
     \   },
     \ }
 
   " Be aggressive!
-  nnoremap <silent> w  :<C-u>call patternjump#forward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'], []], 0)<CR>
-  nnoremap <silent> e  :<C-u>call patternjump#forward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']], 0)<CR>
-  nnoremap <silent> b  :<C-u>call patternjump#backward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>'], []], 0)<CR>
-  nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>']], 0)<CR>
+  nnoremap <silent> w  :<C-u>call patternjump#forward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
+  nnoremap <silent> e  :<C-u>call patternjump#forward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
+  nnoremap <silent> b  :<C-u>call patternjump#backward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
+  nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
 endif
 "}}}
 "*** quickrun.vim *** {{{
@@ -1029,6 +985,13 @@ if neobundle#tap('vim-quickrun')
         \       'runner' : 'vimproc',
         \       'runner/vimproc/updatetime' : 100,
         \       'hook/time/enable' : 1,
+        \       },
+        \ 'julia' : {
+        \       'command': 'julia',
+        \       'cmdopt': '-q --color=no',
+        \       'runner': 'process_manager',
+        \       'runner/process_manager/load': 'include(%s)',
+        \       'runner/process_manager/prompt': 'julia>',
         \       },
         \ 'maxima' : {
         \       'command': 'maxima',
@@ -1154,7 +1117,7 @@ if neobundle#tap('vim-reanimate')
   let g:reanimate_default_save_name = ""
 
   " session options
-  let g:reanimate_sessionoptions="curdir,globals,help,slash,tabpages"
+  let g:reanimate_sessionoptions="curdir,folds,globals,help,slash,tabpages"
 
   call unite#custom#default_action('reanimate', 'reanimate_load')
   nnoremap <Space>ur :Unite reanimate<CR>
@@ -1352,7 +1315,7 @@ set cindent                         " use c style indentation
 set expandtab                       " use soft tabs
 set formatoptions+=mM               " handle line-breaking appropriately also with multi-byte
 set nrformats=hex                   " do not use increment/decrement keys (<C-a>/<C-x>) for octal numbers and alphabets
-set switchbuf=useopen,usetab        " switch to it when trying to open file which has already opened elsewhere
+set switchbuf=usetab,useopen        " switch to it when trying to open file which has already opened elsewhere
 set showmatch                       " emphasize correspondent parenthesis
 set shiftwidth=4                    " indent width
 set shiftround                      " round the indent width to the number of 'indentwidth' option when indented by '<' or '>'
@@ -1374,8 +1337,6 @@ autocmd vimrc BufReadPost *
 colorscheme mckn
 set cmdheight=2                     " the height of commandline
 set cursorline                      " highlight corsor line
-set guioptions-=m                   " menu bar is not required
-set guioptions-=T                   " tool bar is not required
 set laststatus=2                    " always display status line
 set list                            " visualize special characters
 set listchars=tab:>-,trail:-,eol:$,nbsp:%,extends:>,precedes:<
@@ -1387,7 +1348,14 @@ set scrolloff=5                     " vertical scroll margin
 set sidescrolloff=10                " horizontal scroll margin
 set t_Co=256                        " use 256 coloring in modern terminal emulator
 set title                           " display title
-set nowrap                          " do not wrap in long line
+
+" wrapping
+if (v:version > 704) || ((v:version == 704) && (has("patch338")))
+  set wrap
+  set breakindent
+else
+  set nowrap                        " do not wrap in long line
+endif
 
 " highlight cursor line only on active window - http://d.hatena.ne.jp/yuroyoro/searchdiary?word=vim%20
 autocmd vimrc WinLeave * set nocursorline
@@ -1429,12 +1397,12 @@ autocmd vimrc FileType autohotkey setlocal dictionary+=$USERDIR/dict/AHK.dict fo
 autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
 
 "*** FORTRAN ***"
-autocmd BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
+autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
                               \| let b:fortran_fold=1
                               \| let b:fortran_more_precise=1
 
 "*** python ***"
-autocmd FileType python setlocal omnifunc=jedi#completions
+autocmd vimrc FileType python setlocal omnifunc=jedi#completions
 
 "*** vim ***"
 autocmd vimrc FileType vim setlocal softtabstop=2 shiftwidth=2
@@ -1469,9 +1437,6 @@ function! s:help_conf_optimizer()
 
   doautocmd FileType
 endfunction
-
-"*** int-maxima ***"
-autocmd vimrc FileType int-maxima nnoremap <buffer> yy 0f<Space>ly$G0f<Space>"_d$a<Space><C-r>*
 
 "*** markdown ***"
 autocmd vimrc FileType markdown setlocal wrap iminsert=0
@@ -1587,27 +1552,6 @@ function! s:edit_en()
 endfunction
 "}}}
 " RegCopy     - Function to copy the content of a register to the other one. {{{
-" *argments*"{{{
-" arg1 :  The register name of copy source. It can be acceptable only a
-"        character, the second and after character will be ignored. If the
-"        arg2 is omitted and being executed with ! modifier, arg1 is regarded
-"        as the name of copy destination.
-" arg2 :  The register name of copy destination.It can be acceptable only a
-"        character, the second and after character will be ignored.
-" bang :  This argment signify wether the command is executed with !
-"        modifier or not.
-""}}}
-" *specifications*"{{{
-"  If the command Regcopy is executed with only 1 argment, the content of the
-" register asigned by argment is going to be copied into the register asigned
-" by v:register.
-"  However, in the case of the command is executed with ! modifier, that
-" behavior, written above, is turned over. This means that the content of the
-" register asigned by v:register is going to be copied into the register
-" asigned by argment.
-"  In the case of the command is executed with ! modifier, second and after
-" argments will be ignored.
-""}}}
 function! RegCopy(bang, ...) "{{{
   let arg1 = a:1
 
@@ -1634,17 +1578,10 @@ function! RegCopy(bang, ...) "{{{
   call setreg(DestReg, getreg(SourceReg), getregtype(SourceReg))
   echo 'Regcopy : @' . SourceReg . ' ---> @' . DestReg
 endfunction "}}}
+
 command! -nargs=+ -bang RegCopy call RegCopy('<bang>',<f-args>)
 "}}}
-" RegExchange - Function to exchange each contents of two registers. {{{
-" *argments*"{{{
-" arg1
-" arg2 :  The name of each registers exchanging the contents.
-""}}}
-" *specifications*"{{{
-"  If the command Regexc is executed with only 1 argment, the second argment
-" is going to be used v:register.
-""}}}
+" RegExchange - Function to exchange each content of two registers. {{{
 function! RegExchange(...) "{{{
   let ExcReg1 = a:1[0]
 
@@ -1659,12 +1596,14 @@ function! RegExchange(...) "{{{
   call setreg(ExcReg1,         temp[0],             temp[1])
   echo 'Regexc : @' . l:ExcReg1 . ' <--> @' . l:ExcReg2
 endfunction "}}}
+
 command! -nargs=+ RegExchange call RegExchange(<f-args>)
 "}}}
 "isolate-tab {{{
 " TODO
 " unite source... -> found it : buffer_tab
 " IsolateTabBuffers command
+" Imperfect...
 
 let g:ignore_filename_pattern = ['vimfiler:.*']
 let g:ignore_filetype_pattern = ['qf']
@@ -1817,19 +1756,22 @@ inoremap <C-j> <Esc>o
 " inoremap <C-k> <Esc>O
 
 " line-break for upper direction with hanging a following part
-" nnoremap <S-CR> DO<C-r>*<Esc>^
 " inoremap <S-CR> <Esc>lDO<C-r>*<Esc>I
-nnoremap <silent> <S-CR> :<C-u>call Linebreak_udhfp()<CR>
-inoremap <silent> <S-CR> <Esc>l:call Linebreak_udhfp()<CR>i
+inoremap <silent> <S-CR> <Esc>:call Linebreak_udhfp()<CR>
 
 """ countermeasure for flickering
 function! Linebreak_udhfp()
-  let a = @*
+  if col('.') == col('$') - 1
+    call feedkeys('O', 'n')
+  else
+    let string = getline('.')
+    let col    = col('.')
+    call setline('.', string[: col - 1])
+    execute 'normal! O' . string[col :]
+    call feedkeys('I', 'n')
+  endif
 
-  execute 'normal! "aDO' . "\<C-r>" . 'a' . "\<Esc>" . '^'
-
-  let @a = a
-  return ''
+  return
 endfunction
 
 " check syntax group of the character under the cursor
@@ -1841,6 +1783,9 @@ nnoremap <M-a> ea
 
 " reserve black hole register for the next operator
 nnoremap \d "_
+
+" delete all strings behind the cursor
+inoremap <silent> <C-l> <Esc>:call setline('.', getline('.')[: col('.') - 1])<CR>A
 
 " enabling 'f' and 't' commands to use string class {{{
 function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
@@ -1939,14 +1884,16 @@ command! -nargs=? PresetMacros call s:preset_macros()
 call s:preset_macros()
 "}}}
 "***** playpit ***** {{{
-" Filetype textobj
-onoremap <silent> iF :<C-u>call Textobj_vim()<CR>
-xnoremap <silent> iF :<C-u>call Textobj_vim()<CR>
+" Instant textobj
+onoremap <silent> iI :<C-u>call Textobj_instant()<CR>
+xnoremap <silent> iI :<C-u>call Textobj_instant()<CR>
 
-function! Textobj_vim()
-  " What kinds of characters can be used for <Plug>?
-  let patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})', '\<[abglstvw]:\k\+\>']
+" Prepare preset patterns
+" What kinds of characters can be used (and can not be used) for <Plug>?
+let g:instant_textobj_patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})', '\<[abglstvw]:\k\+\>']
 
+function! Textobj_instant()
+  let patterns = g:instant_textobj_patterns
   " A kind of workaround
   " need the equivalent option with the 'c' flag of search() function
   let slipped = 0
@@ -1973,6 +1920,32 @@ function! Textobj_vim()
     endif
   endif
 endfunction
+
+" textobj-number
+" NOTE: Fortran allows the expression ended with dot, like 1. (= 1.0), 1.d0 (= 1.0d0)
+"       In addition to that, following description also valid. .5 (= 0.5), -.5 (= -0.5)
+"       '\<-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDE]-\?\d\+\)\?\>'
+
+"       Vim script uses dot as a concatenation operator, thus the above expressions
+"       is not valid.
+"       '\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'
+
+"       When trying to select only one character, like 0, it seems strange.
+"       'c' flag is not used for search() function...?
+"       But no problem for practical use.
+
+"       Removing '\<' and '\>' might be better.
+
+call textobj#user#plugin('number', {
+  \   'number-i': {
+  \     'pattern': '-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDE]-\?\d\+\)\?',
+  \     'select': 'in',
+  \   },
+  \   'number-a': {
+  \     'pattern': '\s*-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDE]-\?\d\+\)\?\s*',
+  \     'select': 'an',
+  \   },
+  \ })
 
 " operator-insertion
 " To use with textobject 'gn', I optimized the final position of cursor.
@@ -2043,7 +2016,7 @@ function! Operator_insertion(type)
 endfunction
 
 function! Operator_addition(type)
-  execute "normal! `]a" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount)) . "\<Esc>`["
+  execute "normal! `]a" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount)) . "\<Esc>`]"
 endfunction
 
 function! Operator_paste_to_head(type)
@@ -2110,7 +2083,7 @@ function! Operator_paste_to_tail(type)
       call setreg(v:register, join(map(split(reg_value, "\n", 1), 'repeat(v:val, (v:prevcount == 0 ? 1 : v:prevcount)'), "\n"), reg_type)
     endif
 
-    execute 'normal! `]"' . v:register . 'p`['
+    execute 'normal! `]"' . v:register . 'p`]'
     call setreg(v:register, reg_value, reg_type)
   endif
 endfunction
