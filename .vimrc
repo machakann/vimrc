@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 05-Jul-2014.
+" Last Change: 13-Jul-2014.
 "
 "***** Todo *****
 
@@ -61,7 +61,7 @@ NeoBundle       'kana/vim-submode'
 NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
-" NeoBundle       'machakann/vim-columnmove'
+NeoBundle       'machakann/vim-columnmove'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
@@ -219,7 +219,6 @@ if neobundle#tap('vim-smartinput')
         \     [':',     ':',     ':'    ],
         \     ['.',     '.',     '.'    ],
         \     [',',     ',',     ','    ],
-        \     ['<C-k>', '<C-k>', '<C-k>'],
         \    ]
 
   for item in s:trig
@@ -392,23 +391,18 @@ if neobundle#tap('vim-smartinput')
 
   " delete correspondent parentheses and quotes
   let rules += [
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''',  'input': '<BS><BS>',  'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',      'input': '<BS><BS>',  'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',     'input': '<BS><BS>',  'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '<>\%#',      'input': '<BS><BS>',  'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': ':'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''',  'input': '<BS><BS>',  'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',     'input': '<BS><BS>',  'mode': 'i:/?'},
         \      ]
 
   " Delete operaters together with vicinal spaces
@@ -440,6 +434,8 @@ if neobundle#tap('vim-smartinput')
         \       {'char': ',', 'at': '\%#',    'input': ', ',     'mode': 'i'},
         \       {'char': ',', 'at': ', \%#',  'input': '<BS>',   'mode': 'i'},
         \       {'char': ',', 'at': '\%# ',   'input': ',',      'mode': 'i'},
+        \       {'char': '(', 'at': '\C^[hH]elp \w\+\%#', 'input': '(', 'mode': ':'},
+        \       {'char': '=', 'at': '\C\<set\> \w\+\%#',  'input': '=', 'mode': ':'},
         \      ]
 
   " for commandline mode
@@ -554,6 +550,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '=', 'at': '\S\.\%#',  'input': '<Left> <Right>= ',                          'mode': 'i:', 'filetype': ['vim']},
         \       {'char': '=', 'at': ' \.= \%#', 'input': '<Left><Left><Left><BS><Right><Right><Del>', 'mode': 'i:', 'filetype': ['vim']},
         \       {'char': '=', 'at': '<C-r>\%#', 'input': '=',                                         'mode': 'i:', 'filetype': ['vim']},
+        \       {'char': '=', 'at': '\C\<set\> \w\+\%#', 'input': '=',                                'mode':  'i', 'filetype': ['vim']},
         \      ]
   " '.' -> ' . ' -> '..' -> '...'
   let rules += [
@@ -610,7 +607,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['matlab', 'scilab']},
         \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['matlab', 'scilab']},
         \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['matlab', 'scilab']},
-        \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',       'filetype': ['matlab', 'scilab']},
+        \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['matlab', 'scilab']},
         \      ]
   " '.^' -> '^' -> '^^' -> '^^^' ...
   let rules += [
@@ -668,7 +665,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '-', 'at': '-\%#',   'input': '-',             'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '-', 'at': ' \%#',   'input': '- ',            'mode': 'i', 'filetype': ['fortran']},
         \       {'char': '-', 'at': ' \%# ',  'input': '-<Right>',      'mode': 'i', 'filetype': ['fortran']},
-        \       {'char': '-', 'at': '[(=<>,]\s*\%#', 'input': '-',       'mode': 'i', 'filetype': ['fortran']},
+        \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',       'mode': 'i', 'filetype': ['fortran']},
         \      ]
 
   " R
@@ -735,6 +732,7 @@ if neobundle#tap('vim-smartinput')
   cmap <BS>  <Plug>(smartinput_BS)
   imap <CR>  <Plug>(smartinput_CR)
   imap <C-k> <Plug>(smartinput_^k)
+  cmap <C-k> <Plug>(smartinput_^k)
 
   " toggle switch
   command! -nargs=0 SmartinputToggle call Smartinput_toggle_switch()
@@ -787,22 +785,25 @@ endif
 "}}}
 "*** caw.vim *** {{{
 if neobundle#tap('caw.vim')
-  nmap <Space>c <Plug>(caw:I:toggle)
-  vmap <Space>c <Plug>(caw:I:toggle)
+  function! Operator_caw(type)
+    execute "'[,']normal \<Plug>(caw:I:toggle)"
+  endfunction
+
   command! -nargs=0 CawToggle normal <Plug>(caw:I:toggle)
-endif
-"}}}
-"*** columnjump *** {{{
-if neobundle#tap('columnjump')
-  nmap \b <Plug>(columnjump-backward)
-  nmap \w <Plug>(columnjump-forward)
+
+  nnoremap <silent> <Space>c  :<C-u>set operatorfunc=Operator_caw<CR>g@
+  nnoremap <silent> <Space>cc :<C-u>CawToggle<CR>
+  vnoremap <silent> <Space>c  <Esc>:set operatorfunc=Operator_caw<CR>gvg@
 endif
 "}}}
 "*** columnmove *** {{{
 if neobundle#tap('vim-columnmove')
   let g:columnmove_auto_scroll = 1
-"   let g:columnmove_strict_wbege = 0
+  let g:columnmove_strict_wbege = 0
   let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
+
+  nnoremap <silent> <M-o> :<C-u>call columnmove#e('n', 0, {'strict_wbege':0})<CR>o
+  nnoremap <silent> <M-O> :<C-u>call columnmove#b('n', 0, {'strict_wbege':0})<CR>o
 endif
 "}}}
 "*** jedi.vim *** {{{
@@ -810,6 +811,7 @@ if neobundle#tap('jedi-vim')
   let g:jedi#auto_initialization = 1
   let g:jedi#rename_command = "<leader>R"
   let g:jedi#popup_on_dot = 0
+  autocmd vimrc FileType python setlocal omnifunc=jedi#completions
 endif
 "}}}
 "*** neocomplete.vim *** {{{
@@ -969,12 +971,6 @@ if neobundle#tap('vim-patternjump')
     \     },
     \   },
     \ }
-
-  " Be aggressive!
-  nnoremap <silent> w  :<C-u>call patternjump#forward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
-  nnoremap <silent> e  :<C-u>call patternjump#forward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
-  nnoremap <silent> b  :<C-u>call patternjump#backward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
-  nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
 endif
 "}}}
 "*** quickrun.vim *** {{{
@@ -1169,18 +1165,8 @@ if neobundle#tap('vimfiler')
 
   autocmd vimrc FileType vimfiler setlocal nowrap
   autocmd vimrc FileType vimfiler setlocal nonumber
+  autocmd vimrc FileType vimfiler nmap <buffer><nowait> <Space> <Plug>(vimfiler_toggle_mark_current_line)
 endif
-"}}}
-"*** vital.vim *** {{{
-" if neobundle#tap('vital.vim')
-"   " use vital in vimrc
-"   if !exists('g:V')
-"       let g:V  = vital#of("vital")
-"       let g:Sl = g:V.import("Data.List")
-"       let g:Sd = g:V.import("Data.String")
-"       let g:s  = g:V.import("Prelude")
-"   endif
-" endif
 "}}}
 " *** watchdogs *** {{{
 if neobundle#tap('vim-watchdogs')
@@ -1381,7 +1367,7 @@ let &stl.="%(%{(&fenc!=''?&fenc:&enc)} | %)"
 " buffer number
 let &stl.="BUF #%n |"
 "line number / total lines
-let &stl.=" LN %l/%L\ | "
+" let &stl.=" LN %l/%L\ | "
 " percentage done
 " let &stl.="%p%% | "
 " column number
@@ -1400,12 +1386,6 @@ autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
 autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
                               \| let b:fortran_fold=1
                               \| let b:fortran_more_precise=1
-
-"*** python ***"
-autocmd vimrc FileType python setlocal omnifunc=jedi#completions
-
-"*** vim ***"
-autocmd vimrc FileType vim setlocal softtabstop=2 shiftwidth=2
 
 "*** help ***"
 autocmd vimrc FileType help vertical resize 78
@@ -1726,7 +1706,7 @@ nnoremap <Space>h :Help<Space>
 "--------------------------------------------------------------------------
 " do not store a character cut by x,s
 nnoremap x "_x
-nnoremap s "_s
+" nnoremap s "_s
 
 " move cursor as you see
 nnoremap j gj
