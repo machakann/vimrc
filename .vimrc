@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 13-Jul-2014.
+" Last Change: 08-Aug-2014.
 "
 "***** Todo *****
 
@@ -14,7 +14,7 @@ augroup vimrc
   autocmd!
 augroup END
 
-if has('win32') || has('win64')
+if has('win32')
   let $USERDIR=expand('~/vimfiles')
   let $USERCACHEDIR=expand('~/vimcache')
 else
@@ -43,6 +43,78 @@ if !isdirectory(expand($USERCACHEDIR.'/.vimundo'))
   call mkdir($USERCACHEDIR . '/.vimundo')
 endif
 "}}}
+"***** fundamentals ***** {{{
+"-------------------------------------------------------------------------
+set backup                          " use backup
+set swapfile                        " use swap file
+set backupdir=$USERCACHEDIR/backup  " assign path to make backup files
+let &directory=&backupdir           " assign that path to make swap files is same as that for backup file
+set clipboard=unnamed               " share clipboard with OS
+set spellfile=$USERDIR/spell/en.ascii.add
+                                    " uset file to add wors for spell check
+set spelllang=en,cjk                " use english for spell check and cjk region is ignored
+set spellsuggest=best               " choose correction engine for spell check
+set helplang=ja,en                  " use japanese help preferentially
+set hidden                          " move out from current buffer without warning even on editing
+set history=100                     " the stored number of commands/searching history
+set iminsert=0                      " turn off ime when getting into insert mode
+set imsearch=0                      " turn off ime when getting into searching mode
+set splitbelow                      " open new window below the current when splitting
+set splitright                      " open new window in right hand side of the current when splitting
+set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
+set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
+set viminfo&
+set viminfo+=n$USERCACHEDIR/viminfo.txt
+                                    " assign path to viminfo file
+set wildmenu                        " use extended commandline completion
+
+" encoding and file format
+set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
+
+if has('win32')
+  set encoding=cp932
+  set fileformats=dos,unix
+else
+  set encoding=utf-8
+  set fileformats=unix,dos
+endif
+
+" always set current directory to the directory of current file
+" au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
+
+" use command-line window instead of command-line mode
+" vim-users.jp Hacks #161
+" nnoremap <sid>(command-line-enter) q:
+" xnoremap <sid>(command-line-enter) q:
+
+" nmap :  <sid>(command-line-enter)
+" xmap :  <sid>(command-line-enter)
+
+autocmd vimrc CmdwinEnter * call s:init_cmdwin()
+function! s:init_cmdwin()
+  nnoremap <buffer> q :<C-u>quit<CR>
+  nnoremap <buffer> <CR> i<CR>
+  imap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)"
+  imap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
+  imap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
+
+  setlocal iminsert=0
+endfunction
+
+" keep undo history (Vim7.3 or upper)
+" vim-users.jp Hacks #162
+if has('persistent_undo')
+  set undodir=./.vimundo,$USERCACHEDIR/.vimundo
+  set undofile
+endif
+
+" syntax coloring after reloading session (autocmd.en, 8. Groups)
+autocmd vimrc SessionLoadPost doautoall highlight Bufread
+
+" never use 'r' and 'o' option in formatoptions
+autocmd vimrc FileType * setlocal formatoptions-=r
+autocmd vimrc FileType * setlocal formatoptions-=o
+"}}}
 "***** plugins *****"{{{
 "--------------------------------------------------------------------------
 "*** neobundle.vim *** {{{
@@ -65,18 +137,18 @@ NeoBundle       'machakann/vim-columnmove'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
+NeoBundle       'machakann/vim-textobj-equation'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
+NeoBundle       'osyo-manga/vim-textobj-multitextobj'
 NeoBundle       'rhysd/vim-textobj-word-column'
 NeoBundle       'rhysd/vim-operator-surround'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
 NeoBundle       'Shougo/neomru.vim'
-NeoBundle       'Shougo/unite-help'        , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'Shougo/unite.vim'
-NeoBundle       'Shougo/unite-outline'
-NeoBundle       'Shougo/vimproc.vim'            , {
+NeoBundle       'Shougo/vimproc.vim' , {
                 \ 'build' : {
                 \     'windows' : 'make -f make_mingw32.mak',
                 \     'cygwin'  : 'make -f make_cygwin.mak',
@@ -85,10 +157,9 @@ NeoBundle       'Shougo/vimproc.vim'            , {
                 \    },}
 NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
 NeoBundle       'thinca/vim-prettyprint'
-NeoBundle       'thinca/vim-unite-history'  , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'thinca/vim-visualstar'
 NeoBundle       'thinca/vim-localrc'
-NeoBundle       'tpope/vim-fugitive'
+NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tpope/vim-markdown'
 NeoBundle       'tpope/vim-repeat'
 NeoBundle       'tyru/caw.vim'
@@ -786,14 +857,15 @@ endif
 "*** caw.vim *** {{{
 if neobundle#tap('caw.vim')
   function! Operator_caw(type)
-    execute "'[,']normal \<Plug>(caw:I:toggle)"
+    " this could be modified but menndoi.
+    execute "'[,']normal \<Plug>(caw:i:toggle)"
   endfunction
 
-  command! -nargs=0 CawToggle normal <Plug>(caw:I:toggle)
+  command! -nargs=0 CawToggle normal <Plug>(caw:i:toggle)
 
   nnoremap <silent> <Space>c  :<C-u>set operatorfunc=Operator_caw<CR>g@
   nnoremap <silent> <Space>cc :<C-u>CawToggle<CR>
-  vnoremap <silent> <Space>c  <Esc>:set operatorfunc=Operator_caw<CR>gvg@
+  xnoremap <silent> <Space>c  <Esc>:set operatorfunc=Operator_caw<CR>gvg@
 endif
 "}}}
 "*** columnmove *** {{{
@@ -818,8 +890,8 @@ endif
 if neobundle#tap('neocomplete')
   " Use neocomplete.
   let g:neocomplete#enable_at_startup = 1
-  " Use smartcase.
-  let g:neocomplete#enable_smart_case = 1
+  " Ignore cases
+  let g:neocomplete#enable_ignore_case = 1
   " Set completion start length
   let g:neocomplete#auto_completion_start_length = 3
   " Set minimum syntax keyword length.
@@ -884,11 +956,6 @@ if neobundle#tap('neocomplete')
     " <C-h>, <BS>: close popup and delete backword char.
     imap <expr> <C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
     imap <expr> <BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-    inoremap <expr> <C-y> neocomplete#close_popup()
-    inoremap <expr> <C-e> neocomplete#cancel_popup()
-    " Plugin key-mappings.
-    inoremap <expr> <C-g> neocomplete#undo_completion()
-    " inoremap <expr> <C-l> neocomplete#complete_common_string()
   endfunction
   unlet bundle
 endif
@@ -971,6 +1038,11 @@ if neobundle#tap('vim-patternjump')
     \     },
     \   },
     \ }
+
+  nnoremap <silent> w :<C-u>call patternjump#forward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
+  nnoremap <silent> e :<C-u>call patternjump#forward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
+  nnoremap <silent> b :<C-u>call patternjump#backward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
+  nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
 endif
 "}}}
 "*** quickrun.vim *** {{{
@@ -986,14 +1058,14 @@ if neobundle#tap('vim-quickrun')
         \       'command': 'julia',
         \       'cmdopt': '-q --color=no',
         \       'runner': 'process_manager',
-        \       'runner/process_manager/load': 'include(%s)',
-        \       'runner/process_manager/prompt': 'julia>',
+        \       'runner/process_manager/load': 'include(%s:p)',
+        \       'runner/process_manager/prompt': 'julia> ',
         \       },
         \ 'maxima' : {
         \       'command': 'maxima',
         \       'cmdopt': '-q -b',
         \       'runner': 'process_manager',
-        \       'runner/process_manager/load': has('win32') || has('win64') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
+        \       'runner/process_manager/load': has('win32') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
         \       'runner/process_manager/prompt': '(%[io]\d\+)'
         \       },
         \ 'markdown' : {
@@ -1005,18 +1077,18 @@ if neobundle#tap('vim-quickrun')
         \       'command' : 'platex',
         \       },
         \ 'scilab'  : {
-        \       'command': has('win32') || has('win64') ? 'scilex' : 'scilab-adv-cli',
+        \       'command': has('win32') ? 'scilex' : 'scilab-adv-cli',
         \       'cmdopt': '-l en -nb -nw -f',
         \       'runner': 'process_manager',
         \       'runner/process_manager/load': 'exec(%s,-1)',
         \       'runner/process_manager/prompt': '-->',
-        \       'hook/output_encode/encoding' : has('win32') || has('win64') ? 'utf-8:cp932' : '&fileencoding',
+        \       'hook/output_encode/encoding' : has('win32') ? 'utf-8:cp932' : '&fileencoding',
         \       'hook/eval/enable': 1,
         \       'hook/eval/template': "%s\nmfprintf(6, '-->')",
         \       },
         \ 'r'   : {
-        \       'command': has('win32') || has('win64') ? 'Rscript' : 'R',
-        \       'exec': has('win32') || has('win64') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
+        \       'command': has('win32') ? 'Rscript' : 'R',
+        \       'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
         \       },
         \ 'vim/owl_test' : {
         \       'command': ':source',
@@ -1058,8 +1130,8 @@ endif
 "}}}
 "*** textobj-lastpaste *** {{{
 let g:textobj_lastpaste_no_default_key_mappings = 1
-omap iP <Plug>(textobj-lastpaste-i)
-xmap iP <Plug>(textobj-lastpaste-i)
+omap gm <Plug>(textobj-lastpaste-i)
+xmap gm <Plug>(textobj-lastpaste-i)
 "}}}
 "*** unite.vim *** {{{
 if neobundle#tap('unite.vim')
@@ -1070,12 +1142,11 @@ if neobundle#tap('unite.vim')
   nnoremap [Unite]y :Unite register history/yank<CR>
   nnoremap [Unite]m :Unite file_mru<CR>
   nnoremap [Unite]b :Unite buffer_tab<CR>
-  nnoremap [Unite]h :Unite help:ja help<CR>
   nnoremap [Unite]d :Unite directory_mru directory directory/new<CR>
   nnoremap [Unite]p :Unite neobundle/update<CR>
   nnoremap [Unite]o :Unite outline<CR>
 
-  if has('win32') || has('win64')
+  if has('win32')
     nnoremap <Space>uf :Unite file_rec buffer<CR>
   else
     nnoremap <Space>uf :Unite file_rec/async buffer<CR>
@@ -1084,7 +1155,6 @@ if neobundle#tap('unite.vim')
   let g:unite_enable_start_insert = 1
   let g:unite_enable_ignore_case = 1
   let g:unite_data_directory = $USERCACHEDIR . '/.unite'
-  let g:unite_split_rule = "botright"
   let g:unite_source_history_yank_enable = 1
 
   " tiny optimizations
@@ -1121,8 +1191,32 @@ endif
 "}}}
 "*** vim-operator-replace *** {{{
 if neobundle#tap('vim-operator-replace')
-  map _ <Plug>(operator-replace)
+  map <Space>r <Plug>(operator-replace)
 endif
+"}}}
+"*** vim-textobj-multitextobj ***"{{{
+let g:textobj_multitextobj_textobjects_i = [[
+      \   {'textobj': "i'", 'is_cursor_in': 1},
+      \   {'textobj': 'i"', 'is_cursor_in': 1},
+      \   {'textobj': 'i`', 'is_cursor_in': 1},
+      \   'i(',
+      \   'i[',
+      \   'i{',
+      \ ]]
+
+let g:textobj_multitextobj_textobjects_a = [[
+      \   {'textobj': "2i'", 'is_cursor_in': 1},
+      \   {'textobj': '2i"', 'is_cursor_in': 1},
+      \   {'textobj': '2i`', 'is_cursor_in': 1},
+      \   'a(',
+      \   'a[',
+      \   'a{',
+      \ ]]
+
+omap ib <Plug>(textobj-multitextobj-i)
+xmap ib <Plug>(textobj-multitextobj-i)
+omap ab <Plug>(textobj-multitextobj-a)
+xmap ab <Plug>(textobj-multitextobj-a)
 "}}}
 "*** vimshell.vim *** {{{
 if neobundle#tap('vimshell')
@@ -1135,7 +1229,7 @@ if neobundle#tap('vimshell')
   let g:vimshell_interactive_update_time = 500
   highlight link vimshellUserPrompt Function
 
-  if has('win32') || has('win64')
+  if has('win32')
     " Display user name on Windows.
     let g:vimshell_prompt = $USERNAME."% "
   else
@@ -1206,76 +1300,6 @@ if neobundle#tap('vim-watchdogs')
 endif
 "}}}
 "}}}
-"***** fundamentals ***** {{{
-"-------------------------------------------------------------------------
-set backup                          " use backup
-set swapfile                        " use swap file
-set backupdir=$USERCACHEDIR/backup  " assign path to make backup files
-let &directory=&backupdir           " assign that path to make swap files is same as that for backup file
-set clipboard=unnamed               " share clipboard with OS
-set spellfile=$USERDIR/spell/en.ascii.add
-                                    " uset file to add wors for spell check
-set spelllang=en,cjk                " use english for spell check and cjk region is ignored
-set spellsuggest=best               " choose correction engine for spell check
-set helplang=ja,en                  " use japanese help preferentially
-set hidden                          " move out from current buffer without warning even on editing
-set history=100                     " the stored number of commands/searching history
-set iminsert=0                      " turn off ime when getting into insert mode
-set imsearch=0                      " turn off ime when getting into searching mode
-set splitbelow                      " open new window below the current when splitting
-set splitright                      " open new window in right hand side of the current when splitting
-set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
-set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
-set viminfo+=n$USERCACHEDIR/viminfo.txt
-                                    " assign path to viminfo file
-
-" encoding and file format
-set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
-
-if has('win64') || has('win32')
-  set encoding=cp932
-  set fileformats=dos,unix
-else
-  set encoding=utf-8
-  set fileformats=unix,dos
-endif
-
-" always set current directory to the directory of current file
-" au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
-
-" use command-line window instead of command-line mode
-" vim-users.jp Hacks #161
-" nnoremap <sid>(command-line-enter) q:
-" xnoremap <sid>(command-line-enter) q:
-
-" nmap :  <sid>(command-line-enter)
-" xmap :  <sid>(command-line-enter)
-
-autocmd vimrc CmdwinEnter * call s:init_cmdwin()
-function! s:init_cmdwin()
-  nnoremap <buffer> q :<C-u>quit<CR>
-  nnoremap <buffer> <CR> i<CR>
-  imap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)"
-  imap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
-  imap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
-
-  setlocal iminsert=0
-endfunction
-
-" keep undo history (Vim7.3 or upper)
-" vim-users.jp Hacks #162
-if has('persistent_undo')
-  set undodir=./.vimundo,$USERCACHEDIR/.vimundo
-  set undofile
-endif
-
-" syntax coloring after reloading session
-autocmd vimrc SessionLoadPost doautoall highlight Bufread
-
-" never use 'r' and 'o' option in formatoptions
-autocmd vimrc FileType * setlocal formatoptions-=r
-autocmd vimrc FileType * setlocal formatoptions-=o
-"}}}
 "***** searching behavior ***** {{{
 "--------------------------------------------------------------------------
 set hlsearch                        " highlight searched words
@@ -1295,21 +1319,22 @@ endif
 "}}}
 "***** editing configuration ***** {{{
 "--------------------------------------------------------------------------
-set autoindent                      " add indent automatically
 set backspace=indent,eol,start      " allow backspace key to delete indent and break line
-set cindent                         " use c style indentation
-set expandtab                       " use soft tabs
+set formatoptions&
 set formatoptions+=mM               " handle line-breaking appropriately also with multi-byte
 set nrformats=hex                   " do not use increment/decrement keys (<C-a>/<C-x>) for octal numbers and alphabets
 set switchbuf=usetab,useopen        " switch to it when trying to open file which has already opened elsewhere
-set showmatch                       " emphasize correspondent parenthesis
-set shiftwidth=4                    " indent width
-set shiftround                      " round the indent width to the number of 'indentwidth' option when indented by '<' or '>'
-set softtabstop=4                   " soft-tabbed indentation width
-set tabstop=4                       " hard-tabbed indentation width
 set virtualedit=block               " freely cursor movement in blockwise visual mode
 set whichwrap=b,s,h,l,<,>,[,]       " do not stop cursor at head/tail of line, move to tail/head of previous/next line
-set wildmenu                        " use extended commandline completion
+
+" indentation option
+set autoindent                      " add indent automatically
+set cindent                         " use c style indentation
+set expandtab                       " use soft tabs
+set tabstop=4                       " the width of a tab character
+let &softtabstop = &tabstop         " inserted number of space by a tab stroke or deleted number of space by a BS stroke
+let &shiftwidth = &tabstop          " the indentation width for autoindent
+set shiftround                      " round the indent width to the number of 'indentwidth' option when indented by '<' or '>'
 
 " jump to the point where to have been edited last time when opening file
 autocmd vimrc BufReadPost *
@@ -1317,6 +1342,66 @@ autocmd vimrc BufReadPost *
   \   exe "normal! g`\"" |
   \ endif
 
+" im control (for win, and partially for *nix)
+if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != '')
+  function! s:insert_enter()
+    let b:iminsert = &iminsert
+
+    if b:entering_with_c
+      if strlen(@") != strchars(@")
+        " contains multibyte character
+        setl iminsert=2
+      elseif @" =~ '\n\+'
+        let &l:iminsert = b:iminsert
+      else
+        setl iminsert=0
+      endif
+
+      let b:entering_with_c = 0
+    else
+      let temp = @*
+      normal! "*yl
+
+      if strlen(@*) != strchars(@*)
+        " contains multibyte character
+        setl iminsert=2
+      elseif @* =~ '\n\+'
+        let &l:iminsert = b:iminsert
+      else
+        setl iminsert=0
+      endif
+
+      let @* = temp
+    endif
+  endfunction
+
+  function! s:insert_enter_with_c()
+    let b:entering_with_c = 1
+    return 'c'
+  endfunction
+
+  function! s:im_auto_switch_start()
+    let b:entering_with_c = 0
+    nnoremap <silent><buffer><expr> c <SID>insert_enter_with_c()
+    augroup im_auto_switch
+      autocmd!
+      autocmd im_auto_switch InsertEnter <buffer> call s:insert_enter()
+      autocmd im_auto_switch InsertLeave <buffer> let &l:iminsert = 0
+    augroup END
+  endfunction
+
+  function! s:im_auto_switch_stop()
+    unlet! b:entering_with_c
+    " This should not be done without any check, but mendoi.
+    nunmap <buffer> c
+    augroup im_auto_switch
+      autocmd!
+    augroup END
+  endfunction
+
+  command! IMAutoSwitchStart call s:im_auto_switch_start()
+  command! IMAutoSwitchStop  call s:im_auto_switch_stop()
+endif
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
@@ -1328,8 +1413,10 @@ set list                            " visualize special characters
 set listchars=tab:>-,trail:-,eol:$,nbsp:%,extends:>,precedes:<
                                     " assign alternative expression for special characters
 set number                          " display row number
+set showbreak=-\                    " display the sign for wrapped lines
 set showcmd                         " display command information in commandline
 set showmode                        " display current mode
+set showmatch                       " emphasize correspondent parenthesis
 set scrolloff=5                     " vertical scroll margin
 set sidescrolloff=10                " horizontal scroll margin
 set t_Co=256                        " use 256 coloring in modern terminal emulator
@@ -1339,6 +1426,8 @@ set title                           " display title
 if (v:version > 704) || ((v:version == 704) && (has("patch338")))
   set wrap
   set breakindent
+
+  autocmd vimrc BufEnter * let &l:breakindentopt = 'min:20,shift:' . &shiftwidth
 else
   set nowrap                        " do not wrap in long line
 endif
@@ -1371,7 +1460,7 @@ let &stl.="BUF #%n |"
 " percentage done
 " let &stl.="%p%% | "
 " column number
-let &stl.="COL %c%V |"
+" let &stl.="COL %c%V |"
 "}}}
 "***** filetype settings ***** {{{
 " These settings would be moved to ftplugin/$filetype.vim gradually
@@ -1425,6 +1514,7 @@ autocmd vimrc FileType markdown setlocal wrap iminsert=0
 autocmd vimrc FileType tex setlocal wrap iminsert=0 spellcapcheck
 
 "*** quickfix ***"
+autocmd vimrc FileType        qf set nowrap
 autocmd vimrc FileType        qf call s:qf_resize()
 autocmd vimrc QuickFixCmdPost *  call s:qf_cmdpost()
 
@@ -1507,6 +1597,7 @@ command! -nargs=0 EditJapaneseTXT :call s:edit_ja()
 function! s:edit_ja()
   setlocal wrap                     " use wrap in long line
   setlocal iminsert=2               " turn on ime when getting into insert mode
+  setlocal display&
   setlocal display+=lastline        " display lower line as long as possible
   if exists(":JpFormatToggle")
     JpFormatToggle
@@ -1711,13 +1802,13 @@ nnoremap x "_x
 " move cursor as you see
 nnoremap j gj
 nnoremap k gk
-vnoremap j gj
-vnoremap k gk
+xnoremap j gj
+xnoremap k gk
 
 nnoremap gj j
 nnoremap gk k
-vnoremap gj j
-vnoremap gk k
+xnoremap gj j
+xnoremap gk k
 
 " I prefer to use <C-p>/<C-n> when ascending history
 cnoremap <C-p> <Up>
@@ -1764,8 +1855,14 @@ nnoremap <M-a> ea
 " reserve black hole register for the next operator
 nnoremap \d "_
 
-" delete all strings behind the cursor
-inoremap <silent> <C-l> <Esc>:call setline('.', getline('.')[: col('.') - 1])<CR>A
+" delete all strings in the current line behind cursor
+inoremap <silent> <C-U> <Esc>:call setline('.', getline('.')[: col('.') - 1])<CR>A
+
+" textobject a' and a" is not so convenient
+onoremap a' 2i'
+xnoremap a' 2i'
+onoremap a" 2i"
+xnoremap a" 2i"
 
 " enabling 'f' and 't' commands to use string class {{{
 function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
@@ -1864,16 +1961,17 @@ command! -nargs=? PresetMacros call s:preset_macros()
 call s:preset_macros()
 "}}}
 "***** playpit ***** {{{
-" Instant textobj
+" textobj-instant
 onoremap <silent> iI :<C-u>call Textobj_instant()<CR>
 xnoremap <silent> iI :<C-u>call Textobj_instant()<CR>
 
 " Prepare preset patterns
 " What kinds of characters can be used (and can not be used) for <Plug>?
-let g:instant_textobj_patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})', '\<[abglstvw]:\k\+\>']
+" kore zenbu 'iW' de iina...
+let g:textobj_instant_patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})\>', '\<[abglstvw]:\k\+\>']
 
 function! Textobj_instant()
-  let patterns = g:instant_textobj_patterns
+  let patterns = g:textobj_instant_patterns
   " A kind of workaround
   " need the equivalent option with the 'c' flag of search() function
   let slipped = 0
@@ -1900,6 +1998,10 @@ function! Textobj_instant()
     endif
   endif
 endfunction
+
+command! -nargs=1 TextobjInstantAdd let g:textobj_instant_patterns += [<q-args>]
+command! -nargs=1 TextobjInstantDel call filter(g:textobj_instant_patterns, 'v:val != <q-args>')
+command!          TextobjInstantClr let g:textobj_instant_patterns = []
 
 " textobj-number
 " NOTE: Fortran allows the expression ended with dot, like 1. (= 1.0), 1.d0 (= 1.0d0)
@@ -1935,13 +2037,13 @@ call textobj#user#plugin('number', {
 " Shitteta.
 
 nnoremap <silent> \i :<C-u>call Operator_insertion_map_clerk('n', 'i')<CR>
-vnoremap <silent> \i :<C-u>call Operator_insertion_map_clerk('v', 'i')<CR>
+xnoremap <silent> \i :<C-u>call Operator_insertion_map_clerk('v', 'i')<CR>
 nnoremap <silent> \a :<C-u>call Operator_insertion_map_clerk('n', 'a')<CR>
-vnoremap <silent> \a :<C-u>call Operator_insertion_map_clerk('v', 'a')<CR>
+xnoremap <silent> \a :<C-u>call Operator_insertion_map_clerk('v', 'a')<CR>
 nnoremap <silent> \p :<C-u>set operatorfunc=Operator_paste_to_tail<CR>g@
-vnoremap <silent> \p <Esc>:set operatorfunc=Operator_paste_to_tail<CR>gvg@
+xnoremap <silent> \p <Esc>:set operatorfunc=Operator_paste_to_tail<CR>gvg@
 nnoremap <silent> \P :<C-u>set operatorfunc=Operator_paste_to_head<CR>g@
-vnoremap <silent> \P <Esc>:set operatorfunc=Operator_paste_to_head<CR>gvg@
+xnoremap <silent> \P <Esc>:set operatorfunc=Operator_paste_to_head<CR>gvg@
 
 function! Operator_insertion_map_clerk(mode, iora)
   let text = input("Insertion:", "", "buffer")
