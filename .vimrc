@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 08-Aug-2014.
+" Last Change: 21-Aug-2014.
 "
 "***** Todo *****
 
@@ -70,14 +70,8 @@ set wildmenu                        " use extended commandline completion
 
 " encoding and file format
 set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
-
-if has('win32')
-  set encoding=cp932
-  set fileformats=dos,unix
-else
-  set encoding=utf-8
-  set fileformats=unix,dos
-endif
+set encoding=utf-8
+set fileformats=unix,dos
 
 " always set current directory to the directory of current file
 " au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
@@ -109,7 +103,7 @@ if has('persistent_undo')
 endif
 
 " syntax coloring after reloading session (autocmd.en, 8. Groups)
-autocmd vimrc SessionLoadPost doautoall highlight Bufread
+" autocmd vimrc SessionLoadPost * doautoall highlight Bufread
 
 " never use 'r' and 'o' option in formatoptions
 autocmd vimrc FileType * setlocal formatoptions-=r
@@ -137,7 +131,7 @@ NeoBundle       'machakann/vim-columnmove'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
-NeoBundle       'machakann/vim-textobj-equation'
+" NeoBundle       'machakann/vim-textobj-equation'
 NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
@@ -621,7 +615,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '=', 'at': '\S\.\%#',  'input': '<Left> <Right>= ',                          'mode': 'i:', 'filetype': ['vim']},
         \       {'char': '=', 'at': ' \.= \%#', 'input': '<Left><Left><Left><BS><Right><Right><Del>', 'mode': 'i:', 'filetype': ['vim']},
         \       {'char': '=', 'at': '<C-r>\%#', 'input': '=',                                         'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': '\C\<set\> \w\+\%#', 'input': '=',                                'mode':  'i', 'filetype': ['vim']},
+        \       {'char': '=', 'at': '\C\<set\%[local]\> \w\+\%#', 'input': '=',                        'mode':  'i', 'filetype': ['vim']},
         \      ]
   " '.' -> ' . ' -> '..' -> '...'
   let rules += [
@@ -666,46 +660,46 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*//\(//\)\+\s\%#', 'input': '<BS><BS><BS> ', 'filetype': ['scilab']},
         \      ]
 
-  " common in matlab and scilab
+  " common in matlab, scilab and julia
   " ' + ' -> '+' -> '++' -> '+++' ...
   let rules += [
-        \       {'char': '+', 'at': '\%#',    'input': ' + ',           'filetype': ['matlab', 'scilab']},
-        \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '+', 'at': '+\%#',   'input': '+',             'filetype': ['matlab', 'scilab']},
+        \       {'char': '+', 'at': '\%#',    'input': ' + ',           'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '+', 'at': '+\%#',   'input': '+',             'filetype': ['matlab', 'scilab', 'julia']},
         \      ]
   " ' - ' -> '-' -> '--' -> '---' ...
   let rules += [
-        \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['matlab', 'scilab']},
-        \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['matlab', 'scilab']},
-        \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['matlab', 'scilab']},
+        \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['matlab', 'scilab', 'julia']},
         \      ]
   " '.^' -> '^' -> '^^' -> '^^^' ...
   let rules += [
-        \       {'char': '^', 'at': '\%#',    'input': '.^',        'filetype': ['matlab', 'scilab']},
-        \       {'char': '^', 'at': '\.^\%#', 'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '^', 'at': '\^\%#',  'input': '^',         'filetype': ['matlab', 'scilab']},
+        \       {'char': '^', 'at': '\%#',    'input': '.^',        'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '^', 'at': '\.^\%#', 'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '^', 'at': '\^\%#',  'input': '^',         'filetype': ['matlab', 'scilab', 'julia']},
         \      ]
   " '.*' -> '*' -> '**' -> '***' ...
   let rules += [
-        \       {'char': '*', 'at': '\%#',     'input': '.*',        'filetype': ['matlab', 'scilab']},
-        \       {'char': '*', 'at': '\.\*\%#', 'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '*', 'at': '\*\%#',   'input': '*',         'filetype': ['matlab', 'scilab']},
+        \       {'char': '*', 'at': '\%#',     'input': '.*',        'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '*', 'at': '\.\*\%#', 'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '*', 'at': '\*\%#',   'input': '*',         'filetype': ['matlab', 'scilab', 'julia']},
         \      ]
   " './' -> '/' -> '//' -> '///' ...
   let rules += [
-        \       {'char': '/', 'at': '\%#',    'input': './',        'filetype': ['matlab', 'scilab']},
-        \       {'char': '/', 'at': '\./\%#', 'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '/', 'at': '/\%#',   'input': '/',         'filetype': ['matlab', 'scilab']},
+        \       {'char': '/', 'at': '\%#',    'input': './',        'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '/', 'at': '\./\%#', 'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '/', 'at': '/\%#',   'input': '/',         'filetype': ['matlab', 'scilab', 'julia']},
         \      ]
 
   let rules += [
-        \       {'char': '+', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '-', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '^', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '^', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '*', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '*', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '/', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '/', 'filetype': ['matlab', 'scilab']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\.[*/^]\%#', 'input': '<BS><BS>', 'filetype': ['matlab', 'scilab']},
+        \       {'char': '+', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '-', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '^', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '*', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '/', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
+        \       {'char': '<Plug>(smartinput_BS)', 'at': '\.[*/^]\%#', 'input': '<BS><BS>', 'filetype': ['matlab', 'scilab', 'julia']},
         \      ]
 
   " FORTRAN
@@ -871,7 +865,7 @@ endif
 "*** columnmove *** {{{
 if neobundle#tap('vim-columnmove')
   let g:columnmove_auto_scroll = 1
-  let g:columnmove_strict_wbege = 0
+  " let g:columnmove_strict_wbege = 0
   let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 
   nnoremap <silent> <M-o> :<C-u>call columnmove#e('n', 0, {'strict_wbege':0})<CR>o
@@ -1006,10 +1000,10 @@ if neobundle#tap('vim-patternjump')
     \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
     \     },
     \   'n' : {
-    \     'head' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
+    \     'head' : ['[[({''"]\+\zs\k'],
     \     },
     \   'x' : {
-    \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
+    \     'tail' : ['\<\h\k*\>'],
     \     },
     \   'o' : {
     \     'forward'  : {'head' : [',', ')', ']', '}', '$']},
@@ -1027,7 +1021,7 @@ if neobundle#tap('vim-patternjump')
     \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
     \     },
     \   'n' : {
-    \     'head' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
+    \     'head' : ['^\s*\\\s*\zs\S', '[[({''"]\+\zs\k'],
     \     },
     \   'x' : {
     \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
@@ -1060,6 +1054,8 @@ if neobundle#tap('vim-quickrun')
         \       'runner': 'process_manager',
         \       'runner/process_manager/load': 'include(%s:p)',
         \       'runner/process_manager/prompt': 'julia> ',
+        \       'hook/eval/enable': 1,
+        \       'hook/eval/template': "%s\nprintln(\"julia> \")",
         \       },
         \ 'maxima' : {
         \       'command': 'maxima',
@@ -1121,11 +1117,6 @@ if neobundle#tap('vim-submode')
   call submode#enter_with('changebuffer', 'n', '', 'gB', ':IsolateTabPrevious<CR>')
   call submode#map('changebuffer', 'n', '', 'b', ':IsolateTabNext<CR>')
   call submode#map('changebuffer', 'n', '', 'B', ':IsolateTabPrevious<CR>')
-  " vertical cursor hopping
-  call submode#enter_with('columnjump', 'n', 'r', '\w', '<Plug>(columnjump-forward)')
-  call submode#enter_with('columnjump', 'n', 'r', '\b', '<Plug>(columnjump-backward)')
-  call submode#map('columnjump', 'n', 'r', 'w', '<Plug>(columnjump-forward)')
-  call submode#map('columnjump', 'n', 'r', 'b', '<Plug>(columnjump-backward)')
 endif
 "}}}
 "*** textobj-lastpaste *** {{{
@@ -1140,9 +1131,9 @@ if neobundle#tap('unite.vim')
   nnoremap [Unite]u :Unite<Space>
   nnoremap [Unite]c :Unite history/command command<CR>
   nnoremap [Unite]y :Unite register history/yank<CR>
-  nnoremap [Unite]m :Unite file_mru<CR>
-  nnoremap [Unite]b :Unite buffer_tab<CR>
-  nnoremap [Unite]d :Unite directory_mru directory directory/new<CR>
+  nnoremap [Unite]m :Unite -no-split file_mru<CR>
+  nnoremap [Unite]b :Unite -no-split buffer_tab buffer<CR>
+  nnoremap [Unite]d :Unite -no-split directory_mru directory directory/new<CR>
   nnoremap [Unite]p :Unite neobundle/update<CR>
   nnoremap [Unite]o :Unite outline<CR>
 
@@ -1186,12 +1177,13 @@ if neobundle#tap('vim-reanimate')
   let g:reanimate_sessionoptions="curdir,folds,globals,help,slash,tabpages"
 
   call unite#custom#default_action('reanimate', 'reanimate_load')
-  nnoremap <Space>ur :Unite reanimate<CR>
+  nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
 endif
 "}}}
 "*** vim-operator-replace *** {{{
 if neobundle#tap('vim-operator-replace')
-  map <Space>r <Plug>(operator-replace)
+  nmap <Space>r <Plug>(operator-replace)
+  xmap <Space>r <Plug>(operator-replace)
 endif
 "}}}
 "*** vim-textobj-multitextobj ***"{{{
@@ -1344,7 +1336,7 @@ autocmd vimrc BufReadPost *
 
 " im control (for win, and partially for *nix)
 if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != '')
-  function! s:insert_enter()
+  function! s:im_switch()
     let b:iminsert = &iminsert
 
     if b:entering_with_c
@@ -1380,12 +1372,20 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
     return 'c'
   endfunction
 
+  function! s:switch_with_shift_space()
+    " FIXME: it cannot be toggle!
+    "        cannot capture <S-Space> when im is on.
+    call feedkeys("\<C-^>", 'n')
+    return ' '
+  endfunction
+
   function! s:im_auto_switch_start()
     let b:entering_with_c = 0
     nnoremap <silent><buffer><expr> c <SID>insert_enter_with_c()
+    inoremap <silent><buffer><expr> <S-Space> <SID>switch_with_shift_space()
     augroup im_auto_switch
-      autocmd!
-      autocmd im_auto_switch InsertEnter <buffer> call s:insert_enter()
+      autocmd! * <buffer>
+      autocmd im_auto_switch InsertEnter <buffer> call s:im_switch()
       autocmd im_auto_switch InsertLeave <buffer> let &l:iminsert = 0
     augroup END
   endfunction
@@ -1393,11 +1393,30 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
   function! s:im_auto_switch_stop()
     unlet! b:entering_with_c
     " This should not be done without any check, but mendoi.
-    nunmap <buffer> c
+    silent! nunmap <buffer> c
+    silent! iunmap <buffer> <S-Space>
     augroup im_auto_switch
-      autocmd!
+      autocmd! * <buffer>
     augroup END
   endfunction
+
+  function! s:im_auto_switch_bootstrap()
+    augroup im_auto_switch
+      autocmd! * <buffer>
+    augroup END
+
+    let lines = join(getline(1, get(g:, 'im_auto_switch_checked_lnum', 30)), '')
+    if strlen(lines) != strchars(lines)
+      call s:im_auto_switch_start()
+    endif
+  endfunction
+
+  augroup im_auto_switch
+    autocmd!
+    autocmd im_auto_switch BufRead * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
+    autocmd im_auto_switch SessionLoadPost * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
+    autocmd im_auto_switch SourceCmd ~/.vimrc doautoall im_auto_switch BufRead
+  augroup END
 
   command! IMAutoSwitchStart call s:im_auto_switch_start()
   command! IMAutoSwitchStop  call s:im_auto_switch_stop()
@@ -1799,17 +1818,6 @@ nnoremap <Space>h :Help<Space>
 nnoremap x "_x
 " nnoremap s "_s
 
-" move cursor as you see
-nnoremap j gj
-nnoremap k gk
-xnoremap j gj
-xnoremap k gk
-
-nnoremap gj j
-nnoremap gk k
-xnoremap gj j
-xnoremap gk k
-
 " I prefer to use <C-p>/<C-n> when ascending history
 cnoremap <C-p> <Up>
 cnoremap <Up> <C-p>
@@ -2054,7 +2062,7 @@ function! Operator_insertion_map_clerk(mode, iora)
     if a:iora ==# 'i'
       set operatorfunc=Operator_insertion
     elseif a:iora ==# 'a'
-      set operatorfunc=Operator_addition
+      set operatorfunc=Operator_appendage
     endif
 
     if a:mode ==# 'v'
@@ -2097,7 +2105,7 @@ function! Operator_insertion(type)
   call cursor(final_pos)
 endfunction
 
-function! Operator_addition(type)
+function! Operator_appendage(type)
   execute "normal! `]a" . repeat(g:last_insertion, (v:prevcount == 0 ? 1 : v:prevcount)) . "\<Esc>`]"
 endfunction
 
