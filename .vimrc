@@ -2,12 +2,17 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 21-Aug-2014.
+" Last Change: 12-Sep-2014.
 "
 "***** Todo *****
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
+" encoding and file format
+set encoding=utf-8
+set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
+set fileformats=unix,dos
+
 set shellslash                      " use '/' as a path delimiter
 
 augroup vimrc
@@ -43,72 +48,6 @@ if !isdirectory(expand($USERCACHEDIR.'/.vimundo'))
   call mkdir($USERCACHEDIR . '/.vimundo')
 endif
 "}}}
-"***** fundamentals ***** {{{
-"-------------------------------------------------------------------------
-set backup                          " use backup
-set swapfile                        " use swap file
-set backupdir=$USERCACHEDIR/backup  " assign path to make backup files
-let &directory=&backupdir           " assign that path to make swap files is same as that for backup file
-set clipboard=unnamed               " share clipboard with OS
-set spellfile=$USERDIR/spell/en.ascii.add
-                                    " uset file to add wors for spell check
-set spelllang=en,cjk                " use english for spell check and cjk region is ignored
-set spellsuggest=best               " choose correction engine for spell check
-set helplang=ja,en                  " use japanese help preferentially
-set hidden                          " move out from current buffer without warning even on editing
-set history=100                     " the stored number of commands/searching history
-set iminsert=0                      " turn off ime when getting into insert mode
-set imsearch=0                      " turn off ime when getting into searching mode
-set splitbelow                      " open new window below the current when splitting
-set splitright                      " open new window in right hand side of the current when splitting
-set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
-set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
-set viminfo&
-set viminfo+=n$USERCACHEDIR/viminfo.txt
-                                    " assign path to viminfo file
-set wildmenu                        " use extended commandline completion
-
-" encoding and file format
-set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
-set encoding=utf-8
-set fileformats=unix,dos
-
-" always set current directory to the directory of current file
-" au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
-
-" use command-line window instead of command-line mode
-" vim-users.jp Hacks #161
-" nnoremap <sid>(command-line-enter) q:
-" xnoremap <sid>(command-line-enter) q:
-
-" nmap :  <sid>(command-line-enter)
-" xmap :  <sid>(command-line-enter)
-
-autocmd vimrc CmdwinEnter * call s:init_cmdwin()
-function! s:init_cmdwin()
-  nnoremap <buffer> q :<C-u>quit<CR>
-  nnoremap <buffer> <CR> i<CR>
-  imap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)"
-  imap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
-  imap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
-
-  setlocal iminsert=0
-endfunction
-
-" keep undo history (Vim7.3 or upper)
-" vim-users.jp Hacks #162
-if has('persistent_undo')
-  set undodir=./.vimundo,$USERCACHEDIR/.vimundo
-  set undofile
-endif
-
-" syntax coloring after reloading session (autocmd.en, 8. Groups)
-" autocmd vimrc SessionLoadPost * doautoall highlight Bufread
-
-" never use 'r' and 'o' option in formatoptions
-autocmd vimrc FileType * setlocal formatoptions-=r
-autocmd vimrc FileType * setlocal formatoptions-=o
-"}}}
 "***** plugins *****"{{{
 "--------------------------------------------------------------------------
 "*** neobundle.vim *** {{{
@@ -122,6 +61,7 @@ NeoBundle       'gilligan/textobj-lastpaste'
 NeoBundle       'JuliaLang/julia-vim'
 NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
+" NeoBundle       'kana/vim-repeat'
 NeoBundle       'kana/vim-smartinput'
 NeoBundle       'kana/vim-submode'
 NeoBundle       'kana/vim-textobj-user'
@@ -137,7 +77,7 @@ NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'osyo-manga/vim-textobj-multitextobj'
 NeoBundle       'rhysd/vim-textobj-word-column'
-NeoBundle       'rhysd/vim-operator-surround'
+NeoBundle       'rhysd/vim-operator-surround', {'type' : 'nosync'}
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
 NeoBundle       'Shougo/neomru.vim'
@@ -155,7 +95,6 @@ NeoBundle       'thinca/vim-visualstar'
 NeoBundle       'thinca/vim-localrc'
 NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tpope/vim-markdown'
-NeoBundle       'tpope/vim-repeat'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
@@ -864,8 +803,8 @@ endif
 "}}}
 "*** columnmove *** {{{
 if neobundle#tap('vim-columnmove')
-  let g:columnmove_auto_scroll = 1
-  " let g:columnmove_strict_wbege = 0
+  " let g:columnmove_auto_scroll = 1
+  let g:columnmove_strict_wbege = 0
   let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 
   nnoremap <silent> <M-o> :<C-u>call columnmove#e('n', 0, {'strict_wbege':0})<CR>o
@@ -1292,6 +1231,67 @@ if neobundle#tap('vim-watchdogs')
 endif
 "}}}
 "}}}
+"***** fundamentals ***** {{{
+"-------------------------------------------------------------------------
+set backup                          " use backup
+set swapfile                        " use swap file
+set backupdir=$USERCACHEDIR/backup  " assign path to make backup files
+let &directory=&backupdir           " assign that path to make swap files is same as that for backup file
+set clipboard=unnamed               " share clipboard with OS
+set spellfile=$USERDIR/spell/en.ascii.add
+                                    " use file to add wors for spell check
+set spelllang=en,cjk                " use english for spell check and cjk region is ignored
+set spellsuggest=best               " choose correction engine for spell check
+set helplang=ja,en                  " use japanese help preferentially
+set hidden                          " move out from current buffer without warning even on editing
+set history=100                     " the stored number of commands/searching history
+set iminsert=0                      " turn off ime when getting into insert mode
+set imsearch=0                      " turn off ime when getting into searching mode
+set splitbelow                      " open new window below the current when splitting
+set splitright                      " open new window in right hand side of the current when splitting
+set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
+set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
+set viminfo&
+set viminfo+=n$USERCACHEDIR/viminfo.txt
+                                    " assign path to viminfo file
+set wildmenu                        " use extended commandline completion
+
+" always set current directory to the directory of current file
+" au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
+
+" use command-line window instead of command-line mode
+" vim-users.jp Hacks #161
+" nnoremap <sid>(command-line-enter) q:
+" xnoremap <sid>(command-line-enter) q:
+
+" nmap :  <sid>(command-line-enter)
+" xmap :  <sid>(command-line-enter)
+
+autocmd vimrc CmdwinEnter * call s:init_cmdwin()
+function! s:init_cmdwin()
+  nnoremap <buffer> q :<C-u>quit<CR>
+  nnoremap <buffer> <CR> i<CR>
+  imap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)"
+  imap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
+  imap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
+
+  setlocal iminsert=0
+endfunction
+
+" keep undo history (Vim7.3 or upper)
+" vim-users.jp Hacks #162
+if has('persistent_undo')
+  set undodir=./.vimundo,$USERCACHEDIR/.vimundo
+  set undofile
+endif
+
+" syntax coloring after reloading session (autocmd.en, 8. Groups)
+" autocmd vimrc SessionLoadPost * doautoall highlight Bufread
+
+" never use 'r' and 'o' option in formatoptions
+autocmd vimrc FileType * setlocal formatoptions-=r
+autocmd vimrc FileType * setlocal formatoptions-=o
+"}}}
 "***** searching behavior ***** {{{
 "--------------------------------------------------------------------------
 set hlsearch                        " highlight searched words
@@ -1413,9 +1413,9 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
 
   augroup im_auto_switch
     autocmd!
-    autocmd im_auto_switch BufRead * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
-    autocmd im_auto_switch SessionLoadPost * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
-    autocmd im_auto_switch SourceCmd ~/.vimrc doautoall im_auto_switch BufRead
+    autocmd BufRead * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
+    autocmd SessionLoadPost * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
+    autocmd SourceCmd ~/.vimrc doautoall im_auto_switch BufRead
   augroup END
 
   command! IMAutoSwitchStart call s:im_auto_switch_start()
@@ -1783,16 +1783,20 @@ function! s:pref_alt_help(...)
   let bang = a:1
   let  arg = a:2
   " Searching for the help window.
+  let helptabnr = 0
   let helpwinnr = 0
-  for nr in range(1, winnr('$'))
-    let buftype = getwinvar(nr, '&buftype')
-    if buftype ==# 'help'
-      let helpwinnr = nr
-      break
-    endif
+  for tnr in range(1, tabpagenr('$'))
+    for wnr in range(1, tabpagewinnr(tnr, '$'))
+      let buftype = gettabwinvar(tnr, wnr, '&buftype')
+      if buftype ==# 'help'
+        let helptabnr = tnr
+        let helpwinnr = wnr
+        break
+      endif
+    endfor
   endfor
 
-  if helpwinnr == 0
+  if helptabnr == 0 && helpwinnr == 0
     let width  = winwidth(0)
     let height = winheight(0)
     if width >= 140
@@ -1803,6 +1807,8 @@ function! s:pref_alt_help(...)
       execute 'tab help' . bang . ' ' . arg
     endif
   else
+    execute 'normal! ' . helptabnr . 'gt'
+    execute 'normal! ' . helpwinnr . "\<C-w>w"
     execute 'help' . bang . ' ' . arg
   endif
   normal! 0
@@ -2178,20 +2184,17 @@ function! Operator_paste_to_tail(type)
   endif
 endfunction
 
-" simple speed checker
-function! Speed_gun(...)
-  let l:count = a:0 > 0 ? a:1 : 10
-  let g:time = []
-  while l:count > 0
-    normal! 0
-    let start_time = reltime()
-    execute "normal \<M-l>"
-    let g:time += [reltimestr(reltime(start_time))]
-    let l:count -= 1
-  endwhile
-  execute "let mean_time = (" . join(g:time, '+') . ")/" . len(g:time)
-  PP! mean_time
+" simple performance checker
+function! Tic()
+  let g:hayasa_maruwakari_kun = reltime()
 endfunction
+
+function! Toc()
+  echom reltimestr(reltime(g:hayasa_maruwakari_kun))
+endfunction
+
+command! -nargs=0 Tic call Tic()
+command! -nargs=0 Toc call Toc()
 "}}}
 "***** loading local settings ***** {{{
 "-------------------------------------------------------------------------
