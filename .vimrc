@@ -2,7 +2,7 @@
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker:
 " vim:set commentstring="%s:
-" Last Change: 12-Sep-2014.
+" Last Change: 20-Sep-2014.
 "
 "***** Todo *****
 
@@ -68,6 +68,7 @@ NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'machakann/vim-columnmove'
+NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
@@ -500,6 +501,7 @@ if neobundle#tap('vim-smartinput')
         \       {'char': '<Plug>(smartinput_^k)', 'at': '\\)\%#',      'input': '<Left><Left>)',              'mode': 'i:/?'},
         \       {'char': '<Plug>(smartinput_^k)', 'at': '\[\%#',       'input': '<BS>\[\]<Left><Left>',       'mode': 'i:/?'},
         \       {'char': '<Plug>(smartinput_^k)', 'at': '\\]\%#',      'input': '<Left><Left>]',              'mode': 'i:/?'},
+        \       {'char': '<Plug>(smartinput_^k)', 'at': '<\%#',        'input': '<BS>\<\><Left><Left>',       'mode': 'i:/?'},
         \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>',     'mode': 'i:/?'},
         \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',         'mode': 'i:/?'},
         \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',         'mode': 'i:/?'},
@@ -790,7 +792,7 @@ endif
 "*** caw.vim *** {{{
 if neobundle#tap('caw.vim')
   function! Operator_caw(type)
-    " this could be modified but menndoi.
+    " There is some room to be improved, but menndoi.
     execute "'[,']normal \<Plug>(caw:i:toggle)"
   endfunction
 
@@ -915,14 +917,32 @@ if neobundle#tap('neosnippet.vim')
   endif
 endif
 "}}}
+"*** operator-insert *** {{{
+if neobundle#tap('vim-operator-insert')
+  " operator mappings
+  nmap <Space>i <Plug>(operator-insert-i)
+  xmap <Space>i <Plug>(operator-insert-i)
+  nmap <Space>a <Plug>(operator-insert-a)
+  xmap <Space>a <Plug>(operator-insert-a)
+  nmap <Space>o <Plug>(operator-insert-o)
+  xmap <Space>o <Plug>(operator-insert-o)
+  nmap <Space>O <Plug>(operator-insert-O)
+  xmap <Space>O <Plug>(operator-insert-O)
+  omap gn <Plug>(gn-for-operator-insert-i)
+  omap gN <Plug>(gN-for-operator-insert-a)
+endif
+"}}}
 "*** operator-surround *** {{{
 if neobundle#tap('vim-operator-surround')
   map s <NOP>
 
   " operator mappings
-  map <silent> sa <Plug>(operator-surround-append)
-  map <silent> sd <Plug>(operator-surround-delete)
-  map <silent> sr <Plug>(operator-surround-replace)
+  nmap <silent> sa <Plug>(operator-surround-append)
+  xmap <silent> sa <Plug>(operator-surround-append)
+  nmap <silent> sd <Plug>(operator-surround-delete)
+  xmap <silent> sd <Plug>(operator-surround-delete)
+  nmap <silent> sr <Plug>(operator-surround-replace)
+  xmap <silent> sr <Plug>(operator-surround-replace)
 endif
 "}}}
 "*** patternjump *** {{{
@@ -976,6 +996,10 @@ if neobundle#tap('vim-patternjump')
   nnoremap <silent> e :<C-u>call patternjump#forward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
   nnoremap <silent> b :<C-u>call patternjump#backward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
   nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
+  xnoremap <silent> w :<C-u>call patternjump#forward('x', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0, {'swap_head_tail' : 1})<CR>
+  xnoremap <silent> e :<C-u>call patternjump#forward('x', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0, {'swap_head_tail' : 1})<CR>
+  xnoremap <silent> b :<C-u>call patternjump#backward('x', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0, {'swap_head_tail' : 1})<CR>
+  xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0, {'swap_head_tail' : 1})<CR>
 endif
 "}}}
 "*** quickrun.vim *** {{{
@@ -1336,8 +1360,14 @@ autocmd vimrc BufReadPost *
 
 " im control (for win, and partially for *nix)
 if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != '')
+  " at first
+  augroup im-off
+    autocmd!
+    autocmd im-off InsertLeave * if &l:iminsert != 0 | setlocal iminsert=0 | endif
+  augroup END
+
   function! s:im_switch()
-    let b:iminsert = &iminsert
+    let b:iminsert = &l:iminsert
 
     if b:entering_with_c
       if strlen(@") != strchars(@")
@@ -1630,6 +1660,10 @@ function! s:edit_ja()
   else
     setlocal ambiwidth=double
   endif
+
+  augroup im-off
+    autocmd!
+  augroup END
 endfunction
 "}}}
 "*** edit english ***""{{{
@@ -1870,7 +1904,7 @@ nnoremap <M-a> ea
 nnoremap \d "_
 
 " delete all strings in the current line behind cursor
-inoremap <silent> <C-U> <Esc>:call setline('.', getline('.')[: col('.') - 1])<CR>A
+inoremap <silent> <C-l> <Esc>:call setline('.', getline('.')[: col('.') - 1])<CR>A
 
 " textobject a' and a" is not so convenient
 onoremap a' 2i'
@@ -2034,11 +2068,11 @@ command!          TextobjInstantClr let g:textobj_instant_patterns = []
 
 call textobj#user#plugin('number', {
   \   'number-i': {
-  \     'pattern': '-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDE]-\?\d\+\)\?',
+  \     'pattern': '-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDEf]-\?\d\+\)\?',
   \     'select': 'in',
   \   },
   \   'number-a': {
-  \     'pattern': '\s*-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDE]-\?\d\+\)\?\s*',
+  \     'pattern': '\s*-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDEf]-\?\d\+\)\?\s*',
   \     'select': 'an',
   \   },
   \ })
@@ -2183,6 +2217,32 @@ function! Operator_paste_to_tail(type)
     call setreg(v:register, reg_value, reg_type)
   endif
 endfunction
+
+" list marks
+function! s:list_up_marks_to_locationlist()
+  let marks  = 'abcdefghijklmnopqrstuvwuxyz'
+  let marks .= 'ABCDEFGHIJKLMNOPQRSTUVWUXYZ'
+  let marks .= '0123456789'
+  let marks .= '''`[]<>"^.(){}'
+
+  let pos_list = map(filter(map(split(marks, '\zs'),
+        \ '[v:val] + getpos("''" . v:val)'),
+        \ 'v:val[1:4] != [0, 0, 0, 0]'),
+        \ '{
+        \ "bufnr": v:val[1] ? v:val[1] : bufnr("%"),
+        \ "lnum" : v:val[2],
+        \ "col"  : v:val[3],
+        \ "type" : v:val[0],
+        \ "text" : getline(v:val[2])
+        \ }'
+        \ )
+
+  if pos_list != []
+    call setloclist(0, pos_list)
+    lopen
+  endif
+endfunction
+command! -nargs=0 MarkList call s:list_up_marks_to_locationlist()
 
 " simple performance checker
 function! Tic()
