@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 21-Feb-2015.
+" Last Change: 22-Feb-2015.
 "
 "***** Todo *****
 
@@ -1006,12 +1006,10 @@ if neobundle#tap('vim-quickrun')
         \       },
         \ 'julia' : {
         \       'command': 'julia',
-        \       'cmdopt': '-q --color=no',
+        \       'cmdopt': '-q --color=no -P "println(\\"quickrun-prompt: \\")"',
         \       'runner': 'process_manager',
-        \       'runner/process_manager/load': 'include(%s:p)',
-        \       'runner/process_manager/prompt': 'julia> ',
-        \       'hook/eval/enable': 1,
-        \       'hook/eval/template': "%s\nprintln(\"julia> \")",
+        \       'runner/process_manager/load': 'include("%S");println("quickrun-prompt: ")',
+        \       'runner/process_manager/prompt': 'quickrun-prompt: ',
         \       },
         \ 'maxima' : {
         \       'command': 'maxima',
@@ -1041,12 +1039,6 @@ if neobundle#tap('vim-quickrun')
         \ 'r'   : {
         \       'command': has('win32') ? 'Rscript' : 'R',
         \       'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
-        \       },
-        \ 'vim/owl_test' : {
-        \       'command': ':source',
-        \       'exec'   : ["%C %s", "call owl#run('%s')"],
-        \       'outputter' : "buffer",
-        \       'runner' : "vimscript",
         \       },
         \ }
 endif
@@ -1197,6 +1189,7 @@ set viminfo&
 set viminfo+=n$USERCACHEDIR/viminfo.txt
                                     " assign path to viminfo file
 set wildmenu                        " use extended commandline completion
+set wildmode=longest:full,full      " way to complete in cmdline
 
 " always set current directory to the directory of current file
 " au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
