@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 22-Feb-2015.
+" Last Change: 27-Feb-2015.
 "
 "***** Todo *****
 
@@ -14,10 +14,6 @@ set fileformats=unix,dos
 
 set shellslash                      " use '/' as a path delimiter
 
-augroup vimrc
-  autocmd!
-augroup END
-
 if has('win32')
   let $USERDIR=expand('~/vimfiles')
   let $USERCACHEDIR=expand('~/vimcache')
@@ -25,27 +21,10 @@ else
   let $USERDIR=expand('~/.vim')
   let $USERCACHEDIR=expand('~/.vimcache')
 endif
-if !isdirectory(expand($USERDIR))
-  call mkdir($USERDIR)
-endif
-if !isdirectory(expand($USERDIR . '/bundle'))
-  call mkdir($USERDIR . '/bundle')
-endif
-if !isdirectory(expand($USERDIR . '/dict'))
-  call mkdir($USERDIR . '/dict')
-endif
-if !isdirectory(expand($USERDIR . '/spell'))
-  call mkdir($USERDIR . '/spell')
-endif
-if !isdirectory(expand($USERCACHEDIR))
-  call mkdir($USERCACHEDIR)
-endif
-if !isdirectory(expand($USERCACHEDIR.'/backup'))
-  call mkdir($USERCACHEDIR . '/backup')
-endif
-if !isdirectory(expand($USERCACHEDIR.'/.vimundo'))
-  call mkdir($USERCACHEDIR . '/.vimundo')
-endif
+
+augroup vimrc
+  autocmd!
+augroup END
 "}}}
 "***** plugins *****"{{{
 "--------------------------------------------------------------------------
@@ -159,913 +138,923 @@ endif
 " Disable default settings
 let g:smartinput_no_default_key_mappings = 1
 
-if neobundle#tap('vim-smartinput')
-  " I know following description is too lengthy, but otherwise I would not be
-  " able to review them...
+" I know following description is too lengthy, but otherwise I would not be
+" able to review them...
 
-  " doushite kounatta...
-  " chottoshita kyoukiwo kanjiru...
+" doushite kounatta...
+" chottoshita kyoukiwo kanjiru...
 
-  " NOTE: 'Comment' syntax is somewhat unique, since it is not highlighted only
-  "       at the end of line.  Or any other syntax working in similar way might
-  "       be same. Note it.
-  "       "oooooooooooooh, wahhoi!
-  "       |<-   Comment        ->|#Here is not comment.
+" NOTE: 'Comment' syntax is somewhat unique, since it is not highlighted only
+"       at the end of line.  Or any other syntax working in similar way might
+"       be same. Note it.
+"       "oooooooooooooh, wahhoi!
+"       |<-   Comment        ->|#Here is not comment.
 
-  " NOTE: Usually 'String' can not be used for syntax group assignment, but as
-  "       far as using 'mckn' colorscheme 'String' is available.  Since 'mckn'
-  "       sets a color directly for 'String' group.  I mean, in case I want to
-  "       change the colorscheme this settings might not work as I expect.
+" NOTE: Usually 'String' can not be used for syntax group assignment, but as
+"       far as using 'mckn' colorscheme 'String' is available.  Since 'mckn'
+"       sets a color directly for 'String' group.  I mean, in case I want to
+"       change the colorscheme this settings might not work as I expect.
 
-  " map to trigger
-  let s:trig = [
-        \     ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',   '<BS>'],
-        \     ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',   '<CR>'],
-        \     ['<Plug>(smartinput_^l)', '<Plug>(smartinput_^l)',  '<C-l>'],
-        \     ['(',     '(',     '('    ],
-        \     [')',     ')',     ')'    ],
-        \     ['[',     '[',     '['    ],
-        \     [']',     ']',     ']'    ],
-        \     ['{',     '{',     '{'    ],
-        \     ['}',     '}',     '}'    ],
-        \     ['''',    '''',    ''''   ],
-        \     ['"',     '"',     '"'    ],
-        \     ['<',     '<',     '<'    ],
-        \     ['>',     '>',     '>'    ],
-        \     ['+',     '+',     '+'    ],
-        \     ['-',     '-',     '-'    ],
-        \     ['*',     '*',     '*'    ],
-        \     ['/',     '/',     '/'    ],
-        \     ['%',     '%',     '%'    ],
-        \     ['&',     '&',     '&'    ],
-        \     ['<Bar>', '<Bar>', '<Bar>'],
-        \     ['=',     '=',     '='    ],
-        \     ['~',     '~',     '~'    ],
-        \     ['#',     '#',     '#'    ],
-        \     ['^',     '^',     '^'    ],
-        \     ['?',     '?',     '?'    ],
-        \     [':',     ':',     ':'    ],
-        \     ['.',     '.',     '.'    ],
-        \     [',',     ',',     ','    ],
-        \    ]
+" map to trigger
+let s:trig = [
+      \     ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',   '<BS>'],
+      \     ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',   '<CR>'],
+      \     ['<Plug>(smartinput_^k)', '<Plug>(smartinput_^k)',  '<C-k>'],
+      \     ['(',     '(',     '('    ],
+      \     [')',     ')',     ')'    ],
+      \     ['[',     '[',     '['    ],
+      \     [']',     ']',     ']'    ],
+      \     ['{',     '{',     '{'    ],
+      \     ['}',     '}',     '}'    ],
+      \     ['''',    '''',    ''''   ],
+      \     ['"',     '"',     '"'    ],
+      \     ['<',     '<',     '<'    ],
+      \     ['>',     '>',     '>'    ],
+      \     ['+',     '+',     '+'    ],
+      \     ['-',     '-',     '-'    ],
+      \     ['*',     '*',     '*'    ],
+      \     ['/',     '/',     '/'    ],
+      \     ['%',     '%',     '%'    ],
+      \     ['&',     '&',     '&'    ],
+      \     ['<Bar>', '<Bar>', '<Bar>'],
+      \     ['=',     '=',     '='    ],
+      \     ['~',     '~',     '~'    ],
+      \     ['#',     '#',     '#'    ],
+      \     ['^',     '^',     '^'    ],
+      \     ['?',     '?',     '?'    ],
+      \     [':',     ':',     ':'    ],
+      \     ['.',     '.',     '.'    ],
+      \     [',',     ',',     ','    ],
+      \    ]
 
-  for item in s:trig
-    call smartinput#map_to_trigger('i', item[0], item[1], item[2])
-    call smartinput#map_to_trigger('c', item[0], item[1], item[2])
+for item in s:trig
+  call smartinput#map_to_trigger('i', item[0], item[1], item[2])
+  call smartinput#map_to_trigger('c', item[0], item[1], item[2])
+endfor
+unlet item
+
+" clear default rules
+call smartinput#clear_rules()
+
+let s:rules = []
+
+" imitate smartchr.vim
+" '<' -> ' < ' -> ' << ' -> '<<' -> '<<<' -> '<<<<' ...
+let s:rules += [
+      \       {'char': '<', 'at': '\%#',     'input': '<',                },
+      \       {'char': '<', 'at': '<\%#',    'input': '<BS> < ',          },
+      \       {'char': '<', 'at': ' < \%#',  'input': '<BS>< ',           },
+      \       {'char': '<', 'at': ' << \%#', 'input': '<BS><BS><BS><BS><<'},
+      \       {'char': '<', 'at': '<<\+\%#', 'input': '<',                },
+      \      ]
+" '>' -> ' > ' -> ' >> ' -> '>>' -> '>>>' -> '>>>>' ...
+let s:rules += [
+      \       {'char': '>', 'at': '\%#',     'input': '>',                },
+      \       {'char': '>', 'at': '>\%#',    'input': '<BS> > ',          },
+      \       {'char': '>', 'at': ' > \%#',  'input': '<BS>> ',           },
+      \       {'char': '>', 'at': ' >> \%#', 'input': '<BS><BS><BS><BS>>>'},
+      \       {'char': '>', 'at': '>>\+\%#', 'input': '>',                },
+      \      ]
+" '+' -> ' + ' -> '++' -> '+++' -> '++++' ...
+let s:rules += [
+      \       {'char': '+', 'at': '\%#',     'input': '+',                 },
+      \       {'char': '+', 'at': '+\%#',    'input': '<BS> + ',           },
+      \       {'char': '+', 'at': ' + \%#',  'input': '<BS><BS><BS>++',    },
+      \       {'char': '+', 'at': '++\+\%#', 'input': '+',                 },
+      \      ]
+" '-' -> ' - ' -> '--' -> '---' -> '----' ...
+let s:rules += [
+      \       {'char': '-', 'at': '\%#',          'input': '-',            },
+      \       {'char': '-', 'at': '-\%#',         'input': '<BS> - ',      },
+      \       {'char': '-', 'at': ' - \%#',       'input': '<BS><BS><BS>--'},
+      \       {'char': '-', 'at': '--\+\%#',      'input': '-',            },
+      \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',            },
+      \      ]
+" '&' -> ' && ' -> '&&' -> '&&&' -> '&&&&' ...
+let s:rules += [
+      \       {'char': '&', 'at': '\%#',     'input': '&',                },
+      \       {'char': '&', 'at': '&\%#',    'input': '<BS> && ',         },
+      \       {'char': '&', 'at': ' && \%#', 'input': '<BS><BS><BS><BS>&&'},
+      \       {'char': '&', 'at': '&&\+\%#', 'input': '&',                },
+      \       {'char': '&', 'at': ' &\%#\S', 'input': '& ',               },
+      \       {'char': '&', 'at': ' &\%#$',  'input': '& ',               },
+      \       {'char': '&', 'at': '\S&\%# ', 'input': '<BS><Del> && ',    },
+      \       {'char': '&', 'at': ' &\%# ',  'input': '<Del>& ',          },
+      \      ]
+" '|' -> ' | ' -> ' || ' -> '||' -> '|||' -> '||||' ...
+let s:rules += [
+      \       {'char': '<Bar>', 'at': '\%#',     'input': '|',                },
+      \       {'char': '<Bar>', 'at': '|\%#',    'input': '<BS> | ',          },
+      \       {'char': '<Bar>', 'at': ' | \%#',  'input': '<BS>| ',           },
+      \       {'char': '<Bar>', 'at': ' || \%#', 'input': '<BS><BS><BS><BS>||'},
+      \       {'char': '<Bar>', 'at': '||\+\%#', 'input': '|',                },
+      \       {'char': '<Bar>', 'at': ' |\%#\S', 'input': '| ',               },
+      \       {'char': '<Bar>', 'at': ' |\%#$',  'input': '| ',               },
+      \       {'char': '<Bar>', 'at': '\S|\%# ', 'input': '<BS><Del> || ',    },
+      \       {'char': '<Bar>', 'at': ' |\%# ',  'input': '<Del>| ',          },
+      \      ]
+
+" do not apply on 'Comment' or 'String' syntax
+let s:rules += [
+      \       {'char': '<',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '<'},
+      \       {'char': '>',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '>'},
+      \       {'char': '+',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+'},
+      \       {'char': '-',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-'},
+      \       {'char': '&',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '&'},
+      \       {'char': '<Bar>', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '<Bar>'},
+      \      ]
+
+" smart '=' input
+" ' = ' -> ' == ' -> '=' -> '==' ...
+let s:rules += [
+      \       {'char': '=', 'at': '\%#',     'input': ' = ',             },
+      \       {'char': '=', 'at': ' = \%#',  'input': '<BS>= ',          },
+      \       {'char': '=', 'at': ' == \%#', 'input': '<BS><BS><BS><BS>='},
+      \       {'char': '=', 'at': '=\%#',    'input': '=',               },
+      \      ]
+
+let s:rules += [
+      \       {'char': '=', 'at': '\%# = ',         'input': '<Del><Del><Del>==' },
+      \       {'char': '=', 'at': ' \%#',           'input': '= ',               },
+      \       {'char': '=', 'at': '[^= ]\%# ',      'input': '<Del> = ',         },
+      \       {'char': '=', 'at': ' \%# ',          'input': '<Del>= ',          },
+      \       {'char': '=', 'at': ' \%#=',          'input': '<Del>== ',         },
+      \       {'char': '=', 'at': ' =\%#',          'input': '= ',               },
+      \       {'char': '=', 'at': ' =\%# ',         'input': '<Del>= ',          },
+      \       {'char': '=', 'at': '[-+<>~!] \%#',   'input': '<BS>= ',           },
+      \       {'char': '=', 'at': ' [-+<>~!]\%#\S', 'input': '= ',               },
+      \       {'char': '=', 'at': ' [-+<>~!]\%#$',  'input': '= ',               },
+      \       {'char': '=', 'at': ' [-+<>~!]\%# ',  'input': '=',                },
+      \       {'char': '=', 'at': '\S-\%#',         'input': '<BS> -= ',         },
+      \       {'char': '=', 'at': '\S+\%#',         'input': '<BS> += ',         },
+      \       {'char': '=', 'at': '\S<\%#',         'input': '<BS> <= ',         },
+      \       {'char': '=', 'at': '\S>\%#',         'input': '<BS> >= ',         },
+      \       {'char': '=', 'at': '\S!\%#',         'input': '<BS> != ',         },
+      \       {'char': '=', 'at': ' -= \%#',        'input': '<BS><BS><BS><BS>-='},
+      \       {'char': '=', 'at': ' += \%#',        'input': '<BS><BS><BS><BS>+='},
+      \       {'char': '=', 'at': ' <= \%#',        'input': '<BS><BS><BS><BS><='},
+      \       {'char': '=', 'at': ' >= \%#',        'input': '<BS><BS><BS><BS>>='},
+      \       {'char': '=', 'at': ' != \%#',        'input': '<BS><BS><BS><BS>!='},
+      \       {'char': '=', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '='},
+      \      ]
+
+" smart '<CR>' input
+" delete line end spaces when line-breaking
+let s:rules += [{'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call setline(line(''.'')-1, substitute(getline(line(''.'')-1), ''\s\+$'', '''', ''''))<CR>'}]
+
+" smart quotes input
+let s:rules += [
+      \       {'char': '''', 'at': '\%#',         'input': '''''<Left>', 'mode': 'i:'},
+      \       {'char': '''', 'at': '''''''\%#''', 'input': '<Right>',    'mode': 'i:'},
+      \       {'char': '''', 'at': '\\\%#',       'input': '''',         'mode': 'i:'},
+      \       {'char':  '"', 'at': '\%#',         'input': '""<Left>',   'mode': 'i:'},
+      \       {'char':  '"', 'at': '\\\%#',       'input': '"',          'mode': 'i:'},
+      \       {'char': '''', 'at': '\w\%#',       'input': '''',         'mode': 'i:'},
+      \       {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': 'i' },
+      \       {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': ':' },
+      \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',                          'input': '""<Left>',   'mode': 'i:'},
+      \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',                     'input': '""',         'mode': 'i:'},
+      \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',                    'input': '<Right>',    'mode': 'i:'},
+      \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',                    'input': '''''<Left>', 'mode': 'i:'},
+      \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
+      \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
+      \      ]
+
+" correspondent parentheses
+let s:rules += [
+      \       {'char': '(',    'at': '\%#',   'input': '()<Left>', 'mode': 'i'},
+      \       {'char': ')',    'at': '\%#)',  'input': '<Right>',  'mode': 'i'},
+      \       {'char': '(',    'at': '\\\%#', 'input': '(',        'mode': 'i:/?'},
+      \       {'char': '[',    'at': '\%#',   'input': '[]<Left>', 'mode': 'i'},
+      \       {'char': ']',    'at': '\%#\]', 'input': '<Right>',  'mode': 'i'},
+      \       {'char': '[',    'at': '\\\%#', 'input': '[',        'mode': 'i:/?'},
+      \       {'char': '{',    'at': '\%#',   'input': '{}<Left>', 'mode': 'i'},
+      \       {'char': '}',    'at': '\%#}',  'input': '<Right>',  'mode': 'i'},
+      \       {'char': '{',    'at': '\\\%#', 'input': '{',        'mode': 'i:/?'},
+      \       {'char': '(',    'at': '\%#',       'input': '()<Left>',                                           'mode': ':/?'},
+      \       {'char': ')',    'at': '\%#\_s*)',  'input': '<C-r>=smartinput#_leave_block('')'')<Enter><Right>', 'mode': ':/?'},
+      \       {'char': '[',    'at': '\%#',       'input': '[]<Left>',                                           'mode': ':/?'},
+      \       {'char': ']',    'at': '\%#\_s*\]', 'input': '<C-r>=smartinput#_leave_block('']'')<Enter><Right>', 'mode': ':/?'},
+      \       {'char': '{',    'at': '\%#',       'input': '{}<Left>',                                           'mode': ':/?'},
+      \       {'char': '}',    'at': '\%#\_s*}',  'input': '<C-r>=smartinput#_leave_block(''}'')<Enter><Right>', 'mode': ':/?'},
+      \      ]
+
+" delete correspondent parentheses and quotes
+let s:rules += [
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': 'i'   },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': ':/?' },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': 'i'   },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': ':/?' },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': 'i'   },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': ':/?' },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': 'i'   },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': ':/?' },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''',  'input': '<BS><BS>',  'mode': 'i:/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': 'i'   },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': ':/?' },
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',     'input': '<BS><BS>',  'mode': 'i:/?'},
+      \      ]
+
+" Delete operaters together with vicinal spaces
+let s:rules += [
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' < \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' > \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' + \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' - \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' / \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' & \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' % \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' \* \%#',  'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' = \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' == \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' != \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' \~= \%#', 'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <> \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <= \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' >= \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' += \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' -= \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' && \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' || \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
+      \      ]
+
+" miscellaneous settings
+let s:rules += [
+      \       {'char': '>', 'at': ' < \%#', 'input': '<BS>> ', 'mode': 'i:'},
+      \       {'char': ',', 'at': '\%#',    'input': ', ',     'mode': 'i'},
+      \       {'char': ',', 'at': ', \%#',  'input': '<BS>',   'mode': 'i'},
+      \       {'char': ',', 'at': '\%# ',   'input': ',',      'mode': 'i'},
+      \       {'char': '(', 'at': '\C^[hH]elp \w\+\%#', 'input': '(', 'mode': ':'},
+      \       {'char': '=', 'at': '\C\<set\> \w\+\%#',  'input': '=', 'mode': ':'},
+      \      ]
+
+" for commandline mode
+" '|' is cursor. The character inside the -[]-> means keypress.
+" = | -[~]-> =~ | -[?]-> =~? |
+" ...and something like above.
+let s:rules += [
+      \       {'char': '"', 'at': '^\s*\%#', 'input': '" ',     'mode': ':'},
+      \       {'char': '~', 'at': '= \%#',   'input': '<BS>~ ', 'mode': ':'},
+      \       {'char': '#', 'at': '== \%#',  'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '== \%#',  'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '#', 'at': '!= \%#',  'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '!= \%#',  'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '#', 'at': '> \%#',   'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '> \%#',   'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '#', 'at': '>= \%#',  'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '>= \%#',  'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '#', 'at': '< \%#',   'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '< \%#',   'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '#', 'at': '<= \%#',  'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '<= \%#',  'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '#', 'at': '=\~ \%#', 'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '=\~ \%#', 'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'mode': ':'},
+      \       {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=? \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' ># \%#',   'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' >? \%#',   'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=# \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=? \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <# \%#',   'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <? \%#',   'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=# \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=? \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~ \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~# \%#', 'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~? \%#', 'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~ \%#',  'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~# \%#', 'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~? \%#', 'input': '<BS><BS> ', 'mode': ':'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '"\s\%#',    'input': '<BS><BS>',  'mode': ':'},
+      \      ]
+
+" for regular expression
+" '#' is cursor. The character inside the -[]-> means keypress.
+" (#  -  [(]  -> ((#
+"     -[<C-k>]-> \%(#\) -[<C-k>]-> \(#\) -[<C-k>]-> \%(#\)
+
+let s:rules += [
+      \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',                   'mode': ':/?'},
+      \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',                   'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '(\%#',        'input': '<BS><Del>\%(\)<Left><Left>', 'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\\%(\%#\\)',  'input': '<Left><BS><Right>',          'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\\(\%#\\)',   'input': '<Left>%<Right>',             'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\\)\%#',      'input': '<Left><Left>)',              'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\[\%#',       'input': '<BS>\[\]<Left><Left>',       'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\\]\%#',      'input': '<Left><Left>]',              'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '<\%#',        'input': '<BS>\<\><Left><Left>',       'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>',     'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',         'mode': ':/?'},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',         'mode': ':/?'},
+      \      ]
+
+" filetype option
+
+" vim
+let s:rules += [
+      \       {'char': '"', 'at': '^\s*\%#', 'input': '" ',     'filetype': ['vim']},
+      \       {'char': '~', 'at': '= \%#',   'input': '<BS>~ ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '== \%#',  'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '== \%#',  'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '!= \%#',  'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '!= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '> \%#',   'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '> \%#',   'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '>= \%#',  'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '>= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '< \%#',   'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '< \%#',   'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '<= \%#',  'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '<= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '=\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '=\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
+      \       {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' ># \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' >? \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <# \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <? \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~ \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~# \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~? \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~ \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~# \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~? \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '"\s\%#',    'input': '<BS><BS>',     'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' \. \%#',   'input': '<BS><BS><BS>', 'filetype': ['vim']},
+      \       {'char': '=', 'at': '\. \%#',   'input': '<BS>= ',              'mode': 'i:', 'filetype': ['vim']},
+      \       {'char': '=', 'at': ' \.\%#\S', 'input': '= ',                  'mode': 'i:', 'filetype': ['vim']},
+      \       {'char': '=', 'at': ' \.\%#$',  'input': '= ',                  'mode': 'i:', 'filetype': ['vim']},
+      \       {'char': '=', 'at': ' \.\%# ',  'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
+      \       {'char': '=', 'at': '\S\.\%#',  'input': '<BS> .= ',            'mode': 'i:', 'filetype': ['vim']},
+      \       {'char': '=', 'at': ' \.= \%#', 'input': '<BS><BS><BS><BS>.=',  'mode': 'i:', 'filetype': ['vim']},
+      \       {'char': '=', 'at': '<C-r>\%#', 'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
+      \       {'char': '=', 'at': '\C\<set\%[local]\> \w\+\%#', 'input': '=', 'mode': 'i',  'filetype': ['vim']},
+      \      ]
+" '.' -> ' . ' -> '..' -> '...'
+let s:rules += [
+      \       {'char': '.', 'at': '\%#',       'input': '.',              'filetype': ['vim']},
+      \       {'char': '.', 'at': '\.\%#',     'input': '<BS> . ',        'filetype': ['vim']},
+      \       {'char': '.', 'at': ' \. \%#',   'input': '<BS><BS><BS>..', 'filetype': ['vim']},
+      \       {'char': '.', 'at': '\.\.\%#',   'input': '.',              'filetype': ['vim']},
+      \       {'char': '.', 'at': ' \.\%#\S',  'input': ' ',              'filetype': ['vim']},
+      \       {'char': '.', 'at': '\S\.\%# ',  'input': '<BS><Del> . ',   'filetype': ['vim']},
+      \       {'char': '.', 'at': ' \.\%# ',   'input': '<Del> ',         'filetype': ['vim']},
+      \       ]
+
+let s:rules += [
+      \       {'char': ')', 'at': '\%#\\)',  'input': '<Right><Right>', 'filetype': ['vim']},
+      \       {'char': ']', 'at': '\%#\\\]', 'input': '<Right><Right>', 'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '(\%#)',       'input': '<BS><Del>\%(\)<Left><Left>', 'filetype': ['vim'], 'priority': -2},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\[\%#\]',     'input': '<BS><Del>\[\]<Left><Left>',  'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '<\%#>',       'input': '<BS><Del>\<\><Left><Left>',  'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\\%(\%#\\)',  'input': '<BS><BS>(',                  'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\\(\%#\\)',   'input': '<BS>%(',                     'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>',     'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',         'filetype': ['vim']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',         'filetype': ['vim']},
+      \      ]
+
+" matlab
+let s:rules += [
+      \       {'char': '%', 'at': '^\s*\%#',     'input': '% ',      'filetype': ['matlab']},
+      \       {'char': '%', 'at': '^\s*%\+ \%#', 'input': '<BS>%% ', 'filetype': ['matlab']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*%\s\%#',         'input': '<BS><BS>',      'filetype': ['matlab']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*\(%%\)\+%\s\%#', 'input': '<BS><BS><BS> ', 'filetype': ['matlab']},
+      \      ]
+
+" scilab
+let s:rules += [
+      \       {'char': '/', 'at': '^\s*\%#',          'input': '// ',     'filetype': ['scilab']},
+      \       {'char': '/', 'at': '^\s*\(//\)\+ \%#', 'input': '<BS>// ', 'filetype': ['scilab']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*//\s\%#',         'input': '<BS><BS><BS>',  'filetype': ['scilab']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*//\(//\)\+\s\%#', 'input': '<BS><BS><BS> ', 'filetype': ['scilab']},
+      \      ]
+
+" common in matlab, scilab and julia
+" ' + ' -> '+' -> '++' -> '+++' ...
+let s:rules += [
+      \       {'char': '+', 'at': '\%#',    'input': ' + ',           'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '+', 'at': '+\%#',   'input': '+',             'filetype': ['matlab', 'scilab', 'julia']},
+      \      ]
+" ' - ' -> '-' -> '--' -> '---' ...
+let s:rules += [
+      \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['matlab', 'scilab', 'julia']},
+      \      ]
+" '.^' -> '^' -> '^^' -> '^^^' ...
+let s:rules += [
+      \       {'char': '^', 'at': '\^\%#',  'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '[^^.]^\%#', 'input': '<BS>.^',    'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\.^\%#',    'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \      ]
+" '.*' -> '*' -> '**' -> '***' ...
+let s:rules += [
+      \       {'char': '*', 'at': '\*\%#', 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '[^*.]\*\%#', 'input': '<BS>.*',    'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\.\*\%#',    'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab', 'julia']},
+      \      ]
+" './' -> '/' -> '//' -> '///' ...
+let s:rules += [
+      \       {'char': '/', 'at': '/\%#', 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '[^/.]/\%#', 'input': '<BS>./',    'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\./\%#',    'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab', 'julia']},
+      \      ]
+
+let s:rules += [
+      \       {'char': '+', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '-', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '^', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '*', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '/', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': '\.[*/^]\%#', 'input': '<BS><BS>', 'filetype': ['matlab', 'scilab', 'julia']},
+      \      ]
+
+" FORTRAN
+let s:rules += [
+      \       {'char': ':', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)\%((\d\+)\)\?\%(\s*,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|intent(\%(in\|out\|inout\))\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
+      \       {'char': ':', 'at': '^\s*type(\h\w\*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
+      \       {'char': ':', 'at': '^\s*\%(private\|public\)\%#', 'input': ' :: ', 'filetype': ['fortran']},
+      \       {'char': ':', 'at': ' :: \%#', 'input': '<BS><BS><BS><BS>:',  'filetype': ['fortran']},
+      \       {'char': '=', 'at': '/ \%#',   'input': '<BS>= ',             'filetype': ['fortran']},
+      \       {'char': '=', 'at': ' /\%#\S', 'input': '= ',                 'filetype': ['fortran']},
+      \       {'char': '=', 'at': ' /\%#$',  'input': '= ',                 'filetype': ['fortran']},
+      \       {'char': '=', 'at': ' /\%# ',  'input': '=',                  'filetype': ['fortran']},
+      \       {'char': '=', 'at': '\S/\%#',  'input': '<BS> /= ',           'filetype': ['fortran']},
+      \       {'char': '=', 'at': ' /= \%#', 'input': '<BS><BS><BS><BS>/=', 'filetype': ['fortran']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '^\s*\%#', 'input': '<C-r>=LocalComplete("type")<CR>', 'filetype': ['fortran']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\).*\%#', 'input': '<C-r>=LocalComplete("attr")<CR>', 'filetype': ['fortran']},
+      \      ]
+" ' + ' -> '+' -> '++' -> '+++' ...
+let s:rules += [
+      \       {'char': '+', 'at': '\%#',    'input': ' + ',           'filetype': ['fortran']},
+      \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'filetype': ['fortran']},
+      \       {'char': '+', 'at': '+\%#',   'input': '+',             'filetype': ['fortran']},
+      \       {'char': '+', 'at': ' \%#',   'input': '+ ',            'filetype': ['fortran']},
+      \       {'char': '+', 'at': ' \%# ',  'input': '<Del>+ ',       'filetype': ['fortran']},
+      \      ]
+" ' - ' -> '-' -> '--' -> '---' ...
+let s:rules += [
+      \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['fortran']},
+      \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['fortran']},
+      \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['fortran']},
+      \       {'char': '-', 'at': ' \%#',   'input': '- ',            'filetype': ['fortran']},
+      \       {'char': '-', 'at': ' \%# ',  'input': '<Del>- ',       'filetype': ['fortran']},
+      \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['fortran']},
+      \      ]
+
+" R
+" ' <- ' -> ' < ' -> '<' -> '<<' -> '<<<' ...
+let s:rules += [
+      \       {'char': '<', 'at': '\%#',     'input': ' <- ',          'filetype': ['r']},
+      \       {'char': '<', 'at': ' <- \%#', 'input': '<BS><BS> ',     'filetype': ['r']},
+      \       {'char': '<', 'at': ' < \%#',  'input': '<BS><BS><BS><', 'filetype': ['r']},
+      \       {'char': '<', 'at': '<\%#',    'input': '<',             'filetype': ['r']},
+      \      ]
+" ' > ' -> '>' -> ' -> ' -> '>>' -> '>>>' ...
+let s:rules += [
+      \       {'char': '>', 'at': '\%#',     'input': ' > ',                'filetype': ['r']},
+      \       {'char': '>', 'at': ' > \%#',  'input': '<BS><BS><BS>>',      'filetype': ['r']},
+      \       {'char': '>', 'at': '>\%#',    'input': '<BS> -> ',           'filetype': ['r']},
+      \       {'char': '>', 'at': ' -> \%#', 'input': '<BS><BS><BS><BS>>>', 'filetype': ['r']},
+      \       {'char': '>', 'at': '>>\+\%#', 'input': '>',                  'filetype': ['r']},
+      \      ]
+
+let s:rules += [
+      \       {'char': '-',    'at': '< \%#',   'input': '<BS>- ',           'filetype': ['r']},
+      \       {'char': '>',    'at': '- \%#',   'input': '<BS>> ',           'filetype': ['r']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' <- \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['r']},
+      \       {'char': '<Plug>(smartinput_BS)', 'at': ' -> \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['r']},
+      \      ]
+
+" python
+let s:rules += [{'char': '<Plug>(smartinput_BS)', 'at': '#\s\%#', 'input': '<BS><BS>', 'filetype': ['python']}]
+
+" c
+let s:rules += [{'char': '<Plug>(smartinput_BS)', 'at': '//\s\%#', 'input': '<BS><BS><BS>', 'filetype': ['c']}]
+" ' + ' -> '++' -> '+' -> '+++' -> '++++' ...
+let s:rules += [
+      \       {'char': '+', 'at': '\%#',      'input': ' + ',            'filetype': ['c']},
+      \       {'char': '+', 'at': ' + \%#',   'input': '<BS><BS><BS>++', 'filetype': ['c']},
+      \       {'char': '+', 'at': '++\%#',    'input': '<BS>',           'filetype': ['c']},
+      \       {'char': '+', 'at': '+\%#',     'input': '++',             'filetype': ['c']},
+      \       {'char': '+', 'at': '+++\+\%#', 'input': '+',              'filetype': ['c']},
+      \      ]
+" ' - ' -> '--' -> '-' -> '---' -> '----' ...
+let s:rules += [
+      \       {'char': '-', 'at': '\%#',    'input': ' - ',            'filetype': ['c']},
+      \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>--', 'filetype': ['c']},
+      \       {'char': '-', 'at': '--\%#',  'input': '<BS>',           'filetype': ['c']},
+      \       {'char': '-', 'at': '-\%#',   'input': '--',             'filetype': ['c']},
+      \       {'char': '-', 'at': '---\+\%#', 'input': '-',            'filetype': ['c']},
+      \      ]
+
+let s:rules += [
+      \       {'char': '+', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+', 'filetype': ['c']},
+      \       {'char': '-', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-', 'filetype': ['c']},
+      \      ]
+
+" Julia langage
+let s:rules += [
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\k\+:\%#',  'input': ':<C-r>=LocalComplete("type")<CR>', 'filetype': ['julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\k\+::\%#', 'input': '<C-r>=LocalComplete("type")<CR>', 'filetype': ['julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\%(Dict\|Array\)\%#', 'input': '{, }<Left><Left><Left><C-r>=LocalComplete("type")<CR>', 'filetype': ['julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': 'Vector\%#', 'input': '{}<Left><C-r>=LocalComplete("type")<CR>', 'filetype': ['julia']},
+      \       {'char': '<Plug>(smartinput_^k)', 'at': '\%(convert\|zeros\|ones\)\%#', 'input': '(, )<Left><Left><Left><C-r>=LocalComplete("type")<CR>', 'filetype': ['julia']},
+      \      ]
+
+for item in s:rules
+  call smartinput#define_rule(item)
+endfor
+unlet item
+let g:is_smartinput_active = 1
+
+" These mappings could be modified somewhere else.
+" But required just for safety-net.
+imap <BS>  <Plug>(smartinput_BS)
+cmap <BS>  <Plug>(smartinput_BS)
+imap <CR>  <Plug>(smartinput_CR)
+imap <expr> <C-k> <SID>i_CTRL_k()
+cmap <C-k> <Plug>(smartinput_^k)
+
+function! s:i_CTRL_k() abort
+  let key = ''
+  if s:smartinput_has_rule('<Plug>(smartinput_^k)', 0)
+    let key = "\<Plug>(smartinput_^k)"
+  elseif neosnippet#expandable()
+    let key = "\<Plug>(neosnippet_expand)"
+  elseif s:smartinput_has_rule('<Plug>(smartinput_^k)', -1)
+    let key = "\<Plug>(smartinput_^k)"
+  elseif neosnippet#jumpable()
+    let key = "\<Plug>(neosnippet_jump)"
+  elseif s:smartinput_has_rule('<Plug>(smartinput_^k)', -2)
+    let key = "\<Plug>(smartinput_^k)"
+  endif
+  return key
+endfunction
+
+function! s:smartinput_has_rule(key, priority) abort
+  let ft = &filetype
+  let rules = deepcopy(s:rules)
+  call filter(rules, 'v:val["char"] ==# a:key')
+  call filter(rules, '!has_key(v:val, "filetype") || match(v:val["filetype"], ft) >= 0')
+  call filter(rules, '!has_key(v:val, "mode") || match(v:val["mode"], "i") >= 0')
+  if a:priority == 0
+    call filter(rules, '!has_key(v:val, "priority") || v:val["priority"] == 0')
+  else
+    call filter(rules, 'has_key(v:val, "priority") && v:val["priority"] == a:priority')
+  endif
+  let has_rule = 0
+  for rule in rules
+    if search(rule.at, 'bcnW')
+      let has_rule = 1
+      break
+    endif
   endfor
-  unlet item
+  return has_rule
+endfunction
 
-  " clear default rules
-  call smartinput#clear_rules()
+" toggle switch
+command! -nargs=0 SmartinputToggle call Smartinput_toggle_switch()
+nnoremap <silent> <M-s> :SmartinputToggle<CR>
+inoremap <silent> <M-s> <C-r>=Smartinput_toggle_switch()<CR>
+cnoremap          <M-s> <C-r>=Smartinput_toggle_switch()<CR>
 
-  let rules = []
-
-  " imitate smartchr.vim
-  " '<' -> ' < ' -> ' << ' -> '<<' -> '<<<' -> '<<<<' ...
-  let rules += [
-        \       {'char': '<', 'at': '\%#',     'input': '<',                },
-        \       {'char': '<', 'at': '<\%#',    'input': '<BS> < ',          },
-        \       {'char': '<', 'at': ' < \%#',  'input': '<BS>< ',           },
-        \       {'char': '<', 'at': ' << \%#', 'input': '<BS><BS><BS><BS><<'},
-        \       {'char': '<', 'at': '<<\+\%#', 'input': '<',                },
-        \      ]
-  " '>' -> ' > ' -> ' >> ' -> '>>' -> '>>>' -> '>>>>' ...
-  let rules += [
-        \       {'char': '>', 'at': '\%#',     'input': '>',                },
-        \       {'char': '>', 'at': '>\%#',    'input': '<BS> > ',          },
-        \       {'char': '>', 'at': ' > \%#',  'input': '<BS>> ',           },
-        \       {'char': '>', 'at': ' >> \%#', 'input': '<BS><BS><BS><BS>>>'},
-        \       {'char': '>', 'at': '>>\+\%#', 'input': '>',                },
-        \      ]
-  " '+' -> ' + ' -> '++' -> '+++' -> '++++' ...
-  let rules += [
-        \       {'char': '+', 'at': '\%#',     'input': '+',                 },
-        \       {'char': '+', 'at': '+\%#',    'input': '<BS> + ',           },
-        \       {'char': '+', 'at': ' + \%#',  'input': '<BS><BS><BS>++',    },
-        \       {'char': '+', 'at': '++\+\%#', 'input': '+',                 },
-        \      ]
-  " '-' -> ' - ' -> '--' -> '---' -> '----' ...
-  let rules += [
-        \       {'char': '-', 'at': '\%#',          'input': '-',            },
-        \       {'char': '-', 'at': '-\%#',         'input': '<BS> - ',      },
-        \       {'char': '-', 'at': ' - \%#',       'input': '<BS><BS><BS>--'},
-        \       {'char': '-', 'at': '--\+\%#',      'input': '-',            },
-        \       {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',            },
-        \      ]
-  " '&' -> ' && ' -> '&&' -> '&&&' -> '&&&&' ...
-  let rules += [
-        \       {'char': '&', 'at': '\%#',     'input': '&',                },
-        \       {'char': '&', 'at': '&\%#',    'input': '<BS> && ',         },
-        \       {'char': '&', 'at': ' && \%#', 'input': '<BS><BS><BS><BS>&&'},
-        \       {'char': '&', 'at': '&&\+\%#', 'input': '&',                },
-        \       {'char': '&', 'at': ' &\%#\S', 'input': '& ',               },
-        \       {'char': '&', 'at': ' &\%#$',  'input': '& ',               },
-        \       {'char': '&', 'at': '\S&\%# ', 'input': '<BS><Del> && ',    },
-        \       {'char': '&', 'at': ' &\%# ',  'input': '<Del>& ',          },
-        \      ]
-  " '|' -> ' | ' -> ' || ' -> '||' -> '|||' -> '||||' ...
-  let rules += [
-        \       {'char': '<Bar>', 'at': '\%#',     'input': '|',                },
-        \       {'char': '<Bar>', 'at': '|\%#',    'input': '<BS> | ',          },
-        \       {'char': '<Bar>', 'at': ' | \%#',  'input': '<BS>| ',           },
-        \       {'char': '<Bar>', 'at': ' || \%#', 'input': '<BS><BS><BS><BS>||'},
-        \       {'char': '<Bar>', 'at': '||\+\%#', 'input': '|',                },
-        \       {'char': '<Bar>', 'at': ' |\%#\S', 'input': '| ',               },
-        \       {'char': '<Bar>', 'at': ' |\%#$',  'input': '| ',               },
-        \       {'char': '<Bar>', 'at': '\S|\%# ', 'input': '<BS><Del> || ',    },
-        \       {'char': '<Bar>', 'at': ' |\%# ',  'input': '<Del>| ',          },
-        \      ]
-
-  " do not apply on 'Comment' or 'String' syntax
-  let rules += [
-        \       {'char': '<',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '<'},
-        \       {'char': '>',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '>'},
-        \       {'char': '+',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+'},
-        \       {'char': '-',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-'},
-        \       {'char': '&',     'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '&'},
-        \       {'char': '<Bar>', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '<Bar>'},
-        \      ]
-
-  " smart '=' input
-  " ' = ' -> ' == ' -> '=' -> '==' ...
-  let rules += [
-        \       {'char': '=', 'at': '\%#',     'input': ' = ',             },
-        \       {'char': '=', 'at': ' = \%#',  'input': '<BS>= ',          },
-        \       {'char': '=', 'at': ' == \%#', 'input': '<BS><BS><BS><BS>='},
-        \       {'char': '=', 'at': '=\%#',    'input': '=',               },
-        \      ]
-
-  let rules += [
-        \       {'char': '=', 'at': '\%# = ',         'input': '<Del><Del><Del>==' },
-        \       {'char': '=', 'at': ' \%#',           'input': '= ',               },
-        \       {'char': '=', 'at': '[^= ]\%# ',      'input': '<Del> = ',         },
-        \       {'char': '=', 'at': ' \%# ',          'input': '<Del>= ',          },
-        \       {'char': '=', 'at': ' \%#=',          'input': '<Del>== ',         },
-        \       {'char': '=', 'at': ' =\%#',          'input': '= ',               },
-        \       {'char': '=', 'at': ' =\%# ',         'input': '<Del>= ',          },
-        \       {'char': '=', 'at': '[-+<>~!] \%#',   'input': '<BS>= ',           },
-        \       {'char': '=', 'at': ' [-+<>~!]\%#\S', 'input': '= ',               },
-        \       {'char': '=', 'at': ' [-+<>~!]\%#$',  'input': '= ',               },
-        \       {'char': '=', 'at': ' [-+<>~!]\%# ',  'input': '=',                },
-        \       {'char': '=', 'at': '\S-\%#',         'input': '<BS> -= ',         },
-        \       {'char': '=', 'at': '\S+\%#',         'input': '<BS> += ',         },
-        \       {'char': '=', 'at': '\S<\%#',         'input': '<BS> <= ',         },
-        \       {'char': '=', 'at': '\S>\%#',         'input': '<BS> >= ',         },
-        \       {'char': '=', 'at': '\S!\%#',         'input': '<BS> != ',         },
-        \       {'char': '=', 'at': ' -= \%#',        'input': '<BS><BS><BS><BS>-='},
-        \       {'char': '=', 'at': ' += \%#',        'input': '<BS><BS><BS><BS>+='},
-        \       {'char': '=', 'at': ' <= \%#',        'input': '<BS><BS><BS><BS><='},
-        \       {'char': '=', 'at': ' >= \%#',        'input': '<BS><BS><BS><BS>>='},
-        \       {'char': '=', 'at': ' != \%#',        'input': '<BS><BS><BS><BS>!='},
-        \       {'char': '=', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '='},
-        \      ]
-
-  " smart '<CR>' input
-  " delete line end spaces when line-breaking
-  let rules += [{'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call setline(line(''.'')-1, substitute(getline(line(''.'')-1), ''\s\+$'', '''', ''''))<CR>'}]
-
-  " smart quotes input
-  let rules += [
-        \       {'char': '''', 'at': '\%#',         'input': '''''<Left>', 'mode': 'i:'},
-        \       {'char': '''', 'at': '''''''\%#''', 'input': '<Right>',    'mode': 'i:'},
-        \       {'char': '''', 'at': '\\\%#',       'input': '''',         'mode': 'i:'},
-        \       {'char':  '"', 'at': '\%#',         'input': '""<Left>',   'mode': 'i:'},
-        \       {'char':  '"', 'at': '\\\%#',       'input': '"',          'mode': 'i:'},
-        \       {'char': '''', 'at': '\w\%#',       'input': '''',         'mode': 'i:'},
-        \       {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': 'i' },
-        \       {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': ':' },
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',                          'input': '""<Left>',   'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',                     'input': '""',         'mode': 'i:'},
-        \       {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',                    'input': '<Right>',    'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',                    'input': '''''<Left>', 'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
-        \       {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
-        \      ]
-
-  " correspondent parentheses
-  let rules += [
-        \       {'char': '(',    'at': '\%#',   'input': '()<Left>', 'mode': 'i'},
-        \       {'char': ')',    'at': '\%#)',  'input': '<Right>',  'mode': 'i'},
-        \       {'char': '(',    'at': '\\\%#', 'input': '(',        'mode': 'i:/?'},
-        \       {'char': '[',    'at': '\%#',   'input': '[]<Left>', 'mode': 'i'},
-        \       {'char': ']',    'at': '\%#\]', 'input': '<Right>',  'mode': 'i'},
-        \       {'char': '[',    'at': '\\\%#', 'input': '[',        'mode': 'i:/?'},
-        \       {'char': '{',    'at': '\%#',   'input': '{}<Left>', 'mode': 'i'},
-        \       {'char': '}',    'at': '\%#}',  'input': '<Right>',  'mode': 'i'},
-        \       {'char': '{',    'at': '\\\%#', 'input': '{',        'mode': 'i:/?'},
-        \       {'char': '(',    'at': '\%#',       'input': '()<Left>',                                           'mode': ':/?'},
-        \       {'char': ')',    'at': '\%#\_s*)',  'input': '<C-r>=smartinput#_leave_block('')'')<Enter><Right>', 'mode': ':/?'},
-        \       {'char': '[',    'at': '\%#',       'input': '[]<Left>',                                           'mode': ':/?'},
-        \       {'char': ']',    'at': '\%#\_s*\]', 'input': '<C-r>=smartinput#_leave_block('']'')<Enter><Right>', 'mode': ':/?'},
-        \       {'char': '{',    'at': '\%#',       'input': '{}<Left>',                                           'mode': ':/?'},
-        \       {'char': '}',    'at': '\%#\_s*}',  'input': '<C-r>=smartinput#_leave_block(''}'')<Enter><Right>', 'mode': ':/?'},
-        \      ]
-
-  " delete correspondent parentheses and quotes
-  let rules += [
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': 'i'   },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': ':/?' },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': 'i'   },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': ':/?' },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': 'i'   },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': ':/?' },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': 'i'   },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': ':/?' },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''',  'input': '<BS><BS>',  'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': 'i'   },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': ':/?' },
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',     'input': '<BS><BS>',  'mode': 'i:/?'},
-        \      ]
-
-  " Delete operaters together with vicinal spaces
-  let rules += [
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' < \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' > \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' + \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' - \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' / \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' & \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' % \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' \* \%#',  'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' = \%#',   'input': '<BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' == \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' != \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' \~= \%#', 'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <> \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <= \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >= \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' += \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' -= \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' && \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' || \%#',  'input': '<BS><BS><BS><BS>', 'mode': 'i:'},
-        \      ]
-
-  " miscellaneous settings
-  let rules += [
-        \       {'char': '>', 'at': ' < \%#', 'input': '<BS>> ', 'mode': 'i:'},
-        \       {'char': ',', 'at': '\%#',    'input': ', ',     'mode': 'i'},
-        \       {'char': ',', 'at': ', \%#',  'input': '<BS>',   'mode': 'i'},
-        \       {'char': ',', 'at': '\%# ',   'input': ',',      'mode': 'i'},
-        \       {'char': '(', 'at': '\C^[hH]elp \w\+\%#', 'input': '(', 'mode': ':'},
-        \       {'char': '=', 'at': '\C\<set\> \w\+\%#',  'input': '=', 'mode': ':'},
-        \      ]
-
-  " for commandline mode
-  " '|' is cursor. The character inside the -[]-> means keypress.
-  " = | -[~]-> =~ | -[?]-> =~? |
-  " ...and something like above.
-  let rules += [
-        \       {'char': '"', 'at': '^\s*\%#', 'input': '" ',     'mode': ':'},
-        \       {'char': '~', 'at': '= \%#',   'input': '<BS>~ ', 'mode': ':'},
-        \       {'char': '#', 'at': '== \%#',  'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '== \%#',  'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '#', 'at': '!= \%#',  'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '!= \%#',  'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '#', 'at': '> \%#',   'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '> \%#',   'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '#', 'at': '>= \%#',  'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '>= \%#',  'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '#', 'at': '< \%#',   'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '< \%#',   'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '#', 'at': '<= \%#',  'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '<= \%#',  'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '#', 'at': '=\~ \%#', 'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '=\~ \%#', 'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'mode': ':'},
-        \       {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=? \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ># \%#',   'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >? \%#',   'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=# \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=? \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <# \%#',   'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <? \%#',   'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=# \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=? \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~ \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~# \%#', 'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~? \%#', 'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~ \%#',  'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~# \%#', 'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~? \%#', 'input': '<BS><BS> ', 'mode': ':'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\s\%#',    'input': '<BS><BS>',  'mode': ':'},
-        \      ]
-
-  " for regular expression
-  " '#' is cursor. The character inside the -[]-> means keypress.
-  " (#  -  [(]  -> ((#
-  "     -[<C-k>]-> \%(#\) -[<C-k>]-> \(#\) -[<C-k>]-> \%(#\)
-
-  let rules += [
-        \       {'char': ')',     'at': '\%#\\)',     'input': '<Right><Right>',                   'mode': ':/?'},
-        \       {'char': ']',     'at': '\%#\\\]',    'input': '<Right><Right>',                   'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '(\%#',        'input': '<BS><Del>\%(\)<Left><Left>', 'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\\%(\%#\\)',  'input': '<Left><BS><Right>',          'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\\(\%#\\)',   'input': '<Left>%<Right>',             'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\\)\%#',      'input': '<Left><Left>)',              'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\[\%#',       'input': '<BS>\[\]<Left><Left>',       'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\\]\%#',      'input': '<Left><Left>]',              'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '<\%#',        'input': '<BS>\<\><Left><Left>',       'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>',     'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',         'mode': ':/?'},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',         'mode': ':/?'},
-        \      ]
-
-  " filetype option
-
-  " vim
-  let rules += [
-        \       {'char': '"', 'at': '^\s*\%#', 'input': '" ',     'filetype': ['vim']},
-        \       {'char': '~', 'at': '= \%#',   'input': '<BS>~ ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '== \%#',  'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '== \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '!= \%#',  'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '!= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '> \%#',   'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '> \%#',   'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '>= \%#',  'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '>= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '< \%#',   'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '< \%#',   'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '<= \%#',  'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '<= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '=\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '=\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
-        \       {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' ># \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >? \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' >=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <# \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <? \%#',   'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <=? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~ \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~# \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' =\~? \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~ \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~# \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' !\~? \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '"\s\%#',    'input': '<BS><BS>',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' \. \%#',   'input': '<BS><BS><BS>', 'filetype': ['vim']},
-        \       {'char': '=', 'at': '\. \%#',   'input': '<BS>= ',              'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': ' \.\%#\S', 'input': '= ',                  'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': ' \.\%#$',  'input': '= ',                  'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': ' \.\%# ',  'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': '\S\.\%#',  'input': '<BS> .= ',            'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': ' \.= \%#', 'input': '<BS><BS><BS><BS>.=',  'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': '<C-r>\%#', 'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
-        \       {'char': '=', 'at': '\C\<set\%[local]\> \w\+\%#', 'input': '=', 'mode': 'i',  'filetype': ['vim']},
-        \      ]
-  " '.' -> ' . ' -> '..' -> '...'
-  let rules += [
-        \       {'char': '.', 'at': '\%#',       'input': '.',              'filetype': ['vim']},
-        \       {'char': '.', 'at': '\.\%#',     'input': '<BS> . ',        'filetype': ['vim']},
-        \       {'char': '.', 'at': ' \. \%#',   'input': '<BS><BS><BS>..', 'filetype': ['vim']},
-        \       {'char': '.', 'at': '\.\.\%#',   'input': '.',              'filetype': ['vim']},
-        \       {'char': '.', 'at': ' \.\%#\S',  'input': ' ',              'filetype': ['vim']},
-        \       {'char': '.', 'at': '\S\.\%# ',  'input': '<BS><Del> . ',   'filetype': ['vim']},
-        \       {'char': '.', 'at': ' \.\%# ',   'input': '<Del> ',         'filetype': ['vim']},
-        \       ]
-
-  let rules += [
-        \       {'char': ')', 'at': '\%#\\)',  'input': '<Right><Right>', 'filetype': ['vim']},
-        \       {'char': ']', 'at': '\%#\\\]', 'input': '<Right><Right>', 'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '(\%#)',       'input': '<BS><Del>\%(\)<Left><Left>', 'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\[\%#\]',     'input': '<BS><Del>\[\]<Left><Left>',  'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '<\%#>',       'input': '<BS><Del>\<\><Left><Left>',  'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><Del>(',             'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\\(\%#\\)',   'input': '<BS>%(',                     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\%(\%#\\)',  'input': '<BS><BS><BS><Del><Del>',     'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',         'filetype': ['vim']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',         'filetype': ['vim']},
-        \      ]
-
-  " matlab
-  let rules += [
-        \       {'char': '%', 'at': '^\s*\%#',     'input': '% ',      'filetype': ['matlab']},
-        \       {'char': '%', 'at': '^\s*%\+ \%#', 'input': '<BS>%% ', 'filetype': ['matlab']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*%\s\%#',         'input': '<BS><BS>',      'filetype': ['matlab']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*\(%%\)\+%\s\%#', 'input': '<BS><BS><BS> ', 'filetype': ['matlab']},
-        \      ]
-
-  " scilab
-  let rules += [
-        \       {'char': '/', 'at': '^\s*\%#',          'input': '// ',     'filetype': ['scilab']},
-        \       {'char': '/', 'at': '^\s*\(//\)\+ \%#', 'input': '<BS>// ', 'filetype': ['scilab']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*//\s\%#',         'input': '<BS><BS><BS>',  'filetype': ['scilab']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '^\s*//\(//\)\+\s\%#', 'input': '<BS><BS><BS> ', 'filetype': ['scilab']},
-        \      ]
-
-  " common in matlab, scilab and julia
-  " ' + ' -> '+' -> '++' -> '+++' ...
-  let rules += [
-        \       {'char': '+', 'at': '\%#',    'input': ' + ',           'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '+', 'at': '+\%#',   'input': '+',             'filetype': ['matlab', 'scilab', 'julia']},
-        \      ]
-  " ' - ' -> '-' -> '--' -> '---' ...
-  let rules += [
-        \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['matlab', 'scilab', 'julia']},
-        \      ]
-  " '.^' -> '^' -> '^^' -> '^^^' ...
-  let rules += [
-        \       {'char': '^', 'at': '\^\%#',  'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '[^^.]^\%#', 'input': '<BS>.^',    'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\.^\%#',    'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab', 'julia']},
-        \      ]
-  " '.*' -> '*' -> '**' -> '***' ...
-  let rules += [
-        \       {'char': '*', 'at': '\*\%#', 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '[^*.]\*\%#', 'input': '<BS>.*',    'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\.\*\%#',    'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab', 'julia']},
-        \      ]
-  " './' -> '/' -> '//' -> '///' ...
-  let rules += [
-        \       {'char': '/', 'at': '/\%#', 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '[^/.]/\%#', 'input': '<BS>./',    'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\./\%#',    'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab', 'julia']},
-        \      ]
-
-  let rules += [
-        \       {'char': '+', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '-', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '^', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '*', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '/', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': '\.[*/^]\%#', 'input': '<BS><BS>', 'filetype': ['matlab', 'scilab', 'julia']},
-        \      ]
-
-  " FORTRAN
-  let rules += [
-        \       {'char': ':', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)\%((\d\+)\)\?\%(\s*,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|intent(\%(in\|out\|inout\))\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
-        \       {'char': ':', 'at': '^\s*type(\h\w\*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
-        \       {'char': ':', 'at': '^\s*\%(private\|public\)\%#', 'input': ' :: ', 'filetype': ['fortran']},
-        \       {'char': ':', 'at': ' :: \%#', 'input': '<BS><BS><BS><BS>:',  'filetype': ['fortran']},
-        \       {'char': '=', 'at': '/ \%#',   'input': '<BS>= ',             'filetype': ['fortran']},
-        \       {'char': '=', 'at': ' /\%#\S', 'input': '= ',                 'filetype': ['fortran']},
-        \       {'char': '=', 'at': ' /\%#$',  'input': '= ',                 'filetype': ['fortran']},
-        \       {'char': '=', 'at': ' /\%# ',  'input': '=',                  'filetype': ['fortran']},
-        \       {'char': '=', 'at': '\S/\%#',  'input': '<BS> /= ',           'filetype': ['fortran']},
-        \       {'char': '=', 'at': ' /= \%#', 'input': '<BS><BS><BS><BS>/=', 'filetype': ['fortran']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '^\s*\%#', 'input': '<C-r>=LocalComplete("type")<CR>', 'filetype': ['fortran']},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\).*\%#', 'input': '<C-r>=LocalComplete("attr")<CR>', 'filetype': ['fortran']},
-        \      ]
-  " ' + ' -> '+' -> '++' -> '+++' ...
-  let rules += [
-        \       {'char': '+', 'at': '\%#',    'input': ' + ',           'filetype': ['fortran']},
-        \       {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'filetype': ['fortran']},
-        \       {'char': '+', 'at': '+\%#',   'input': '+',             'filetype': ['fortran']},
-        \       {'char': '+', 'at': ' \%#',   'input': '+ ',            'filetype': ['fortran']},
-        \       {'char': '+', 'at': ' \%# ',  'input': '<Del>+ ',       'filetype': ['fortran']},
-        \      ]
-  " ' - ' -> '-' -> '--' -> '---' ...
-  let rules += [
-        \       {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['fortran']},
-        \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['fortran']},
-        \       {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['fortran']},
-        \       {'char': '-', 'at': ' \%#',   'input': '- ',            'filetype': ['fortran']},
-        \       {'char': '-', 'at': ' \%# ',  'input': '<Del>- ',       'filetype': ['fortran']},
-        \       {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['fortran']},
-        \      ]
-
-  " R
-  " ' <- ' -> ' < ' -> '<' -> '<<' -> '<<<' ...
-  let rules += [
-        \       {'char': '<', 'at': '\%#',     'input': ' <- ',          'filetype': ['r']},
-        \       {'char': '<', 'at': ' <- \%#', 'input': '<BS><BS> ',     'filetype': ['r']},
-        \       {'char': '<', 'at': ' < \%#',  'input': '<BS><BS><BS><', 'filetype': ['r']},
-        \       {'char': '<', 'at': '<\%#',    'input': '<',             'filetype': ['r']},
-        \      ]
-  " ' > ' -> '>' -> ' -> ' -> '>>' -> '>>>' ...
-  let rules += [
-        \       {'char': '>', 'at': '\%#',     'input': ' > ',                'filetype': ['r']},
-        \       {'char': '>', 'at': ' > \%#',  'input': '<BS><BS><BS>>',      'filetype': ['r']},
-        \       {'char': '>', 'at': '>\%#',    'input': '<BS> -> ',           'filetype': ['r']},
-        \       {'char': '>', 'at': ' -> \%#', 'input': '<BS><BS><BS><BS>>>', 'filetype': ['r']},
-        \       {'char': '>', 'at': '>>\+\%#', 'input': '>',                  'filetype': ['r']},
-        \      ]
-
-  let rules += [
-        \       {'char': '-',    'at': '< \%#',   'input': '<BS>- ',           'filetype': ['r']},
-        \       {'char': '>',    'at': '- \%#',   'input': '<BS>> ',           'filetype': ['r']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' <- \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['r']},
-        \       {'char': '<Plug>(smartinput_BS)', 'at': ' -> \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['r']},
-        \      ]
-
-  " python
-  let rules += [{'char': '<Plug>(smartinput_BS)', 'at': '#\s\%#', 'input': '<BS><BS>', 'filetype': ['python']}]
-
-  " c
-  let rules += [{'char': '<Plug>(smartinput_BS)', 'at': '//\s\%#', 'input': '<BS><BS><BS>', 'filetype': ['c']}]
-  " ' + ' -> '++' -> '+' -> '+++' -> '++++' ...
-  let rules += [
-        \       {'char': '+', 'at': '\%#',      'input': ' + ',            'filetype': ['c']},
-        \       {'char': '+', 'at': ' + \%#',   'input': '<BS><BS><BS>++', 'filetype': ['c']},
-        \       {'char': '+', 'at': '++\%#',    'input': '<BS>',           'filetype': ['c']},
-        \       {'char': '+', 'at': '+\%#',     'input': '++',             'filetype': ['c']},
-        \       {'char': '+', 'at': '+++\+\%#', 'input': '+',              'filetype': ['c']},
-        \      ]
-  " ' - ' -> '--' -> '-' -> '---' -> '----' ...
-  let rules += [
-        \       {'char': '-', 'at': '\%#',    'input': ' - ',            'filetype': ['c']},
-        \       {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>--', 'filetype': ['c']},
-        \       {'char': '-', 'at': '--\%#',  'input': '<BS>',           'filetype': ['c']},
-        \       {'char': '-', 'at': '-\%#',   'input': '--',             'filetype': ['c']},
-        \       {'char': '-', 'at': '---\+\%#', 'input': '-',            'filetype': ['c']},
-        \      ]
-
-  let rules += [
-        \       {'char': '+', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '+', 'filetype': ['c']},
-        \       {'char': '-', 'at': '\%#', 'syntax': ['Comment', 'String'], 'input': '-', 'filetype': ['c']},
-        \      ]
-
-  " Julia langage
-  let rules += [
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\k\+:\%#',  'input': ':<C-r>=LocalComplete("type")<CR>'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\k\+::\%#', 'input': '<C-r>=LocalComplete("type")<CR>'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\%(Dict\|Array\|Vector\){\%#', 'input': '<C-r>=LocalComplete("type")<CR>'},
-        \       {'char': '<Plug>(smartinput_^l)', 'at': '\%(convert\|zeros\|ones\)(\s*\%#', 'input': '<C-r>=LocalComplete("type")<CR>'},
-        \      ]
-
-  for item in rules
-    call smartinput#define_rule(item)
-  endfor
-  unlet item
-  unlet rules
-  let g:is_smartinput_active = 1
-
-  " These mappings could be modified somewhere else.
-  " But required just for safety-net.
-  imap <BS>  <Plug>(smartinput_BS)
-  cmap <BS>  <Plug>(smartinput_BS)
-  imap <CR>  <Plug>(smartinput_CR)
-  imap <C-l> <Plug>(smartinput_^l)
-  cmap <C-l> <Plug>(smartinput_^l)
-
-  " toggle switch
-  command! -nargs=0 SmartinputToggle call Smartinput_toggle_switch()
-  nnoremap <silent> <M-s> :SmartinputToggle<CR>
-  inoremap <silent> <M-s> <C-r>=Smartinput_toggle_switch()<CR>
-  cnoremap          <M-s> <C-r>=Smartinput_toggle_switch()<CR>
-
-  function! Smartinput_toggle_switch()
-    if g:is_smartinput_active
-      for item in s:trig
-        if item[0] == item[2]
-          execute "iunmap " . item[0]
-          execute "cunmap " . item[0]
+function! Smartinput_toggle_switch()
+  if g:is_smartinput_active
+    for item in s:trig
+      if item[0] == item[2]
+        execute "iunmap " . item[0]
+        execute "cunmap " . item[0]
+      else
+        if item[2] =~# '^<Plug>.\+'
+          execute "imap " . item[0] . " " . item[2]
+          execute "cmap " . item[0] . " " . item[2]
         else
-          if item[2] =~# '^<Plug>.\+'
-            execute "imap " . item[0] . " " . item[2]
-            execute "cmap " . item[0] . " " . item[2]
-          else
-            execute "inoremap " . item[0] . " " . item[2]
-            execute "cnoremap " . item[0] . " " . item[2]
-          endif
+          execute "inoremap " . item[0] . " " . item[2]
+          execute "cnoremap " . item[0] . " " . item[2]
         endif
-      endfor
+      endif
+    endfor
 
-      let g:is_smartinput_active = 0
-    else
-      for item in s:trig
-        call smartinput#map_to_trigger('i', item[0], item[1], item[2])
-        call smartinput#map_to_trigger('c', item[0], item[1], item[2])
-      endfor
+    let g:is_smartinput_active = 0
+  else
+    for item in s:trig
+      call smartinput#map_to_trigger('i', item[0], item[1], item[2])
+      call smartinput#map_to_trigger('c', item[0], item[1], item[2])
+    endfor
 
-      let g:is_smartinput_active = 1
-    endif
+    let g:is_smartinput_active = 1
+  endif
 
-    return ''
-  endfunction
+  return ''
+endfunction
 
-  " Local completion
-  function! LocalComplete(kind) abort
-    if exists('b:local_compl') && match(keys(b:local_compl), a:kind) > -1
-      call complete(col('.'), b:local_compl[a:kind])
-      call feedkeys("\<C-p>")
-    endif
-    return ''
-  endfunction
-endif
+" Local completion
+function! LocalComplete(kind) abort
+  if exists('b:local_compl') && match(keys(b:local_compl), a:kind) > -1
+    call complete(col('.'), b:local_compl[a:kind])
+    call feedkeys("\<C-p>")
+  endif
+  return ''
+endfunction
 "}}}
 " *** anzu.vim *** {{{
-if neobundle#tap('vim-anzu')
-  " mapping
-  nmap n <Plug>(anzu-n-with-echo)
-  nmap N <Plug>(anzu-N-with-echo)
-  nmap * <Plug>(anzu-star-with-echo)
-  nmap # <Plug>(anzu-sharp-with-echo)
+" mapping
+nmap n <Plug>(anzu-n-with-echo)
+nmap N <Plug>(anzu-N-with-echo)
+nmap * <Plug>(anzu-star-with-echo)
+nmap # <Plug>(anzu-sharp-with-echo)
 
-  " clear status
-  " nmap <Esc><Esc> <Plug>(anzu-clear-search-status)
-endif
+" clear status
+" nmap <Esc><Esc> <Plug>(anzu-clear-search-status)
 "}}}
 "*** caw.vim *** {{{
-if neobundle#tap('caw.vim')
-  function! Operator_caw(type)
-    " There is some room to be improved, but menndoi.
-    execute "'[,']normal \<Plug>(caw:i:toggle)"
-  endfunction
+function! Operator_caw(type)
+  " There is some room to be improved, but menndoi.
+  execute "'[,']normal \<Plug>(caw:i:toggle)"
+endfunction
 
-  command! -nargs=0 CawToggle normal <Plug>(caw:i:toggle)
+command! -nargs=0 CawToggle normal <Plug>(caw:i:toggle)
 
-  nnoremap <silent> <Space>c  :<C-u>set operatorfunc=Operator_caw<CR>g@
-  nnoremap <silent> <Space>cc :<C-u>CawToggle<CR>
-  xnoremap <silent> <Space>c  <Esc>:set operatorfunc=Operator_caw<CR>gvg@
-endif
+nnoremap <silent> <Space>c  :<C-u>set operatorfunc=Operator_caw<CR>g@
+nnoremap <silent> <Space>cc :<C-u>CawToggle<CR>
+xnoremap <silent> <Space>c  <Esc>:set operatorfunc=Operator_caw<CR>gvg@
 "}}}
 "*** columnmove *** {{{
-if neobundle#tap('vim-columnmove')
-  " let g:columnmove_auto_scroll = 1
-  let g:columnmove_strict_wbege = 0
-  let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
+let g:columnmove_auto_scroll = 1
+let g:columnmove_strict_wbege = 1
+let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 
-  nnoremap <silent> <M-o> :<C-u>call columnmove#e('n', 0, {'strict_wbege':0})<CR>o
-  nnoremap <silent> <M-O> :<C-u>call columnmove#b('n', 0, {'strict_wbege':0})<CR>o
-endif
+nnoremap <silent> <M-o> :<C-u>call columnmove#e('n', 0, {'strict_wbege':0})<CR>o
+nnoremap <silent> <M-O> :<C-u>call columnmove#b('n', 0, {'strict_wbege':0})<CR>o
 "}}}
 "*** jedi.vim *** {{{
-if neobundle#tap('jedi-vim')
-  let g:jedi#auto_initialization = 1
-  let g:jedi#rename_command = "<leader>R"
-  let g:jedi#popup_on_dot = 0
-  autocmd vimrc FileType python setlocal omnifunc=jedi#completions
-endif
+let g:jedi#auto_initialization = 1
+let g:jedi#rename_command = "<leader>R"
+let g:jedi#popup_on_dot = 0
+autocmd vimrc FileType python setlocal omnifunc=jedi#completions
 "}}}
 "*** neocomplete.vim *** {{{
-if neobundle#tap('neocomplete')
-  " Use neocomplete.
-  let g:neocomplete#enable_at_startup = 1
-  " Ignore cases
-  let g:neocomplete#enable_ignore_case = 1
-  " Set completion start length
-  let g:neocomplete#auto_completion_start_length = 3
-  " Set minimum syntax keyword length.
-  let g:neocomplete#sources#syntax#min_keyword_length = 3
-  let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-  " Assign data directory path.
-  let g:neocomplete#data_directory = $USERCACHEDIR . '/.neocon'
-  " Delimiter automatic insertion.
-  let g:neocomplete#enable_auto_delimiter = 1
-  " Delimiter patterns for smart completion.
-  if !exists('g:neocomplete#delimiter_patterns')
-    let g:neocomplete#delimiter_patterns= {}
-  endif
-  let g:neocomplete#delimiter_patterns.vim = ['#', '.']
-
-  " Define dictionary.
-  let g:neocomplete#sources#dictionary#dictionaries = {
-    \ 'default' : '',
-    \ 'vimshell' : $USERCACHEDIR . '/.vimshell/command-history',
-    \ 'autohotkey' : $USERDIR . '/dict/AHK.dict'
-    \}
-
-  " Define keyword.
-  if !exists('g:neocomplete#keyword_patterns')
-      let g:neocomplete#keyword_patterns = {}
-  endif
-  let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-
-  " Input assist for English
-  if !exists('g:neocomplete#text_mode_filetypes')
-      let g:neocomplete#text_mode_filetypes = {}
-  endif
-  let g:neocomplete#text_mode_filetypes.plaintex = 1
-
-  " Enable heavy omni completion.
-  if !exists('g:neocomplete#sources#omni#input_patterns')
-    let g:neocomplete#sources#omni#input_patterns = {}
-  endif
-  if !exists('g:neocomplete#force_omni_input_patterns')
-    let g:neocomplete#force_omni_input_patterns = {}
-  endif
-  let g:jedi#auto_vim_configuration = 0
-  let g:neocomplete#force_omni_input_patterns.python = '[^. \t]\.\w*'
-  let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\%(\h\w*\)\?'
-  let g:neocomplete#sources#omni#input_patterns.scilab = '[^. \t]\+\.\?\w*'
-
-  let bundle = neobundle#get('neocomplete')
-  function! bundle.hooks.on_source(bundle)
-    " Source optimization
-    call neocomplete#custom_source('look', 'rank', 100)
-    call neocomplete#custom_source('file', 'rank', 100)
-    " Change default converter.
-    call neocomplete#custom#source('_', 'converters',
-    \ ['converter_remove_last_paren', 'converter_delimiter',
-    \  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
-
-    " Recommended key-mappings.
-    if maparg('<Plug>(smartinput_CR)', 'i') ==# ''
-      imap <silent><expr> <CR> neocomplete#smart_close_popup() . "\<CR>"
-    else
-      imap <silent><expr> <CR> neocomplete#smart_close_popup() . "\<Plug>(smartinput_CR)"
-    endif
-
-    if maparg('<Plug>(smartinput_BS)', 'i') ==# ''
-      imap <expr> <C-h> neocomplete#smart_close_popup() . "\<BS>"
-      imap <expr> <BS> neocomplete#smart_close_popup() . "\<BS>"
-    else
-      imap <expr> <C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-      imap <expr> <BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-    endif
-  endfunction
-  unlet bundle
+" Use neocomplete.
+let g:neocomplete#enable_at_startup = 1
+" Ignore cases
+let g:neocomplete#enable_ignore_case = 1
+" Set completion start length
+let g:neocomplete#auto_completion_start_length = 3
+" Set minimum syntax keyword length.
+let g:neocomplete#sources#syntax#min_keyword_length = 3
+let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
+" Assign data directory path.
+let g:neocomplete#data_directory = $USERCACHEDIR . '/.neocon'
+" Delimiter automatic insertion.
+let g:neocomplete#enable_auto_delimiter = 1
+" Delimiter patterns for smart completion.
+if !exists('g:neocomplete#delimiter_patterns')
+  let g:neocomplete#delimiter_patterns= {}
 endif
+let g:neocomplete#delimiter_patterns.vim = ['#', '.']
+
+" Define dictionary.
+let g:neocomplete#sources#dictionary#dictionaries = {
+  \ 'default' : '',
+  \ 'vimshell' : $USERCACHEDIR . '/.vimshell/command-history',
+  \ 'autohotkey' : $USERDIR . '/dict/AHK.dict'
+  \}
+
+" Define keyword.
+if !exists('g:neocomplete#keyword_patterns')
+    let g:neocomplete#keyword_patterns = {}
+endif
+let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+
+" Input assist for English
+if !exists('g:neocomplete#text_mode_filetypes')
+    let g:neocomplete#text_mode_filetypes = {}
+endif
+let g:neocomplete#text_mode_filetypes.plaintex = 1
+
+" Enable heavy omni completion.
+if !exists('g:neocomplete#sources#omni#input_patterns')
+  let g:neocomplete#sources#omni#input_patterns = {}
+endif
+if !exists('g:neocomplete#force_omni_input_patterns')
+  let g:neocomplete#force_omni_input_patterns = {}
+endif
+let g:jedi#auto_vim_configuration = 0
+let g:neocomplete#force_omni_input_patterns.python = '[^. \t]\.\w*'
+let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\%(\h\w*\)\?'
+let g:neocomplete#sources#omni#input_patterns.scilab = '[^. \t]\+\.\?\w*'
+
+let bundle = neobundle#get('neocomplete')
+function! bundle.hooks.on_source(bundle)
+  " Source optimization
+  call neocomplete#custom_source('look', 'rank', 100)
+  call neocomplete#custom_source('file', 'rank', 100)
+  " Change default converter.
+  call neocomplete#custom#source('_', 'converters',
+  \ ['converter_remove_last_paren', 'converter_delimiter',
+  \  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
+
+  " Recommended key-mappings.
+  if maparg('<Plug>(smartinput_CR)', 'i') ==# ''
+    imap <silent><expr> <CR> neocomplete#smart_close_popup() . "\<CR>"
+  else
+    imap <silent><expr> <CR> neocomplete#smart_close_popup() . "\<Plug>(smartinput_CR)"
+  endif
+
+  if maparg('<Plug>(smartinput_BS)', 'i') ==# ''
+    imap <expr> <C-h> neocomplete#smart_close_popup() . "\<BS>"
+    imap <expr> <BS> neocomplete#smart_close_popup() . "\<BS>"
+  else
+    imap <expr> <C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
+    imap <expr> <BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
+  endif
+endfunction
+unlet bundle
 "}}}
 "*** neomru.vim *** {{{
-if neobundle#tap('neomru.vim')
-  let g:neomru#file_mru_path = $USERCACHEDIR . '/.neomru/file'
-  let g:neomru#directory_mru_path = $USERCACHEDIR . '/.neomru/directly'
-endif
+let g:neomru#file_mru_path = $USERCACHEDIR . '/.neomru/file'
+let g:neomru#directory_mru_path = $USERCACHEDIR . '/.neomru/directly'
 "}}}
 "*** neosnippet.vim *** {{{
-if neobundle#tap('neosnippet.vim')
-  imap <expr> <C-k> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_jump_or_expand)" : "\<C-k>"
-  smap        <C-k> <Plug>(neosnippet_expand_or_jump)
-  xmap        <C-k> <Plug>(neosnippet_expand_target)
-  xmap        <C-l> <Plug>(neosnippet_start_unite_snippet_target)
+" imap <expr> <C-k> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_jump_or_expand)" : "\<C-k>"
+smap        <C-k> <Plug>(neosnippet_expand_or_jump)
+xmap        <C-k> <Plug>(neosnippet_expand_target)
+xmap        <C-l> <Plug>(neosnippet_start_unite_snippet_target)
 
-  " Tell Neosnippet about the other snippets
-  let g:neosnippet#snippets_directory = $USERDIR . '/snippets'
+" Tell Neosnippet about the other snippets
+let g:neosnippet#snippets_directory = $USERDIR . '/snippets'
 
-  " For snippet_complete marker.
-  if has('conceal')
-    set conceallevel=2 concealcursor=i
-  endif
+" For snippet_complete marker.
+if has('conceal')
+  set conceallevel=2 concealcursor=i
 endif
 "}}}
 "*** operator-insert *** {{{
-if neobundle#tap('vim-operator-insert')
-  " operator mappings
-  nmap <Space>i <Plug>(operator-insert-i)
-  xmap <Space>i <Plug>(operator-insert-i)
-  nmap <Space>a <Plug>(operator-insert-a)
-  xmap <Space>a <Plug>(operator-insert-a)
-  nmap <Space>o <Plug>(operator-insert-o)
-  xmap <Space>o <Plug>(operator-insert-o)
-  nmap <Space>O <Plug>(operator-insert-O)
-  xmap <Space>O <Plug>(operator-insert-O)
-  omap gn <Plug>(gn-for-operator-insert-i)
-  omap gN <Plug>(gN-for-operator-insert-a)
-endif
+" operator mappings
+nmap <Space>i <Plug>(operator-insert-i)
+xmap <Space>i <Plug>(operator-insert-i)
+nmap <Space>a <Plug>(operator-insert-a)
+xmap <Space>a <Plug>(operator-insert-a)
+nmap <Space>o <Plug>(operator-insert-o)
+xmap <Space>o <Plug>(operator-insert-o)
+nmap <Space>O <Plug>(operator-insert-O)
+xmap <Space>O <Plug>(operator-insert-O)
+omap gn <Plug>(gn-for-operator-insert-i)
+omap gN <Plug>(gN-for-operator-insert-a)
 "}}}
 "*** operator-surround *** {{{
-if neobundle#tap('vim-operator-surround')
-  map s <NOP>
+map s <NOP>
 
-  " operator mappings
-  nmap <silent> sa <Plug>(operator-surround-append)
-  xmap <silent> sa <Plug>(operator-surround-append)
-  nmap <silent> sd <Plug>(operator-surround-delete)
-  xmap <silent> sd <Plug>(operator-surround-delete)
-  nmap <silent> sr <Plug>(operator-surround-replace)
-  xmap <silent> sr <Plug>(operator-surround-replace)
-endif
+" operator mappings
+nmap <silent> sa <Plug>(operator-surround-append)
+xmap <silent> sa <Plug>(operator-surround-append)
+nmap <silent> sd <Plug>(operator-surround-delete)
+xmap <silent> sd <Plug>(operator-surround-delete)
+nmap <silent> sr <Plug>(operator-surround-replace)
+xmap <silent> sr <Plug>(operator-surround-replace)
 "}}}
 "*** patternjump *** {{{
-if neobundle#tap('vim-patternjump')
 "   let g:patternjump_highlight = 1
-  let g:patternjump_swap_head_tail = 1
-  let g:patternjump_caching        = 1
-  let g:patternjump_move_afap      = 1
+let g:patternjump_caching        = 1
+let g:patternjump_move_afap      = 1
 
-  let g:patternjump_patterns = {
-    \ '_' : {
-    \   'i' : {
-    \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
-    \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
-    \     },
-    \   'n' : {
-    \     'head' : ['[[({''"]\+\zs\k'],
-    \     },
-    \   'x' : {
-    \     'tail' : ['\<\h\k*\>'],
-    \     },
-    \   'o' : {
-    \     'forward'  : {'head' : [',', ')', ']', '}', '$']},
-    \     'backward' : {'head_inclusive' : ['^\s*\zs\S']},
-    \     },
-    \   },
-    \ '*' : {
-    \   'c' : {
-    \     'head' : ['^', ' ', '/', '[A-Z]', ',', ')', ']', '}', '$'],
-    \     },
-    \   },
-    \ 'vim' : {
-    \   'i' : {
-    \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
-    \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
-    \     },
-    \   'n' : {
-    \     'head' : ['^\s*\\\s*\zs\S', '[[({''"]\+\zs\k'],
-    \     },
-    \   'x' : {
-    \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
-    \     },
-    \   'o' : {
-    \     'forward'  : {'tail_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
-    \     'backward' : {'head_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
-    \     },
-    \   },
-    \ }
+let g:patternjump_patterns = {
+  \ '_' : {
+  \   'i' : {
+  \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
+  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
+  \     },
+  \   'n' : {
+  \     'head' : ['[[({''"]\+\zs\k'],
+  \     },
+  \   'x' : {
+  \     'tail' : ['\<\h\k*\>'],
+  \     },
+  \   'o' : {
+  \     'forward'  : {'head' : [',', ')', ']', '}', '$']},
+  \     'backward' : {'head_inclusive' : ['^\s*\zs\S']},
+  \     },
+  \   },
+  \ '*' : {
+  \   'c' : {
+  \     'head' : ['^', ' ', '/', '[A-Z]', ',', ')', ']', '}', '$'],
+  \     },
+  \   },
+  \ 'vim' : {
+  \   'i' : {
+  \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
+  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
+  \     },
+  \   'n' : {
+  \     'head' : ['^\s*\\\s*\zs\S', '[[({''"]\+\zs\k'],
+  \     },
+  \   'x' : {
+  \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
+  \     },
+  \   'o' : {
+  \     'forward'  : {'tail_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
+  \     'backward' : {'head_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
+  \     },
+  \   },
+  \ }
 
-  nnoremap <silent> w :<C-u>call patternjump#forward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0, {})<CR>
-  nnoremap <silent> e :<C-u>call patternjump#forward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
-  nnoremap <silent> b :<C-u>call patternjump#backward('n', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0)<CR>
-  nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0)<CR>
-  xnoremap <silent> w :<C-u>call patternjump#forward('x', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0, {'swap_head_tail' : 0})<CR>
-  xnoremap <silent> e :<C-u>call patternjump#forward('x', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0, {'swap_head_tail' : 0})<CR>
-  xnoremap <silent> b :<C-u>call patternjump#backward('x', [['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], 0, {'swap_head_tail' : 0})<CR>
-  xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], 0, {'swap_head_tail' : 0})<CR>
-endif
+nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
 "}}}
 "*** quickrun.vim *** {{{
-if neobundle#tap('vim-quickrun')
-  let g:quickrun_config = {}
-  let g:quickrun_config = {
-        \ '_' : {
-        \       'runner/vimproc/updatetime' : 100,
-        \       'hook/time/enable' : 1,
-        \       },
-        \ 'julia' : {
-        \       'command': 'julia',
-        \       'cmdopt': '-q --color=no -P "println(\\"quickrun-prompt: \\")"',
-        \       'runner': 'process_manager',
-        \       'runner/process_manager/load': 'include("%S");println("quickrun-prompt: ")',
-        \       'runner/process_manager/prompt': 'quickrun-prompt: ',
-        \       },
-        \ 'maxima' : {
-        \       'command': 'maxima',
-        \       'cmdopt': '-q -b',
-        \       'runner': 'process_manager',
-        \       'runner/process_manager/load': has('win32') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
-        \       'runner/process_manager/prompt': '(%[io]\d\+)'
-        \       },
-        \ 'markdown' : {
-        \       'type' : 'markdown/gfm',
-        \       'outputter': 'browser',
-        \       'hook/time/enable' : 0,
-        \       },
-        \ 'tex' : {
-        \       'command' : 'platex',
-        \       },
-        \ 'scilab'  : {
-        \       'command': has('win32') ? 'scilex' : 'scilab-adv-cli',
-        \       'cmdopt': '-l en -nb -nw -f',
-        \       'runner': 'process_manager',
-        \       'runner/process_manager/load': 'exec(%s,-1)',
-        \       'runner/process_manager/prompt': '-->',
-        \       'hook/output_encode/encoding' : has('win32') ? 'utf-8:cp932' : '&fileencoding',
-        \       'hook/eval/enable': 1,
-        \       'hook/eval/template': "%s\nmfprintf(6, '-->')",
-        \       },
-        \ 'r'   : {
-        \       'command': has('win32') ? 'Rscript' : 'R',
-        \       'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
-        \       },
-        \ }
-endif
+let g:quickrun_config = {}
+let g:quickrun_config = {
+      \ '_' : {
+      \       'runner/vimproc/updatetime' : 100,
+      \       'hook/time/enable' : 1,
+      \       },
+      \ 'julia' : {
+      \       'command': 'julia',
+      \       'cmdopt': '-q --color=no -P "println(\\"quickrun-prompt: \\")"',
+      \       'runner': 'process_manager',
+      \       'runner/process_manager/load': 'include("%S");println("quickrun-prompt: ")',
+      \       'runner/process_manager/prompt': 'quickrun-prompt: ',
+      \       },
+      \ 'maxima' : {
+      \       'command': 'maxima',
+      \       'cmdopt': '-q -b',
+      \       'runner': 'process_manager',
+      \       'runner/process_manager/load': has('win32') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
+      \       'runner/process_manager/prompt': '(%[io]\d\+)'
+      \       },
+      \ 'markdown' : {
+      \       'type' : 'markdown/gfm',
+      \       'outputter': 'browser',
+      \       'hook/time/enable' : 0,
+      \       },
+      \ 'tex' : {
+      \       'command' : 'platex',
+      \       },
+      \ 'scilab'  : {
+      \       'command': has('win32') ? 'scilex' : 'scilab-adv-cli',
+      \       'cmdopt': '-l en -nb -nw -f',
+      \       'runner': 'process_manager',
+      \       'runner/process_manager/load': 'exec(%s,-1)',
+      \       'runner/process_manager/prompt': '-->',
+      \       'hook/output_encode/encoding' : has('win32') ? 'utf-8:cp932' : '&fileencoding',
+      \       'hook/eval/enable': 1,
+      \       'hook/eval/template': "%s\nmfprintf(6, '-->')",
+      \       },
+      \ 'r'   : {
+      \       'command': has('win32') ? 'Rscript' : 'R',
+      \       'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
+      \       },
+      \ }
 "}}}
 "*** submode.vim *** {{{
-if neobundle#tap('vim-submode')
-  let g:submode_keep_leaving_key = 1
-  " window size modulation
-  call submode#enter_with('winsize', 'n', '', '<C-w>>', '<C-w>>')
-  call submode#enter_with('winsize', 'n', '', '<C-w><', '<C-w><')
-  call submode#enter_with('winsize', 'n', '', '<C-w>+', '<C-w>+')
-  call submode#enter_with('winsize', 'n', '', '<C-w>-', '<C-w>-')
-  call submode#map('winsize', 'n', '', '>', '<C-w>>')
-  call submode#map('winsize', 'n', '', '<', '<C-w><')
-  call submode#map('winsize', 'n', '', '+', '<C-w>+')
-  call submode#map('winsize', 'n', '', '-', '<C-w>-')
-  " tab move
-  call submode#enter_with('changetab', 'n', '', 'gt', 'gt')
-  call submode#enter_with('changetab', 'n', '', 'gT', 'gT')
-  call submode#map('changetab', 'n', '', 't', 'gt')
-  call submode#map('changetab', 'n', '', 'T', 'gT')
-  " buffer move
-  call submode#enter_with('changebuffer', 'n', '', 'gb', ':IsolateTabNext<CR>')
-  call submode#enter_with('changebuffer', 'n', '', 'gB', ':IsolateTabPrevious<CR>')
-  call submode#map('changebuffer', 'n', '', 'b', ':IsolateTabNext<CR>')
-  call submode#map('changebuffer', 'n', '', 'B', ':IsolateTabPrevious<CR>')
-endif
+let g:submode_keep_leaving_key = 1
+" window size modulation
+call submode#enter_with('winsize', 'n', '', '<C-w>>', '<C-w>>')
+call submode#enter_with('winsize', 'n', '', '<C-w><', '<C-w><')
+call submode#enter_with('winsize', 'n', '', '<C-w>+', '<C-w>+')
+call submode#enter_with('winsize', 'n', '', '<C-w>-', '<C-w>-')
+call submode#map('winsize', 'n', '', '>', '<C-w>>')
+call submode#map('winsize', 'n', '', '<', '<C-w><')
+call submode#map('winsize', 'n', '', '+', '<C-w>+')
+call submode#map('winsize', 'n', '', '-', '<C-w>-')
+" tab move
+call submode#enter_with('changetab', 'n', '', 'gt', 'gt')
+call submode#enter_with('changetab', 'n', '', 'gT', 'gT')
+call submode#map('changetab', 'n', '', 't', 'gt')
+call submode#map('changetab', 'n', '', 'T', 'gT')
+" buffer move
+call submode#enter_with('changebuffer', 'n', '', 'gb', ':IsolateTabNext<CR>')
+call submode#enter_with('changebuffer', 'n', '', 'gB', ':IsolateTabPrevious<CR>')
+call submode#map('changebuffer', 'n', '', 'b', ':IsolateTabNext<CR>')
+call submode#map('changebuffer', 'n', '', 'B', ':IsolateTabPrevious<CR>')
 "}}}
 "*** unite.vim *** {{{
 if neobundle#tap('unite.vim')
@@ -1101,32 +1090,29 @@ if neobundle#tap('unite.vim')
 "   call unite#custom#source('messages', 'sorters', 'sorter_reverse')
   call unite#custom#default_action('messages', 'yank')
   call unite#custom#profile('source/messages', 'context', {'start_insert' : 0})
+  call unite#custom#source('messages', 'syntax', '')
   nnoremap [Unite]M :Unite messages<CR>
 endif
 "}}}
 "*** reanimate *** {{{
-if neobundle#tap('vim-reanimate')
-  " default path to save session file
-  if !isdirectory(expand($USERCACHEDIR . '/reanimate'))
-    call mkdir($USERCACHEDIR . '/reanimate')
-  endif
-  let g:reanimate_save_dir = $USERCACHEDIR."/reanimate"
-
-  " default session file name
-  let g:reanimate_default_save_name = ""
-
-  " session options
-  let g:reanimate_sessionoptions="buffers,curdir,folds,globals,help,slash,tabpages,winsize"
-
-  call unite#custom#default_action('reanimate', 'reanimate_load')
-  nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
+" default path to save session file
+if !isdirectory(expand($USERCACHEDIR . '/reanimate'))
+  call mkdir($USERCACHEDIR . '/reanimate')
 endif
+let g:reanimate_save_dir = $USERCACHEDIR."/reanimate"
+
+" default session file name
+let g:reanimate_default_save_name = ""
+
+" session options
+let g:reanimate_sessionoptions="buffers,curdir,folds,globals,help,slash,tabpages,winsize"
+
+call unite#custom#default_action('reanimate', 'reanimate_load')
+nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
 "}}}
 "*** vim-operator-replace *** {{{
-if neobundle#tap('vim-operator-replace')
-  nmap <Space>r <Plug>(operator-replace)
-  xmap <Space>r <Plug>(operator-replace)
-endif
+nmap <Space>r <Plug>(operator-replace)
+xmap <Space>r <Plug>(operator-replace)
 "}}}
 "*** vim-textobj-multitextobj ***"{{{
 let g:textobj_multitextobj_textobjects_i = [[
@@ -1153,16 +1139,14 @@ omap ab <Plug>(textobj-multitextobj-a)
 xmap ab <Plug>(textobj-multitextobj-a)
 "}}}
 "*** vimfiler.vim *** {{{
-if neobundle#tap('vimfiler')
-  nnoremap <Space>e :VimFiler<CR>
-  nnoremap <Space>E :VimFiler -tab<CR>
-  " let g:vimfiler_as_default_explorer = 1
-  let g:vimfiler_data_directory = $USERCACHEDIR . '/.vimfiler'
+nnoremap <Space>e :VimFiler<CR>
+nnoremap <Space>E :VimFiler -tab<CR>
+" let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_data_directory = $USERCACHEDIR . '/.vimfiler'
 
-  autocmd vimrc FileType vimfiler setlocal nowrap
-  autocmd vimrc FileType vimfiler setlocal nonumber
-  autocmd vimrc FileType vimfiler nmap <buffer><nowait> <Space> <Plug>(vimfiler_toggle_mark_current_line)
-endif
+autocmd vimrc FileType vimfiler setlocal nowrap
+autocmd vimrc FileType vimfiler setlocal nonumber
+autocmd vimrc FileType vimfiler nmap <buffer><nowait> <Space> <Plug>(vimfiler_toggle_mark_current_line)
 "}}}
 "}}}
 "***** fundamentals ***** {{{
@@ -1279,7 +1263,6 @@ function! s:isolate_tab_next(...)
   endif
   " calculate destination buffer number
   let destindex = (match(t:isolated_buf_list, bufnr("%")) + diff) % len(t:isolated_buf_list)
-  echom
   silent exec 'buffer ' . t:isolated_buf_list[destindex]
 endfunction
 
