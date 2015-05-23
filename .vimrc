@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 25-Apr-2015.
+" Last Change: 23-May-2015.
 "
 "***** Todo *****
 
@@ -36,7 +36,7 @@ if has('vim_starting')
 end
 call neobundle#begin(expand($USERDIR . '/bundle/'))
 
-NeoBundle       'davidhalter/jedi-vim'
+" NeoBundle       'davidhalter/jedi-vim'
 NeoBundle       'JuliaLang/julia-vim'
 NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
@@ -50,14 +50,14 @@ NeoBundle       'machakann/vim-columnmove'
 NeoBundle       'machakann/vim-lion'
 NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-operator-jerk'
-NeoBundle       'machakann/vim-operator-surround'
 NeoBundle       'machakann/vim-patternjump'
+NeoBundle       'machakann/vim-sandwich'
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'machakann/vim-textobj-equation'
-NeoBundle       'mattn/learn-vimscript'
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
+NeoBundle       'osyo-manga/vim-textobj-multitextobj'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
 NeoBundle       'Shougo/neomru.vim'
@@ -101,22 +101,11 @@ NeoBundleLazy   'Shougo/neosnippet.vim', {
       \   },
       \ }
 NeoBundle       'Shougo/neosnippet-snippets'
-NeoBundleLazy   'Shougo/vimfiler', {
-      \ 'depends' : 'Shougo/unite.vim',
-      \ 'autoload' : {
-      \   'commands' : [{ 'name'     : 'VimFiler',
-      \                   'complete' : 'customlist,vimfiler#complete' },
-      \                 'VimFilerExplorer',
-      \                 'Edit', 'Read', 'Source', 'Write'],
-      \   'mappings' : ['<Plug>(vimfiler_'],
-      \   'explorer' : 1,
-      \ }}
 NeoBundleLazy   'thinca/vim-quickrun', {
       \ 'autoload' : {
       \   'mappings' : ['<Plug>(quickrun)', '<Leader>r'],
       \   'commands' : 'QuickRun',
       \ }}
-" NeoBundleLazy   'thinca/vim-ref'
 NeoBundleLazy   'ujihisa/neco-look', {
       \ 'depends'  : 'Shougo/neocomplete',
       \ 'type' : 'nosync',
@@ -1241,6 +1230,7 @@ set viminfo+=n$USERCACHEDIR/viminfo.txt
                                     " assign path to viminfo file
 set wildmenu                        " use extended commandline completion
 " set wildmode=longest:full,full      " way to complete in cmdline
+set wildignore+=*.o
 
 " always set current directory to the directory of current file
 " au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
@@ -1617,66 +1607,6 @@ set nowrap                          " do not wrap in long line
 autocmd vimrc WinLeave * set nocursorline
 autocmd vimrc WinEnter,BufRead * set cursorline
 
-" tabline
-set guioptions-=e
-set showtabline=1
-function! MyTabLine() abort
-  let s = ''
-
-  " prerequisite
-  if !hlexists('TabLineAttr') && !hlexists('TabLineAttrSel')
-    let hi_attr = [
-          \   [synIDattr(synIDtrans(hlID('Title')), 'fg'), 'fg'],
-          \   [synIDattr(synIDtrans(hlID('Tabline')), 'bg'), 'bg'],
-          \ ]
-    let hi_attr_sel = [
-          \   [synIDattr(synIDtrans(hlID('Title')), 'fg'), 'fg'],
-          \   [synIDattr(synIDtrans(hlID('TablineSel')), 'bg'), 'bg'],
-          \ ]
-    let running_on = has('gui_running') ? 'gui' : 'cterm'
-    call map(hi_attr, 'v:val[0] !=# "" ? printf("%s%s=%s", running_on, v:val[1], v:val[0]) : ""')
-    call map(hi_attr_sel, 'v:val[0] !=# "" ? printf("%s%s=%s", running_on, v:val[1], v:val[0]) : ""')
-    execute printf('highlight TabLineAttr %s %s', hi_attr[0], hi_attr[1])
-    execute printf('highlight TabLineAttrSel %s %s', hi_attr_sel[0], hi_attr_sel[1])
-  endif
-
-  let vertsplit = '%#VertSplit#'
-  for i in range(tabpagenr('$'))
-    if i + 1 == tabpagenr()
-      let tabline = '%#TabLineSel#'
-      let tabattr = '%#TabLineAttrSel#'
-    else
-      let tabline = '%#TabLine#'
-      let tabattr = '%#TabLineAttr#'
-    endif
-    let s .= tabline
-    let s .= '%' . (i + 1) . 'T'
-    let s .= tabattr
-    let s .= ' %{MyTabAttr(' . (i + 1) . ')}'
-    let s .= tabline
-    let s .= ' %{MyTabLabel(' . (i + 1) . ')} '
-  endfor
-
-  let s .= '%#TabLineFill#%T'
-
-  return s
-endfunction
-function! MyTabLabel(n) abort
-  let buflist = tabpagebuflist(a:n)
-  let winnr = tabpagewinnr(a:n)
-  let label = pathshorten(simplify(bufname(buflist[winnr - 1])))
-  let label = label ==# '' ? '[anonymous]' : label
-  return label
-endfunction
-function! MyTabAttr(n) abort
-  let buflist = tabpagebuflist(a:n)
-  let winnr = tabpagewinnr(a:n)
-  let bufnr = bufnr(buflist[winnr - 1])
-  let modified = getbufvar(bufnr, '&modified') ? '+' : ''
-  return bufnr . modified
-endfunction
-set tabline=%!MyTabLine()
-
 " statusline displaying
 " copie... inspired from vim-neatstatus
 let &stl=""
@@ -1827,6 +1757,9 @@ endfunction
 "}}}
 "***** key mapping ***** {{{
 "--------------------------------------------------------------------------
+" do not use s
+nnoremap s <Nop>
+
 " do not store a character cut by x,s
 nnoremap x "_x
 " nnoremap s "_s
