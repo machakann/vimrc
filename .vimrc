@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 23-May-2015.
+" Last Change: 19-Jun-2015.
 "
 "***** Todo *****
 
@@ -34,7 +34,7 @@ augroup END
 if has('vim_starting')
   set rtp+=$USERDIR/bundle/neobundle.vim/
 end
-call neobundle#begin(expand($USERDIR . '/bundle/'))
+call neobundle#begin(expand($USERDIR) . '/bundle/')
 
 " NeoBundle       'davidhalter/jedi-vim'
 NeoBundle       'JuliaLang/julia-vim'
@@ -57,7 +57,6 @@ NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'machakann/vim-textobj-equation'
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
-NeoBundle       'osyo-manga/vim-textobj-multitextobj'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
 NeoBundle       'Shougo/neomru.vim'
@@ -76,7 +75,6 @@ NeoBundle       'thinca/vim-localrc'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tpope/vim-markdown'
-" NeoBundle       'tpope/vim-surround'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
@@ -796,9 +794,9 @@ function! LocalComplete(kinds, ...) abort
     let p = startpos <= col ? getline('.')[startpos : col] : ''
     let n = strlen(p) - 1
     " PP! [startpos, col, p, getline('.')]
-    if has_key(b:local_compl, 'updatefunc')
-      call b:local_compl.updatefunc()
-    endif
+    " if has_key(b:local_compl, 'updatefunc')
+      " call b:local_compl.updatefunc()
+    " endif
     if p == ''
       for kind in a:kinds
         let candidates += map(copy(get(b:local_compl, kind, [])), '{"word": v:val, "menu": kind}')
@@ -864,10 +862,10 @@ nnoremap <silent> <M-o> :<C-u>call columnmove#e('n', '', 0, {'strict_wbege':0})<
 nnoremap <silent> <M-O> :<C-u>call columnmove#b('n', '', 0, {'strict_wbege':0})<CR>o
 "}}}
 "*** jedi.vim *** {{{
-let g:jedi#auto_initialization = 1
-let g:jedi#rename_command = "<leader>R"
-let g:jedi#popup_on_dot = 0
-autocmd vimrc FileType python setlocal omnifunc=jedi#completions
+" let g:jedi#auto_initialization = 1
+" let g:jedi#rename_command = "<leader>R"
+" let g:jedi#popup_on_dot = 0
+" autocmd vimrc FileType python setlocal omnifunc=jedi#completions
 "}}}
 "*** neocomplete.vim *** {{{
 " Use neocomplete.
@@ -977,17 +975,6 @@ nmap <Space>O <Plug>(operator-insert-O)
 xmap <Space>O <Plug>(operator-insert-O)
 omap gn <Plug>(gn-for-operator-insert-i)
 omap gN <Plug>(gN-for-operator-insert-a)
-"}}}
-"*** operator-surround *** {{{
-" map s <NOP>
-"
-" " operator mappings
-" nmap <silent> sa <Plug>(operator-surround-append)
-" xmap <silent> sa <Plug>(operator-surround-append)
-" nmap <silent> sd <Plug>(operator-surround-delete)
-" xmap <silent> sd <Plug>(operator-surround-delete)
-" nmap <silent> sr <Plug>(operator-surround-replace)
-" xmap <silent> sr <Plug>(operator-surround-replace)
 "}}}
 "*** patternjump *** {{{
 "   let g:patternjump_highlight = 1
@@ -1110,6 +1097,15 @@ call submode#enter_with('changebuffer', 'n', '', 'gB', ':IsolateTabPrevious<CR>'
 call submode#map('changebuffer', 'n', '', 'b', ':IsolateTabNext<CR>')
 call submode#map('changebuffer', 'n', '', 'B', ':IsolateTabPrevious<CR>')
 "}}}
+"*** sandwich.vim *** {{{
+nmap s <Nop>
+xmap s <Nop>
+
+let g:textobj#sandwich#recipes = deepcopy(g:textobj#sandwich#default_recipes)
+let g:textobj#sandwich#recipes += [
+      \   {'external': ["\<Plug>(textobj-functioncall-innerparen-i)", "\<Plug>(textobj-functioncall-i)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
+      \ ]
+"}}}
 "*** unite.vim *** {{{
 if neobundle#tap('unite.vim')
   nnoremap [Unite] <Nop>
@@ -1169,40 +1165,6 @@ nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
 "*** vim-operator-replace *** {{{
 nmap <Space>r <Plug>(operator-replace)
 xmap <Space>r <Plug>(operator-replace)
-"}}}
-"*** vim-textobj-multitextobj ***"{{{
-let g:textobj_multitextobj_textobjects_i = [[
-      \   {'textobj': "i'", 'is_cursor_in': 1},
-      \   {'textobj': 'i"', 'is_cursor_in': 1},
-      \   {'textobj': 'i`', 'is_cursor_in': 1},
-      \   'i(',
-      \   'i[',
-      \   'i{',
-      \ ]]
-
-let g:textobj_multitextobj_textobjects_a = [[
-      \   {'textobj': "2i'", 'is_cursor_in': 1},
-      \   {'textobj': '2i"', 'is_cursor_in': 1},
-      \   {'textobj': '2i`', 'is_cursor_in': 1},
-      \   'a(',
-      \   'a[',
-      \   'a{',
-      \ ]]
-
-omap ib <Plug>(textobj-multitextobj-i)
-xmap ib <Plug>(textobj-multitextobj-i)
-omap ab <Plug>(textobj-multitextobj-a)
-xmap ab <Plug>(textobj-multitextobj-a)
-"}}}
-"*** vimfiler.vim *** {{{
-nnoremap <Space>e :VimFiler<CR>
-nnoremap <Space>E :VimFiler -tab<CR>
-" let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_data_directory = $USERCACHEDIR . '/.vimfiler'
-
-autocmd vimrc FileType vimfiler setlocal nowrap
-autocmd vimrc FileType vimfiler setlocal nonumber
-autocmd vimrc FileType vimfiler nmap <buffer><nowait> <Space> <Plug>(vimfiler_toggle_mark_current_line)
 "}}}
 "}}}
 "***** fundamentals ***** {{{
@@ -1434,13 +1396,13 @@ let &shiftwidth = &tabstop          " inserted number of space by a tab stroke o
 set softtabstop=-1                  " the indentation width for autoindent
 set shiftround                      " round the indent width to the number of 'indentwidth' option when indented by '<' or '>'
 
-" jump to the point where to have been edited last time when opening file
+" jump to the point where to have been edited last time when opening a file
 autocmd vimrc BufReadPost *
   \ if line("'\"") > 1 && line("'\"") <= line("$") |
   \   exe "normal! g`\"" |
   \ endif
 
-" im control (for win, and partially for *nix)
+" im control (for win, and partially for *nix)  "{{{
 if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != '')
   " at first
   augroup im-off
@@ -1463,19 +1425,19 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
 
       let b:entering_with_c = 0
     else
-      let temp = @*
-      normal! "*yl
+      let temp = @"
+      normal! ""yl
 
-      if strlen(@*) != strchars(@*)
+      if strlen(@") != strchars(@")
         " contains multibyte character
         setl iminsert=2
-      elseif @* =~ '\n\+'
+      elseif @" =~ '\n\+'
         let &l:iminsert = b:iminsert
       else
         setl iminsert=0
       endif
 
-      let @* = temp
+      let @" = temp
     endif
   endfunction
 
@@ -1533,7 +1495,7 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
   command! IMAutoSwitchStart call s:im_auto_switch_start()
   command! IMAutoSwitchStop  call s:im_auto_switch_stop()
 endif
-
+"}}}
 " RegCopy     - Function to copy the content of a register to the other one. {{{
 function! RegCopy(bang, ...) "{{{
   let arg1 = a:1
@@ -1607,25 +1569,48 @@ set nowrap                          " do not wrap in long line
 autocmd vimrc WinLeave * set nocursorline
 autocmd vimrc WinEnter,BufRead * set cursorline
 
+" tabline
+function GuiTabLabel()
+  let label = ''
+  let bufnrlist = tabpagebuflist(v:lnum)
+
+  for bufnr in bufnrlist
+    if getbufvar(bufnr, "&modified")
+      let label .= '+'
+      break
+    endif
+  endfor
+
+  let activewinnr = tabpagewinnr(v:lnum)
+  let activebufnr = bufnr(bufnrlist[activewinnr - 1])
+  let label .= activebufnr
+  let label .= ' '
+
+  let title = pathshorten(simplify(bufname(bufnrlist[activewinnr - 1])))
+  let title = title ==# '' ? '[anonymous]' : title
+  return label . title
+endfunction
+set guitablabel=%{GuiTabLabel()}
+
 " statusline displaying
 " copie... inspired from vim-neatstatus
-let &stl=""
+let &statusline =""
 " file path
-let &stl.=" %<%F "
+let &statusline .=" %<%F "
 " read only, modified, modifiable flags in brackets
-let &stl.="%([%R%M]%) "
+let &statusline .="%([%R%M]%) "
 
 " right-align everything past this point
-let &stl.="%= "
+let &statusline .="%= "
 
 " file type (eg. python, ruby, etc..)
-let &stl.="%(| %{&filetype} %)| "
+let &statusline .="%(| %{&filetype} %)| "
 " file format (eg. unix, dos, etc..)
-let &stl.="%{&fileformat} | "
+let &statusline .="%{&fileformat} | "
 " file encoding (eg. utf8, latin1, etc..)
-let &stl.="%(%{(&fenc!=''?&fenc:&enc)} | %)"
+let &statusline .="%(%{(&fenc!=''?&fenc:&enc)} | %)"
 " buffer number
-let &stl.="BUF #%n |"
+let &statusline .="BUF #%n |"
 "}}}
 "***** filetype settings ***** {{{
 " These settings would be moved to ftplugin/$filetype.vim gradually
@@ -1757,9 +1742,6 @@ endfunction
 "}}}
 "***** key mapping ***** {{{
 "--------------------------------------------------------------------------
-" do not use s
-nnoremap s <Nop>
-
 " do not store a character cut by x,s
 nnoremap x "_x
 " nnoremap s "_s
@@ -1939,7 +1921,7 @@ endfunction
 "}}}
 " textobj-number "{{{
 " NOTE: Fortran allows the expression ended with dot, like 1. (= 1.0), 1.d0 (= 1.0d0)
-"       In addition to that, following description also valid. .5 (= 0.5), -.5 (= -0.5)
+"       In addition to that, the following description also valid. .5 (= 0.5), -.5 (= -0.5)
 "       '\<-\?\%(\d\+\%(\.\d*\)\?\|\.\d\+\)\%([deDE]-\?\d\+\)\?\>'
 
 "       Vim script uses dot as a concatenation operator, thus the above expressions
