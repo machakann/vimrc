@@ -1,18 +1,18 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 19-Jun-2015.
+" Last Change: 11-Jul-2015.
 "
 "***** Todo *****
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
 " encoding and file format
-scriptencoding utf-8
 set encoding=utf-8
 set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
 set fileformat=unix
 set fileformats=unix,dos
+scriptencoding utf-8
 
 set shellslash                      " use '/' as a path delimiter
 
@@ -47,6 +47,7 @@ NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'machakann/vim-columnmove'
+NeoBundle       'vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-lion'
 NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-operator-jerk'
@@ -74,7 +75,7 @@ NeoBundle       'thinca/vim-visualstar'
 NeoBundle       'thinca/vim-localrc'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
-NeoBundle       'tpope/vim-markdown'
+NeoBundle       'tpope/vim-fugitive'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
@@ -984,8 +985,8 @@ let g:patternjump_move_afap      = 1
 let g:patternjump_patterns = {
   \ '_' : {
   \   'i' : {
-  \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
-  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>'],
+  \     'head' : ['^\s*\zs\S', ',', '[^)\]}]\zs)', '[^)\]}]\zs]', '[^)\]}]\zs}', '$'],
+  \     'tail' : ['\<\a\+\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[])}]\+[])}]'],
   \     },
   \   'n' : {
   \     'head' : ['[[({''"]\+\zs\k'],
@@ -1003,32 +1004,16 @@ let g:patternjump_patterns = {
   \     'head' : ['^', ' ', '/', '[A-Z]', ',', ')', ']', '}', '$'],
   \     },
   \   },
-  \ 'vim' : {
-  \   'i' : {
-  \     'head' : ['^\s*\zs\S', ',', ')', ']', '}', '$'],
-  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
-  \     },
-  \   'n' : {
-  \     'head' : ['^\s*\\\s*\zs\S', '[[({''"]\+\zs\k'],
-  \     },
-  \   'x' : {
-  \     'tail' : ['^\s*\\\s*\zs\S', '\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'],
-  \     },
-  \   'o' : {
-  \     'forward'  : {'tail_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
-  \     'backward' : {'head_inclusive' : ['\%(^\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']},
-  \     },
-  \   },
   \ }
 
-nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\%(^\\|[^:]\)\zs\<\%([abglstvw]:\)\?\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
 "}}}
 "*** quickrun.vim *** {{{
 let g:quickrun_config = {}
@@ -1101,9 +1086,34 @@ call submode#map('changebuffer', 'n', '', 'B', ':IsolateTabPrevious<CR>')
 nmap s <Nop>
 xmap s <Nop>
 
-let g:textobj#sandwich#recipes = deepcopy(g:textobj#sandwich#default_recipes)
-let g:textobj#sandwich#recipes += [
+function! GetChar() abort
+  let c = getchar()
+  return type(c) == type(0) ? nr2char(c) : c
+endfunction
+
+let g:sandwich#recipes = [
+      \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
+      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
+      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
+      \   {'buns': ['{', '}'], 'motionwise': ['char', 'block'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
+      \   {'buns': ['[', ']'], 'motionwise': ['char', 'block'], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ['(', ')'], 'motionwise': ['char', 'block'], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ['{', '}'], 'motionwise': ['line'], 'command': ["'[,']normal! >>"], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
+      \   {'buns': ['[', ']'], 'motionwise': ['line'], 'command': ["'[,']normal! >>"], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ['(', ')'], 'motionwise': ['line'], 'command': ["'[,']normal! >>"], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex': ["[^']\\%(''\\)*\\%#\\zs''", "[^']\\%(''\\)*'\\%#\\zs'"], 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
+      \ ]
+
+let g:textobj#sandwich#recipes = [
+      \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
+      \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'expr': 1, 'synchro': 1, 'input': ['f']},
       \   {'external': ["\<Plug>(textobj-functioncall-innerparen-i)", "\<Plug>(textobj-functioncall-i)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
+      \ ]
+
+let g:sandwich#recipes += [
+      \   {'buns': ['“', '”'], 'input': ["`'"]},
+      \   {'buns': ['„', '“'], 'input': [",'"]},
+      \   {'buns': ['«', '»'], 'input': ['>>']},
       \ ]
 "}}}
 "*** unite.vim *** {{{
@@ -1383,7 +1393,7 @@ set formatoptions&
 set formatoptions+=mM               " handle line-breaking appropriately also with multi-byte
 set nrformats=hex                   " do not use increment/decrement keys (<C-a>/<C-x>) for octal numbers and alphabets
 set switchbuf=usetab,useopen        " switch to it when trying to open file which has already opened elsewhere
-set virtualedit=block               " freely cursor movement in blockwise visual mode
+" set virtualedit=block               " freely cursor movement in blockwise visual mode
 set whichwrap=b,s,h,l,<,>,[,]       " do not stop cursor at head/tail of line, move to tail/head of previous/next line
 
 " indentation option
@@ -1570,7 +1580,7 @@ autocmd vimrc WinLeave * set nocursorline
 autocmd vimrc WinEnter,BufRead * set cursorline
 
 " tabline
-function GuiTabLabel()
+function! GuiTabLabel()
   let label = ''
   let bufnrlist = tabpagebuflist(v:lnum)
 
@@ -1691,13 +1701,15 @@ endfunction
 function! s:qf_cmdpost()
   let qflist = getqflist()
 
-  if len(qflist) == 0
+  if filter(copy(qflist), 'v:val["valid"] != 0') == []
     cclose
   else
     if exists(':HierUpdate') == 2
       HierUpdate
     endif
     copen
+    wincmd p
+    normal! k:cn<CR>
   endif
 endfunction
 
@@ -1790,7 +1802,7 @@ nnoremap <M-i> bi
 nnoremap <M-a> ea
 
 " reserve black hole register for the next operator
-nnoremap \d "_
+nnoremap <C-\> "_
 
 " textobject a' and a" is not so convenient
 onoremap a' 2i'
@@ -2009,8 +2021,8 @@ command! -nargs=0 -bang GreekAbbrev call <SID>abbrev_greek(expand('<bang>'))
 
 let g:macros   = {}
 " increment file number
-let g:macros.a = "0t.7hi \<Esc>\<C-a>F xj"
-let g:macros.x = "0t.7hi \<Esc>\<C-x>F xj"
+let g:macros.a = "0t.5hi \<Esc>\<C-a>F xj"
+let g:macros.x = "0t.5hi \<Esc>\<C-x>F xj"
 " delete spaces at line-end
 let g:macros.s = ":\<Home>keeppatterns \<End>s/\\s*$//g\<CR>j"
 " change the type of v:register content to linewise type
@@ -2085,8 +2097,15 @@ function! Toc()
   echom reltimestr(reltime(g:hayasa_maruwakari_kun))
 endfunction
 
+function! Time(cmd)
+  call Tic()
+  execute a:cmd
+  call Toc()
+endfunction
+
 command! -nargs=0 Tic call Tic()
 command! -nargs=0 Toc call Toc()
+command! -nargs=1 Time call Time(<q-args>)
 "}}}
 "***** finalize (rather for reloading .vimrc) ***** {{{
 " loading local settings
