@@ -1768,7 +1768,20 @@ cnoremap <Down> <C-n>
 nnoremap Y y$
 
 " move cursor to the end of selected area after yank
+nnoremap gy :set operatorfunc=YankAndJumpToTail<CR>g@
+xnoremap gy y`>
 xnoremap Y y`>
+
+function! YankAndJumpToTail(motionwise) abort
+  let v = a:motionwise ==# 'char' ? 'v'
+      \ : a:motionwise ==# 'line' ? 'V'
+      \ : "\<C-v>"
+
+  execute printf('normal! `["%sy%s`]', v:register, v)
+
+  let key_seq = printf(":call setpos('.', %s)\<CR>:echo \<CR>", string(getpos("']")))
+  call feedkeys(key_seq, 'n')
+endfunction
 
 " line-break without any change to current line in insert mode
 " smartinputter no tashinami.
