@@ -1,14 +1,18 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 11-Jul-2015.
+" Last Change: 20-Jul-2015.
 "
 "***** Todo *****
 
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
 " encoding and file format
-set encoding=utf-8
+if has('win32') && !has('gui_running')
+  set encoding=cp932
+else
+  set encoding=utf-8
+endif
 set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
 set fileformat=unix
 set fileformats=unix,dos
@@ -53,6 +57,7 @@ NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-operator-jerk'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-sandwich'
+" NeoBundle       'vim-sandwich', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'machakann/vim-textobj-equation'
@@ -76,6 +81,8 @@ NeoBundle       'thinca/vim-localrc'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tpope/vim-fugitive'
+" NeoBundle       'tpope/vim-repeat'
+" NeoBundle       'tpope/vim-surround'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
@@ -295,9 +302,11 @@ let s:rules += [{'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<
 " smart quotes input
 let s:rules += [
       \   {'char': '''', 'at': '\%#',         'input': '''''<Left>', 'mode': 'i:'},
+      \   {'char': '''', 'at': '\%#\h',       'input': '''',         'mode': 'i:'},
       \   {'char': '''', 'at': '''''''\%#''', 'input': '<Right>',    'mode': 'i:'},
       \   {'char': '''', 'at': '\\\%#',       'input': '''',         'mode': 'i:'},
       \   {'char':  '"', 'at': '\%#',         'input': '""<Left>',   'mode': 'i:'},
+      \   {'char':  '"', 'at': '\%#\h',       'input': '"',          'mode': 'i:'},
       \   {'char':  '"', 'at': '\\\%#',       'input': '"',          'mode': 'i:'},
       \   {'char': '''', 'at': '\w\%#',       'input': '''',         'mode': 'i:'},
       \   {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': 'i' },
@@ -315,12 +324,15 @@ let s:rules += [
       \   {'char': '(',    'at': '\%#',   'input': '()<Left>', 'mode': 'i'},
       \   {'char': ')',    'at': '\%#)',  'input': '<Right>',  'mode': 'i'},
       \   {'char': '(',    'at': '\\\%#', 'input': '(',        'mode': 'i:/?'},
+      \   {'char': '(',    'at': '\%#\h', 'input': '(',        'mode': 'i:/?'},
       \   {'char': '[',    'at': '\%#',   'input': '[]<Left>', 'mode': 'i'},
       \   {'char': ']',    'at': '\%#\]', 'input': '<Right>',  'mode': 'i'},
       \   {'char': '[',    'at': '\\\%#', 'input': '[',        'mode': 'i:/?'},
+      \   {'char': '[',    'at': '\%#\h', 'input': '[',        'mode': 'i:/?'},
       \   {'char': '{',    'at': '\%#',   'input': '{}<Left>', 'mode': 'i'},
       \   {'char': '}',    'at': '\%#}',  'input': '<Right>',  'mode': 'i'},
       \   {'char': '{',    'at': '\\\%#', 'input': '{',        'mode': 'i:/?'},
+      \   {'char': '{',    'at': '\%#\h', 'input': '{',        'mode': 'i:/?'},
       \   {'char': '(',    'at': '\%#',       'input': '()<Left>',                                           'mode': ':/?'},
       \   {'char': ')',    'at': '\%#\_s*)',  'input': '<C-r>=smartinput#_leave_block('')'')<Enter><Right>', 'mode': ':/?'},
       \   {'char': '[',    'at': '\%#',       'input': '[]<Left>',                                           'mode': ':/?'},
@@ -686,6 +698,10 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_^n)', 'at': '\%(Dict\|Array\)\%#', 'input': '{, }<Left><Left><Left><C-r>=LocalComplete(["type"])<CR>', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': 'Vector\%#', 'input': '{}<Left><C-r>=LocalComplete(["type"])<CR>', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': '\%(convert\|zeros\|ones\)\%#', 'input': '(, )<Left><Left><Left><C-r>=LocalComplete(["type"])<CR>', 'filetype': ['julia']},
+      \   {'char': '>', 'at': ' = \%#', 'input': '<BS>> ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '/\%#', 'input': '<BS> /= ', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
       \ ]
 
 for item in s:rules
@@ -986,7 +1002,7 @@ let g:patternjump_patterns = {
   \ '_' : {
   \   'i' : {
   \     'head' : ['^\s*\zs\S', ',', '[^)\]}]\zs)', '[^)\]}]\zs]', '[^)\]}]\zs}', '$'],
-  \     'tail' : ['\<\a\+\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[])}]\+[])}]'],
+  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[])}]\+[])}]'],
   \     },
   \   'n' : {
   \     'head' : ['[[({''"]\+\zs\k'],
@@ -1006,14 +1022,14 @@ let g:patternjump_patterns = {
   \   },
   \ }
 
-nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\a\+\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
 "}}}
 "*** quickrun.vim *** {{{
 let g:quickrun_config = {}
@@ -1025,9 +1041,9 @@ let g:quickrun_config = {
       \ 'julia' : {
       \       'command': 'julia',
       \       'cmdopt': '-q -i --color=no -P "println(\\"quickrun-prompt: \\")"',
-      \       'runner': 'process_manager',
-      \       'runner/process_manager/load': 'include("%S");println("quickrun-prompt: ")',
-      \       'runner/process_manager/prompt': 'quickrun-prompt: ',
+      \       'runner': 'concurrent_process',
+      \       'runner/concurrent_process/load': 'try;include("%S");finally;println("quickrun-prompt: ");end',
+      \       'runner/concurrent_process/prompt': 'quickrun-prompt: ',
       \       },
       \ 'maxima' : {
       \       'command': 'maxima',
@@ -1095,25 +1111,22 @@ let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
       \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
       \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
-      \   {'buns': ['{', '}'], 'motionwise': ['char', 'block'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
-      \   {'buns': ['[', ']'], 'motionwise': ['char', 'block'], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ['(', ')'], 'motionwise': ['char', 'block'], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ['{', '}'], 'motionwise': ['line'], 'command': ["'[,']normal! >>"], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
-      \   {'buns': ['[', ']'], 'motionwise': ['line'], 'command': ["'[,']normal! >>"], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ['(', ')'], 'motionwise': ['line'], 'command': ["'[,']normal! >>"], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex': ["[^']\\%(''\\)*\\%#\\zs''", "[^']\\%(''\\)*'\\%#\\zs'"], 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
+      \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
+      \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ['{', '}'], 'kind': ['add'], 'motionwise': ['line'], 'command': ["'[+1,']-1normal! >>"]},
+      \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'command': ["'[,']normal! <<"]},
+      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex': ["[^']\\%(''\\)*\\%#\\zs''", "[^']\\%(''\\)*'\\%#\\zs'"], 'nesting': 0, 'match_syntax': 2},
+      \ ]
+
+let g:operator#sandwich#recipes = [
+      \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
       \ ]
 
 let g:textobj#sandwich#recipes = [
       \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
       \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'expr': 1, 'synchro': 1, 'input': ['f']},
       \   {'external': ["\<Plug>(textobj-functioncall-innerparen-i)", "\<Plug>(textobj-functioncall-i)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
-      \ ]
-
-let g:sandwich#recipes += [
-      \   {'buns': ['“', '”'], 'input': ["`'"]},
-      \   {'buns': ['„', '“'], 'input': [",'"]},
-      \   {'buns': ['«', '»'], 'input': ['>>']},
       \ ]
 "}}}
 "*** unite.vim *** {{{
@@ -1557,6 +1570,7 @@ command! -nargs=+ RegExchange call RegExchange(<f-args>)
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
+set background=light
 colorscheme mckn
 set cmdheight=2                     " the height of commandline
 set cursorline                      " highlight corsor line
@@ -1777,6 +1791,7 @@ function! YankAndJumpToTail(motionwise) abort
       \ : a:motionwise ==# 'line' ? 'V'
       \ : "\<C-v>"
 
+  " use o_v, o_V, o_CTRL-v to keep the marks '<, '>
   execute printf('normal! `["%sy%s`]', v:register, v)
 
   let key_seq = printf(":call setpos('.', %s)\<CR>:echo \<CR>", string(getpos("']")))
@@ -1803,8 +1818,6 @@ function! Linebreak_udhfp()
     execute 'normal! O' . string[col :]
     call feedkeys('I', 'n')
   endif
-
-  return
 endfunction
 
 " check syntax group of the character under the cursor
@@ -1929,20 +1942,37 @@ for key in string_class
 endfor
 "}}}
 " textobj-lastchanged "{{{
-" I don't know why, but "'pattern': '\%#=1\%''[.*\%'']'" did not work.
 " New NFA regular expression engine does not support the pattern '\%''['.
-call textobj#user#plugin('lastchanged', {
-      \ '-': {
-      \     'select-i-function': 'TextobjLastchanged',
-      \     'select-i': 'gm',
-      \ },
-    \})
-function! TextobjLastchanged() abort
+" FIXME: Which is better to assume inclusive or exclusive?
+function! TextobjLastchanged(mode) abort
   let head  = getpos("'[")
   let tail  = getpos("']")
   let empty = [0, 0, 0, 0]
-  return head == empty || tail == empty ? 0 : ['v', head, tail]
+
+  if head != empty && tail != empty
+    normal! v
+    call setpos('.', head)
+    normal! o
+    call setpos('.', tail)
+
+    " counter measure for the 'selection' option being 'exclusive'
+    if &selection ==# 'exclusive'
+      normal! l
+    endif
+
+    " flash echoing
+    echo ''
+  else
+    " re-select the last selected if visual mode
+    if a:mode ==# 'x'
+      normal! gv
+    endif
+  endif
 endfunction
+
+nnoremap <silent> gm :<C-u>call TextobjLastchanged('n')<CR>
+xnoremap <silent> gm :<C-u>call TextobjLastchanged('x')<CR>
+onoremap <silent> gm :<C-u>call TextobjLastchanged('o')<CR>
 "}}}
 " textobj-number "{{{
 " NOTE: Fortran allows the expression ended with dot, like 1. (= 1.0), 1.d0 (= 1.0d0)
@@ -2065,7 +2095,6 @@ onoremap <silent> iI :<C-u>call Textobj_instant()<CR>
 xnoremap <silent> iI :<C-u>call Textobj_instant()<CR>
 
 " Prepare preset patterns
-" What kinds of characters can be used (and can not be used) for <Plug>?
 let g:textobj_instant_patterns = ['<C-.>', '<M-.>', '<Esc>', '<CR>', '<Up>', '<Down>', '<Left>', '<Right>', '<buffer>', '<nowait>', '<silent>', '<special>', '<script>', '<expr>', '<unique>', '<SID>', '<Plug>([^)]\{-})\>', '\<[abglstvw]:\k\+\>']
 
 function! Textobj_instant()
