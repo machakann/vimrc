@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 20-Jul-2015.
+" Last Change: 25-Jul-2015.
 "
 "***** Todo *****
 
@@ -44,7 +44,6 @@ call neobundle#begin(expand($USERDIR) . '/bundle/')
 NeoBundle       'JuliaLang/julia-vim'
 NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
-" NeoBundle       'kana/vim-repeat'
 NeoBundle       'kana/vim-smartinput'
 NeoBundle       'kana/vim-submode'
 NeoBundle       'kana/vim-textobj-user'
@@ -81,8 +80,6 @@ NeoBundle       'thinca/vim-localrc'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tpope/vim-fugitive'
-" NeoBundle       'tpope/vim-repeat'
-" NeoBundle       'tpope/vim-surround'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
@@ -1651,7 +1648,7 @@ autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
                               \| let b:fortran_more_precise=1
 
 "*** help ***"
-autocmd vimrc FileType help vertical resize 78
+autocmd vimrc FileType help if &buftype == 'help' | vertical resize 78 | endif
 
 augroup help_optimizer
   au!
@@ -1836,6 +1833,9 @@ xnoremap a' 2i'
 onoremap a" 2i"
 xnoremap a" 2i"
 
+" Close all the foldings in the buffer
+nnoremap z<C-c> %normal! zC
+
 " A variant of i_CTRL-w "{{{
 let g:stop_pattern = [' ', '_', '#', '-', '/', '\\', ':', '(', ')', '\[', '\]', '{', '}']
 function! s:i_CTRL_b()
@@ -1945,11 +1945,18 @@ endfor
 " New NFA regular expression engine does not support the pattern '\%''['.
 " FIXME: Which is better to assume inclusive or exclusive?
 function! TextobjLastchanged(mode) abort
-  let head  = getpos("'[")
-  let tail  = getpos("']")
-  let empty = [0, 0, 0, 0]
+  let [view, whichwrap, virtualedit] = [winsaveview(), &whichwrap, &virtualedit]
+  let [&whichwrap, &virtualedit] = ['h,l', 'onemore']   " I wish someone else wrote yet another syntax/vim.vim.
+  try
+    let head  = getpos("'[")
+    let tail  = s:get_left_pos(getpos("']"))
+    let empty = [0, 0, 0, 0]
+  finally
+    let [&whichwrap, &virtualedit] = [whichwrap, virtualedit]
+    call winrestview(view)
+  endtry
 
-  if head != empty && tail != empty
+  if head != empty && tail != empty && s:is_ahead(tail, head)
     normal! v
     call setpos('.', head)
     normal! o
@@ -1959,15 +1966,25 @@ function! TextobjLastchanged(mode) abort
     if &selection ==# 'exclusive'
       normal! l
     endif
-
-    " flash echoing
-    echo ''
   else
     " re-select the last selected if visual mode
     if a:mode ==# 'x'
       normal! gv
     endif
   endif
+
+  " flash echoing
+  echo ''
+endfunction
+
+function! s:get_left_pos(pos) abort
+  call setpos('.', a:pos)
+  normal! h
+  return getpos('.')
+endfunction
+
+function! s:is_ahead(pos1, pos2) abort
+  return a:pos1[1] > a:pos2[1] || (a:pos1[1] == a:pos2[1] && a:pos1[2] > a:pos2[2])
 endfunction
 
 nnoremap <silent> gm :<C-u>call TextobjLastchanged('n')<CR>
@@ -2088,6 +2105,105 @@ endfunction
 
 command! -nargs=? PresetMacros call s:preset_macros()
 call s:preset_macros()
+
+
+
+""" macro editor
+let s:reg_editor = {
+      \   'tabnr': 0,
+      \   'winnr': 0,
+      \   'bufnr': 0,
+      \   'reg': [],
+      \   'parentwindownr': 0,
+      \   'marks': {},
+      \   'view': {},
+      \ }
+
+function! s:reg_editor_start() abort
+  " save current information
+  " FIXME: Any other?
+  let s:reg_editor.parentwindownr = winnr()
+  let s:reg_editor.marks.modify = [getpos("'["), getpos("']")]
+  let s:reg_editor.marks.visual = [getpos("'<"), getpos("'>")]
+  let s:reg_editor.view = winsaveview()
+
+  " get register name
+  let c = getchar()
+  let c = type(c) == type(0) ? nr2char(c) : c
+  if c =~# '["0-9-a-z*+]'
+    " prepare buffer
+    new
+    let s:reg_editor.tabnr = tabpagenr()
+    let s:reg_editor.winnr = winnr()
+    let s:reg_editor.bufnr = bufnr('')
+    resize 1
+    setlocal buftype=nofile
+    let reg = [c, getreg(c), getregtype(c)]
+    let s:reg_editor.reg = reg
+    call setline(1, reg[1])
+
+    " fix view
+    execute s:reg_editor.parentwindownr . 'wincmd w'
+    call winrestview({'topline': s:reg_editor.view.topline})
+    execute s:reg_editor.winnr . 'wincmd w'
+    redraw
+
+    " key mappings
+    nnoremap <silent><buffer> <CR>  :<C-u>call <SID>reg_editor_return('n')<CR>
+    xnoremap <silent><buffer> <CR>  :<C-u>call <SID>reg_editor_return('x')<CR>
+    inoremap <silent><buffer> <CR>  <C-r>=<SID>reg_editor_return('i')<CR>
+    nnoremap <silent><buffer> <Esc> :<C-u>call <SID>reg_editor_cancel()<CR>
+
+    " autocmd
+    augroup reg_editor
+      autocmd!
+      autocmd WinLeave <buffer> call <SID>reg_editor_cancel()
+    augroup END
+  endif
+endfunction
+
+function! s:reg_editor_return(mode) abort
+  if a:mode ==# 'x'
+    let temp_reg = ['"', getreg('"'), getregtype('"')]
+    try
+      normal! `<""y`>
+      let new = @@
+    finally
+      call call('setreg', temp_reg)
+    endtry
+  else
+    let new = join(getline(1, '$'), "\n")
+  endif
+
+  let reg = s:reg_editor.reg
+  call s:reg_editor_finalize([reg[0], new, reg[2]])
+endfunction
+
+function! s:reg_editor_cancel() abort
+  call s:reg_editor_finalize(s:reg_editor.reg)
+endfunction
+
+function! s:reg_editor_finalize(reg) abort
+  if a:reg != []
+    call call('setreg', a:reg)
+  endif
+  execute 'tabnext ' . s:reg_editor.tabnr
+  execute s:reg_editor.winnr . 'wincmd w'
+  execute s:reg_editor.bufnr . 'buffer!'
+  augroup reg_editor
+    autocmd!
+  augroup END
+  bwipeout!
+
+  " restore information
+  call setpos("'[", s:reg_editor.marks.modify[0])
+  call setpos("']", s:reg_editor.marks.modify[1])
+  call setpos("'<", s:reg_editor.marks.visual[0])
+  call setpos("'>", s:reg_editor.marks.visual[1])
+  call winrestview(s:reg_editor.view)
+endfunction
+
+nnoremap <silent> Q :<C-u>call <SID>reg_editor_start()<CR>
 "}}}
 "***** playpit ***** {{{
 " textobj-instant
