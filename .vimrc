@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 25-Jul-2015.
+" Last Change: 01-Aug-2015.
 "
 "***** Todo *****
 
@@ -76,7 +76,6 @@ NeoBundle       'Shougo/vimproc.vim' , {
 NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-visualstar'
-NeoBundle       'thinca/vim-localrc'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tpope/vim-fugitive'
@@ -118,6 +117,10 @@ NeoBundleLazy   'vim-jp/vital.vim', {
       \   'commands' : 'Vitalize',
       \   }
       \ }
+
+if has('gui_running')
+  NeoBundle 'thinca/vim-localrc'
+endif
 
 call neobundle#end()
 
@@ -999,7 +1002,7 @@ let g:patternjump_patterns = {
   \ '_' : {
   \   'i' : {
   \     'head' : ['^\s*\zs\S', ',', '[^)\]}]\zs)', '[^)\]}]\zs]', '[^)\]}]\zs}', '$'],
-  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[])}]\+[])}]'],
+  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[''"])}]\+[])}]'],
   \     },
   \   'n' : {
   \     'head' : ['[[({''"]\+\zs\k'],
@@ -1032,44 +1035,44 @@ xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\h\k*\>', '[
 let g:quickrun_config = {}
 let g:quickrun_config = {
       \ '_' : {
-      \       'runner/vimproc/updatetime' : 100,
-      \       'hook/time/enable' : 1,
+      \         'runner/vimproc/updatetime' : 100,
+      \         'hook/time/enable' : 1,
       \       },
       \ 'julia' : {
-      \       'command': 'julia',
-      \       'cmdopt': '-q -i --color=no -P "println(\\"quickrun-prompt: \\")"',
-      \       'runner': 'concurrent_process',
-      \       'runner/concurrent_process/load': 'try;include("%S");finally;println("quickrun-prompt: ");end',
-      \       'runner/concurrent_process/prompt': 'quickrun-prompt: ',
+      \         'command': 'julia',
+      \         'cmdopt': '-q -i --color=no -P "println(\\"__EndSign__\\")"',
+      \         'runner': 'concurrent_process',
+      \         'runner/concurrent_process/load': 'try;include("%S");end;println("\n__EndSign__")',
+      \         'runner/concurrent_process/prompt': '__EndSign__',
       \       },
       \ 'maxima' : {
-      \       'command': 'maxima',
-      \       'cmdopt': '-q -b',
-      \       'runner': 'process_manager',
-      \       'runner/process_manager/load': has('win32') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
-      \       'runner/process_manager/prompt': '(%[io]\d\+)'
+      \         'command': 'maxima',
+      \         'cmdopt': '-q -b',
+      \         'runner': 'process_manager',
+      \         'runner/process_manager/load': has('win32') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
+      \         'runner/process_manager/prompt': '(%[io]\d\+)'
       \       },
       \ 'markdown' : {
-      \       'type' : 'markdown/gfm',
-      \       'outputter': 'browser',
-      \       'hook/time/enable' : 0,
+      \         'type' : 'markdown/gfm',
+      \         'outputter': 'browser',
+      \         'hook/time/enable' : 0,
       \       },
       \ 'tex' : {
-      \       'command' : 'platex',
+      \         'command' : 'platex',
       \       },
       \ 'scilab'  : {
-      \       'command': has('win32') ? 'scilex' : 'scilab-adv-cli',
-      \       'cmdopt': '-l en -nb -nw -f',
-      \       'runner': 'process_manager',
-      \       'runner/process_manager/load': 'exec(%s,-1)',
-      \       'runner/process_manager/prompt': '-->',
-      \       'hook/output_encode/encoding' : has('win32') ? 'utf-8:cp932' : '&fileencoding',
-      \       'hook/eval/enable': 1,
-      \       'hook/eval/template': "%s\nmfprintf(6, '-->')",
+      \         'command': has('win32') ? 'scilex' : 'scilab-adv-cli',
+      \         'cmdopt': '-l en -nb -nw -f',
+      \         'runner': 'process_manager',
+      \         'runner/process_manager/load': 'exec(%s,-1)',
+      \         'runner/process_manager/prompt': '-->',
+      \         'hook/output_encode/encoding' : has('win32') ? 'utf-8:cp932' : '&fileencoding',
+      \         'hook/eval/enable': 1,
+      \         'hook/eval/template': "%s\nmfprintf(6, '-->')",
       \       },
       \ 'r'   : {
-      \       'command': has('win32') ? 'Rscript' : 'R',
-      \       'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
+      \         'command': has('win32') ? 'Rscript' : 'R',
+      \         'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
       \       },
       \ }
 "}}}
@@ -1104,6 +1107,11 @@ function! GetChar() abort
   return type(c) == type(0) ? nr2char(c) : c
 endfunction
 
+function! FuncName() abort
+  let funcname = input('funcname: ')
+  return funcname . '('
+endfunction
+
 let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
       \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
@@ -1118,12 +1126,13 @@ let g:sandwich#recipes = [
 
 let g:operator#sandwich#recipes = [
       \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
+      \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ["\<C-f>"]},
       \ ]
 
 let g:textobj#sandwich#recipes = [
       \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
       \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'expr': 1, 'synchro': 1, 'input': ['f']},
-      \   {'external': ["\<Plug>(textobj-functioncall-innerparen-i)", "\<Plug>(textobj-functioncall-i)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
+      \   {'external': ["\<Plug>(textobj-functioncall-innerparen-a)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
       \ ]
 "}}}
 "*** unite.vim *** {{{
@@ -1338,7 +1347,6 @@ command! -nargs=? IsolateTabNext     call s:isolate_tab_next(<args>)
 command! -nargs=? IsolateTabPrevious call s:isolate_tab_previous(<args>)
 command! -nargs=1 IsolateTabDo       call s:isolate_tab_do(<args>)
 "}}}
-
 " preferable alternate of help command. {{{
 function! s:pref_alt_help(...)
   let bang = a:1
@@ -1949,7 +1957,7 @@ function! TextobjLastchanged(mode) abort
   let [&whichwrap, &virtualedit] = ['h,l', 'onemore']   " I wish someone else wrote yet another syntax/vim.vim.
   try
     let head  = getpos("'[")
-    let tail  = s:get_left_pos(getpos("']"))
+    let tail  = getpos("']")
     let empty = [0, 0, 0, 0]
   finally
     let [&whichwrap, &virtualedit] = [whichwrap, virtualedit]
@@ -1975,12 +1983,6 @@ function! TextobjLastchanged(mode) abort
 
   " flash echoing
   echo ''
-endfunction
-
-function! s:get_left_pos(pos) abort
-  call setpos('.', a:pos)
-  normal! h
-  return getpos('.')
 endfunction
 
 function! s:is_ahead(pos1, pos2) abort
@@ -2264,6 +2266,36 @@ endfunction
 command! -nargs=0 Tic call Tic()
 command! -nargs=0 Toc call Toc()
 command! -nargs=1 Time call Time(<q-args>)
+
+" yank path
+function! s:yank_path(path) abort
+  let path = fnamemodify(glob(a:path, 1, 1), ':p')
+  let path = filereadable(path) || isdirectory(path) ? path : ''
+  if path != ''
+    call setreg(v:register, path, 'v')
+    echo printf('Yanked "%s"', path)
+  else
+    echo 'No path has been found.'
+  endif
+endfunction
+
+command! -nargs=1 -complete=file YankPath call <SID>yank_path(<q-args>)
+
+" Open file browser
+if has('win32')
+  function! s:open_explorer(path) abort
+    let shellslash = &shellslash
+    let &shellslash = 0
+    try
+      let path = a:path ==# '' ? expand('%:p:h') : fnamemodify(a:path, ':p')
+      execute '!start explorer ' . printf('"%s"', path)
+    finally
+      let &shellslash = shellslash
+    endtry
+  endfunction
+
+  command! -nargs=? -complete=dir OpenExplorer call <SID>open_explorer(<q-args>)
+endif
 "}}}
 "***** finalize (rather for reloading .vimrc) ***** {{{
 " loading local settings
