@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 01-Aug-2015.
+" Last Change: 16-Aug-2015.
 "
 "***** Todo *****
 
@@ -76,6 +76,7 @@ NeoBundle       'Shougo/vimproc.vim' , {
 NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-visualstar'
+NeoBundle       'thinca/vim-quickrun'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tpope/vim-fugitive'
@@ -103,11 +104,6 @@ NeoBundleLazy   'Shougo/neosnippet.vim', {
       \   },
       \ }
 NeoBundle       'Shougo/neosnippet-snippets'
-NeoBundleLazy   'thinca/vim-quickrun', {
-      \ 'autoload' : {
-      \   'mappings' : ['<Plug>(quickrun)', '<Leader>r'],
-      \   'commands' : 'QuickRun',
-      \ }}
 NeoBundleLazy   'ujihisa/neco-look', {
       \ 'depends'  : 'Shougo/neocomplete',
       \ 'type' : 'nosync',
@@ -304,19 +300,17 @@ let s:rules += [
       \   {'char': '''', 'at': '\%#',         'input': '''''<Left>', 'mode': 'i:'},
       \   {'char': '''', 'at': '\%#\h',       'input': '''',         'mode': 'i:'},
       \   {'char': '''', 'at': '''''''\%#''', 'input': '<Right>',    'mode': 'i:'},
-      \   {'char': '''', 'at': '\\\%#',       'input': '''',         'mode': 'i:'},
       \   {'char':  '"', 'at': '\%#',         'input': '""<Left>',   'mode': 'i:'},
       \   {'char':  '"', 'at': '\%#\h',       'input': '"',          'mode': 'i:'},
       \   {'char':  '"', 'at': '\\\%#',       'input': '"',          'mode': 'i:'},
-      \   {'char': '''', 'at': '\w\%#',       'input': '''',         'mode': 'i:'},
-      \   {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': 'i' },
-      \   {'char': '''', 'at': '\w''\%#''',   'input': '<Del>',      'mode': ':' },
-      \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',                          'input': '""<Left>',   'mode': 'i:'},
-      \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',                     'input': '""',         'mode': 'i:'},
-      \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"',                    'input': '<Right>',    'mode': 'i:'},
-      \   {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''',                    'input': '''''<Left>', 'mode': 'i:'},
-      \   {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#',   'input': '''''',       'mode': 'i:'},
-      \   {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*[^A-Za-z'']''[^'']*\%#''', 'input': '<Right>',    'mode': 'i:'},
+      \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',       'input': '""<Left>',   'mode': 'i:'},
+      \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',  'input': '""',         'mode': 'i:'},
+      \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"', 'input': '<Right>',    'mode': 'i:'},
+      \   {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''', 'input': '''''<Left>', 'mode': 'i:'},
+      \   {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#''', 'input': '<Right>', 'mode': 'i:'},
+      \   {'char': '''', 'at': '\C\%(^\|\<\)\%(I\|[Yy]ou\|[Ww]e\|[Tt]hey\|[Tt]hat\|[Ii]t\|[Ww]h\%([oy]\|at\|ere\|en\)\|[Hh]ow\)\%#', 'input': '''', 'mode': 'i:'},
+      \   {'char': '''', 'at': '\C\%(^\|\<\)\%([Ii]s\|[Aa]re\|[Ww]\%(as\|ere\|o\)\|[Dd]\%(o\%(es\)\?\|id\)\|[Hh]\%(ave\|as\)\|ca\|\%([CWcw]\|[Ss]h\)ould\|[Mm]ust\|[Mm]ight\)n\%#', 'input': '''t', 'mode': 'i:'},
+      \   {'char': '''', 'at': '\C\%(^\|\<\)[Ll]et\%#', 'input': '''s', 'mode': 'i:'},
       \ ]
 
 " correspondent parentheses
@@ -343,23 +337,23 @@ let s:rules += [
 
 " delete correspondent parentheses and quotes
 let s:rules += [
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': 'i'   },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',      'input': '<BS><Del>', 'mode': ':/?' },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': 'i'   },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',    'input': '<BS><Del>', 'mode': ':/?' },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': 'i'   },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',      'input': '<BS><Del>', 'mode': ':/?' },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': 'i'   },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',    'input': '<BS><Del>', 'mode': ':/?' },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',    'input': '<BS><BS>',  'mode': 'i:/?'},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''',  'input': '<BS><BS>',  'mode': 'i:/?'},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': 'i'   },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',      'input': '<BS><Del>', 'mode': ':/?' },
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',      'input': '<BS><BS>',  'mode': 'i:/?'},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',     'input': '<BS><BS>',  'mode': 'i:/?'},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',     'input': '<BS><Del>', 'mode': 'i'   },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '(\%#)',     'input': '<BS><Del>', 'mode': ':/?' },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '()\%#',     'input': '<BS><BS>',  'mode': 'i:/?'},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',   'input': '<BS><Del>', 'mode': 'i'   },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '\[\%#\]',   'input': '<BS><Del>', 'mode': ':/?' },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '\[\]\%#',   'input': '<BS><BS>',  'mode': 'i:/?'},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',     'input': '<BS><Del>', 'mode': 'i'   },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '{\%#}',     'input': '<BS><Del>', 'mode': ':/?' },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '{}\%#',     'input': '<BS><BS>',  'mode': 'i:/?'},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',   'input': '<BS><Del>', 'mode': 'i'   },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '''\%#''',   'input': '<BS><Del>', 'mode': ':/?' },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#',   'input': '<BS><BS>',  'mode': 'i:/?'},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '''''\%#''', 'input': '<BS><BS>',  'mode': 'i:/?'},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',     'input': '<BS><Del>', 'mode': 'i'   },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '"\%#"',     'input': '<BS><Del>', 'mode': ':/?' },
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '""\%#',     'input': '<BS><BS>',  'mode': 'i:/?'},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '""\%#"',    'input': '<BS><BS>',  'mode': 'i:/?'},
       \ ]
 
 " Delete operaters together with vicinal spaces
@@ -511,6 +505,7 @@ let s:rules += [
       \   {'char': '=', 'at': '<C-r>\%#', 'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
       \   {'char': '=', 'at': '\C\<set\%[local]\> \w\+\%#', 'input': '=', 'mode': 'i',  'filetype': ['vim']},
       \ ]
+
 " '.' -> ' . ' -> '..' -> '...'
 let s:rules += [
       \   {'char': '.', 'at': '\%#',       'input': '.',              'filetype': ['vim']},
@@ -1041,9 +1036,9 @@ let g:quickrun_config = {
       \ 'julia' : {
       \         'command': 'julia',
       \         'cmdopt': '-q -i --color=no -P "println(\\"__EndSign__\\")"',
-      \         'runner': 'concurrent_process',
-      \         'runner/concurrent_process/load': 'try;include("%S");end;println("\n__EndSign__")',
-      \         'runner/concurrent_process/prompt': '__EndSign__',
+      \         'runner': 'process_manager',
+      \         'runner/process_manager/load': 'try;include("%S");end;println("\n__EndSign__")',
+      \         'runner/process_manager/prompt': '__EndSign__',
       \       },
       \ 'maxima' : {
       \         'command': 'maxima',
@@ -1104,24 +1099,36 @@ xmap s <Nop>
 
 function! GetChar() abort
   let c = getchar()
-  return type(c) == type(0) ? nr2char(c) : c
+  let c = type(c) == type(0) ? nr2char(c) : c
+  return c ==# "\<Esc>" || c ==# "\<C-c>" ? '' : c
 endfunction
 
 function! FuncName() abort
-  let funcname = input('funcname: ')
+  let funcname = input('funcname: ', '', 'custom,FuncNameComp')
+  if funcname ==# ''
+    throw 'OperatorSandwichCancel'
+  endif
   return funcname . '('
+endfunction
+
+function! FuncNameComp(ArgLead, CmdLine, CursorPos) abort
+  return join(uniq(sort(map(getline(1, '$'), 'matchstr(v:val, ''\k\{3,}\ze('')'))), "\n")
 endfunction
 
 let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
-      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
-      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 2},
+      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String'], 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String'], 'input': ["'", '7']},
       \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
       \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
       \   {'buns': ['{', '}'], 'kind': ['add'], 'motionwise': ['line'], 'command': ["'[+1,']-1normal! >>"]},
       \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'command': ["'[,']normal! <<"]},
-      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex': ["[^']\\%(''\\)*\\%#\\zs''", "[^']\\%(''\\)*'\\%#\\zs'"], 'nesting': 0, 'match_syntax': 2},
+      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'match_syntax': 2},
+      \   {'buns': ['\(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+      \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+      \   {'buns': ['"', '"'], 'filetype': ['markdown'], 'expand_range': 0, 'nesting': 0, 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'filetype': ['markdown'], 'expand_range': 0, 'nesting': 0, 'input': ["'", '7']},
       \ ]
 
 let g:operator#sandwich#recipes = [
@@ -1842,7 +1849,7 @@ onoremap a" 2i"
 xnoremap a" 2i"
 
 " Close all the foldings in the buffer
-nnoremap z<C-c> %normal! zC
+nnoremap z_ %normal! zC
 
 " A variant of i_CTRL-w "{{{
 let g:stop_pattern = [' ', '_', '#', '-', '/', '\\', ':', '(', ')', '\[', '\]', '{', '}']
@@ -1884,70 +1891,6 @@ function! s:follow_prevline()
               \ )
 endfunction
 inoremap <expr> <C-l> <SID>follow_prevline()
-"}}}
-" enabling 'f' and 't' commands to use string class {{{
-function! s:f_knows_string_class(mode, pattern, is_t, is_capital)
-  let line = line('.')
-  let col  = col('.')
-  let flag = ''
-
-  if a:is_capital
-    let flag .= 'b'
-  endif
-
-  if (a:mode ==# 'o') && !a:is_capital
-    normal! v
-  endif
-
-  let l:count = 0
-  while l:count < v:count1
-    let l:count += 1
-    let dest = searchpos(a:pattern, flag, line)
-  endwhile
-
-  if dest != [0, 0]
-    if a:is_t
-      if a:is_capital
-        normal! l
-      else
-        normal! h
-      endif
-    endif
-  else
-    call cursor(line, col)
-  endif
-
-  return
-endfunction
-
-nnoremap f\\ f\
-nnoremap F\\ F\
-nnoremap t\\ t\
-nnoremap T\\ T\
-xnoremap f\\ f\
-xnoremap F\\ F\
-xnoremap t\\ t\
-xnoremap T\\ T\
-onoremap f\\ f\
-onoremap F\\ F\
-onoremap t\\ t\
-onoremap T\\ T\
-let string_class = [ '\i',  '\I',  '\k',  '\K',  '\f',  '\F',  '\p',  '\P',  '\s',  '\S',  '\d',  '\D',  '\x',  '\X',  '\o',  '\O',  '\w',  '\W',  '\h',  '\H',  '\a',  '\A',  '\l',  '\L',  '\u',  '\U',
-      \             '\_i', '\_I', '\_k', '\_K', '\_f', '\_F', '\_p', '\_P', '\_s', '\_S', '\_d', '\_D', '\_x', '\_X', '\_o', '\_O', '\_w', '\_W', '\_h', '\_H', '\_a', '\_A', '\_l', '\_L', '\_u', '\_U' ]
-for key in string_class
-  execute 'nnoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 0, 0)<CR>"
-  execute 'nnoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 1, 0)<CR>"
-  execute 'nnoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 0, 1)<CR>"
-  execute 'nnoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('n', '" . key . "', 1, 1)<CR>"
-  execute 'xnoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 0)<CR>"
-  execute 'xnoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 0)<CR>"
-  execute 'xnoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 0, 1)<CR>"
-  execute 'xnoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('v', '" . key . "', 1, 1)<CR>"
-  execute 'onoremap <silent> f' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 0, 0)<CR>"
-  execute 'onoremap <silent> t' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 1, 0)<CR>"
-  execute 'onoremap <silent> F' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 0, 1)<CR>"
-  execute 'onoremap <silent> T' . key . " :<C-u>call <SID>f_knows_string_class('o', '" . key . "', 1, 1)<CR>"
-endfor
 "}}}
 " textobj-lastchanged "{{{
 " New NFA regular expression engine does not support the pattern '\%''['.
@@ -2018,21 +1961,6 @@ call textobj#user#plugin('number', {
   \     'select': 'an',
   \   },
   \ })
-"}}}
-" textobj-term "{{{
-call textobj#user#plugin('term', {
-  \   'term-i': {
-  \     'pattern': '\%(^\|[-+=]\)\s*\zs[^-+=]\+\ze\%(\s*\)\@>\%([-+=]\|$\)',
-  \     'select': 'it',
-  \   },
-  \   'term-a': {
-  \     'pattern': '\%(^\s*\|[-+=]\)\zs[^-+=]\+\ze\%([-+=]\|$\)',
-  \     'select': 'at',
-  \   },
-  \ })
-" swap it and iT
-onoremap iT it
-onoremap aT at
 "}}}
 "}}}
 "***** abbreviation ***** {{{
