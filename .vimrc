@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 05-Sep-2015.
+" Last Change: 28-Sep-2015.
 "
 "***** Todo *****
 
@@ -17,8 +17,6 @@ set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
 set fileformat=unix
 set fileformats=unix,dos
 scriptencoding utf-8
-
-set shellslash                      " use '/' as a path delimiter
 
 if has('win32')
   let $USERDIR=expand('~/vimfiles')
@@ -42,6 +40,7 @@ call neobundle#begin(expand($USERDIR) . '/bundle/')
 
 " NeoBundle       'davidhalter/jedi-vim'
 NeoBundle       'JuliaLang/julia-vim'
+" NeoBundle       'julia-vim', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
 NeoBundle       'kana/vim-smartinput'
@@ -293,7 +292,10 @@ let s:rules += [
 
 " smart '<CR>' input
 " delete line end spaces when line-breaking
-let s:rules += [{'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call setline(line(''.'')-1, substitute(getline(line(''.'')-1), ''\s\+$'', '''', ''''))<CR>'}]
+let s:rules += [
+      \   {'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call setline(line(''.'')-1, substitute(getline(line(''.'')-1), ''\s\+$'', '''', ''''))<CR>'},
+      \   {'char': '<Plug>(smartinput_CR)', 'at': '{\%#}', 'input': '<CR><CR><Up><C-f>'},
+      \ ]
 
 " smart quotes input
 let s:rules += [
@@ -593,10 +595,10 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': '\.[*/^]\%#', 'input': '<BS><BS>', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
 
-" FORTRAN
+" Fortran
 let s:rules += [
       \   {'char': ':', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)\%((\d\+)\)\?\%(\s*,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|intent(\%(in\|out\|inout\))\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
-      \   {'char': ':', 'at': '^\s*type(\h\w\*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
+      \   {'char': ':', 'at': '^\s*type(\h\w\*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|private\|public\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
       \   {'char': ':', 'at': '^\s*\%(private\|public\)\%#', 'input': ' :: ', 'filetype': ['fortran']},
       \   {'char': ':', 'at': ' :: \%#', 'input': '<BS><BS><BS><BS>:',  'filetype': ['fortran']},
       \   {'char': '=', 'at': '/ \%#',   'input': '<BS>= ',             'filetype': ['fortran']},
@@ -606,7 +608,7 @@ let s:rules += [
       \   {'char': '=', 'at': '\S/\%#',  'input': '<BS> /= ',           'filetype': ['fortran']},
       \   {'char': '=', 'at': ' /= \%#', 'input': '<BS><BS><BS><BS>/=', 'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\%#', 'input': '<C-r>=LocalComplete(["type"])<CR>', 'filetype': ['fortran']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\).*\%#', 'input': '<C-r>=LocalComplete(["attr"])<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)[^:]*\%#', 'input': '<C-r>=LocalComplete(["attr"])<CR>', 'filetype': ['fortran']},
       \ ]
 " ' + ' -> '+' -> '++' -> '+++' ...
 let s:rules += [
@@ -690,10 +692,10 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
       \ ]
 
-" dosbatch
+" dosbatch, shellscript
 let s:rules += [
-      \   {'char': '=', 'at': '\%#',      'input': '=',        'filetype': ['dosbatch']},
-      \   {'char': '=', 'at': '[^=]=\%#', 'input': '<BS> == ', 'filetype': ['dosbatch']},
+      \   {'char': '=', 'at': '\%#',      'input': '=',        'filetype': ['dosbatch', 'sh']},
+      \   {'char': '=', 'at': '[^=]=\%#', 'input': '<BS> == ', 'filetype': ['dosbatch', 'sh']},
       \ ]
 
 for item in s:rules
@@ -844,6 +846,9 @@ nmap # <Plug>(anzu-sharp-with-echo)
 " nmap <Esc><Esc> <Plug>(anzu-clear-search-status)
 "}}}
 "*** caw.vim *** {{{
+" skip blank line
+let g:caw_i_skip_blank_line = 1
+
 function! Operator_caw(type)
   " There is some room to be improved, but menndoi.
   execute "'[,']normal \<Plug>(caw:i:toggle)"
@@ -995,13 +1000,13 @@ let g:patternjump_patterns = {
   \ '_' : {
   \   'i' : {
   \     'head' : ['^\s*\zs\S', ',', '[^)\]}]\zs)', '[^)\]}]\zs]', '[^)\]}]\zs}', '$'],
-  \     'tail' : ['\<\h\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[''"])}]\+[])}]'],
+  \     'tail' : ['\<\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[''"])}]\+[])}]'],
   \     },
   \   'n' : {
   \     'head' : ['[[({''"]\+\zs\k'],
   \     },
   \   'x' : {
-  \     'tail' : ['\<\h\k*\>'],
+  \     'tail' : ['\<\k*\>'],
   \     },
   \   'o' : {
   \     'forward'  : {'head' : [',', ')', ']', '}', '$']},
@@ -1015,14 +1020,14 @@ let g:patternjump_patterns = {
   \   },
   \ }
 
-nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\h\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
+xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
 "}}}
 "*** quickrun.vim *** {{{
 let g:quickrun_config = {}
@@ -1033,10 +1038,8 @@ let g:quickrun_config = {
       \       },
       \ 'julia' : {
       \         'command': 'julia',
-      \         'cmdopt': '-q --color=no -P "println(\\"__EndSign__\\")"',
-      \         'runner': 'process_manager',
-      \         'runner/process_manager/load': 'try;include("%S");end;println("\n__EndSign__")',
-      \         'runner/process_manager/prompt': '__EndSign__',
+      \         'cmdopt': '-q --color=no --no-history-file',
+      \         'hook/output_encode/encoding' : has('win32') ? 'cp932' : '&fileencoding',
       \       },
       \ 'maxima' : {
       \         'command': 'maxima',
@@ -1532,60 +1535,12 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
   command! IMAutoSwitchStop  call s:im_auto_switch_stop()
 endif
 "}}}
-" RegCopy     - Function to copy the content of a register to the other one. {{{
-function! RegCopy(bang, ...) "{{{
-  let arg1 = a:1
-
-  if a:0 > 1
-    let arg2 = a:2
-
-    if a:bang != '!'
-      let SourceReg = arg1[0]
-      let DestReg   = arg2[0]
-    else
-      let SourceReg = arg2[0]
-      let DestReg   = arg1[0]
-    endif
-  else
-    if a:bang != '!'
-      let SourceReg = arg1[0]
-      let DestReg   = v:register
-    else
-      let SourceReg = v:register
-      let DestReg   = arg1[0]
-    endif
-  endif
-
-  call setreg(DestReg, getreg(SourceReg), getregtype(SourceReg))
-  echo 'Regcopy : @' . SourceReg . ' ---> @' . DestReg
-endfunction "}}}
-
-command! -nargs=+ -bang RegCopy call RegCopy('<bang>',<f-args>)
-"}}}
-" RegExchange - Function to exchange each content of two registers. {{{
-function! RegExchange(...) "{{{
-  let ExcReg1 = a:1[0]
-
-  if a:0 > 1
-    let ExcReg2 = a:2[0]
-  else
-    let ExcReg2 = v:register
-  endif
-
-  let temp = [getreg(ExcReg2), getregtype(ExcReg2)]
-  call setreg(ExcReg2, getreg(ExcReg1), getregtype(ExcReg1))
-  call setreg(ExcReg1,         temp[0],             temp[1])
-  echo 'Regexc : @' . l:ExcReg1 . ' <--> @' . l:ExcReg2
-endfunction "}}}
-
-command! -nargs=+ RegExchange call RegExchange(<f-args>)
-"}}}
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
 set background=light
 colorscheme mckn
-set cmdheight=2                     " the height of commandline
+set cmdheight=1                     " the height of commandline
 set cursorline                      " highlight corsor line
 set laststatus=2                    " always display status line
 set list                            " visualize special characters
@@ -1659,8 +1614,9 @@ autocmd vimrc FileType autohotkey setlocal dictionary+=$USERDIR/dict/AHK.dict fo
 autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
 
 "*** FORTRAN ***"
+" autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
+                              " \| let b:fortran_fold=1
 autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
-                              \| let b:fortran_fold=1
 
 "*** help ***"
 autocmd vimrc FileType help if &buftype == 'help' | vertical resize 78 | endif
@@ -1738,6 +1694,33 @@ function! s:qf_cmdpost()
     normal! k:cn<CR>
   endif
 endfunction
+
+function! s:qf_flash() abort
+  call setqflist([])
+
+  if &filetype ==# 'qf'
+    wincmd p
+  endif
+  let view = {}
+  let view.tabnr = tabpagenr()
+  let view.winnr = winnr()
+  let view.view  = winsaveview()
+
+  for tabnr in range(1, tabpagenr('$'))
+    for winnr in range(1, tabpagewinnr(tabnr, '$'))
+      if gettabwinvar(tabnr, winnr, '&filetype') ==# 'qf'
+        execute 'tabnext' . tabnr
+        execute winnr . 'wincmd w'
+        quit
+      endif
+    endfor
+  endfor
+
+  execute 'tabnext' . view.tabnr
+  execute view.winnr . 'wincmd w'
+  call winrestview(view.view)
+endfunction
+command! -nargs=0 QfFlash call s:qf_flash()
 
 "*** anonymous ***"
 " Close non-named buffer without any warning.
@@ -1849,7 +1832,44 @@ onoremap a" 2i"
 xnoremap a" 2i"
 
 " Close all the foldings in the buffer
-nnoremap z_ %normal! zC
+nnoremap z_ ma:silent %normal! zC<CR>'a
+
+" Clear highlight
+nnoremap <Space><Space> :nohlsearch<CR>
+
+" wildcard for mulibyte characters of f, t, F, T
+noremap <silent> f<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('f')<CR>
+noremap <silent> t<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('t')<CR>
+noremap <silent> F<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('F')<CR>
+noremap <silent> T<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('T')<CR>
+
+function! s:wildcard_for_multibyte_characers(kind) abort
+  let flag = a:kind ==# 'F' || a:kind ==# 'T' ? 'b' : ''
+  let stopline = line('.')
+
+  for i in range(v:count1)
+    if !search('[^\x01-\x7E]', flag, stopline)
+      break
+    endif
+  endfor
+
+  if has('patch-7.4.813')
+    let reg = ['"', getreg('"'), getregtype('"')]
+    normal! yl
+    let c = @@
+    let search = {
+          \   'char': c,
+          \   'forward': a:kind ==# 'f' || a:kind ==# 't' ? 1 : 0,
+          \   'until': a:kind ==? 'f' ? 0 : 1,
+          \ }
+    call setcharsearch(search)
+    call call('setreg', reg)
+  endif
+
+  if a:kind ==? 't'
+    normal! h
+  endif
+endfunction
 
 " A variant of i_CTRL-w "{{{
 let g:stop_pattern = [' ', '_', '#', '-', '/', '\\', ':', '(', ')', '\[', '\]', '{', '}']
@@ -1995,15 +2015,17 @@ function! s:abbrev_greek(bang) abort
   if a:bang ==# ''
     for [lhs, rhs] in s:greeks
       execute printf('inoreabbrev <buffer> %s %s', lhs, rhs)
+      execute printf('cnoreabbrev <buffer> %s %s', lhs, rhs)
     endfor
   else
     for [lhs, rhs] in s:greeks
       execute printf('iunabbrev <buffer> %s', lhs)
+      execute printf('cunabbrev <buffer> %s', lhs)
     endfor
   endif
 endfunction
 
-command! -nargs=0 -bang GreekAbbrev call <SID>abbrev_greek(expand('<bang>'))
+command! -nargs=0 -bang GreekAbbrev call s:abbrev_greek(expand('<bang>'))
 "}}}
 "***** macros ***** {{{
 " I think macros can be regarded as keymappings which can be re-written
@@ -2087,7 +2109,7 @@ function! s:reg_editor_start() abort
     " autocmd
     augroup reg_editor
       autocmd!
-      autocmd WinLeave <buffer> call <SID>reg_editor_cancel()
+      autocmd WinLeave <buffer> call s:reg_editor_cancel()
     augroup END
   endif
 endfunction
@@ -2197,17 +2219,22 @@ command! -nargs=1 Time call Time(<q-args>)
 
 " yank path
 function! s:yank_path(path) abort
-  let path = fnamemodify(glob(a:path, 1, 1), ':p')
-  let path = filereadable(path) || isdirectory(path) ? path : ''
-  if path != ''
+  let pathlist = map(map(glob(a:path, 1, 1), 'fnamemodify(v:val, ":p")'), 'filereadable(v:val) || isdirectory(v:val) ? v:val : ""')
+  if pathlist != []
+    let path = join(pathlist, "\n")
     call setreg(v:register, path, 'v')
-    echo printf('Yanked "%s"', path)
+    echo path
   else
     echo 'No path has been found.'
   endif
 endfunction
 
-command! -nargs=1 -complete=file YankPath call <SID>yank_path(<q-args>)
+" To avoid E77 with -complete=file
+function! YankPathComp(ArgLead, CmdLine, CursorPos) abort
+  return join(glob(a:ArgLead, 1, 1), "\n")
+endfunction
+
+command! -nargs=1 -complete=custom,YankPathComp YankPath call s:yank_path(<q-args>)
 
 " Open file browser
 if has('win32')
@@ -2222,7 +2249,7 @@ if has('win32')
     endtry
   endfunction
 
-  command! -nargs=? -complete=dir OpenExplorer call <SID>open_explorer(<q-args>)
+  command! -nargs=? -complete=dir OpenExplorer call s:open_explorer(<q-args>)
 endif
 "}}}
 "***** finalize (rather for reloading .vimrc) ***** {{{
