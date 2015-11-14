@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 14-Oct-2015.
+" Last Change: 13-Nov-2015.
 "
 "***** Todo *****
 
@@ -301,10 +301,8 @@ let s:rules += [
 " smart quotes input
 let s:rules += [
       \   {'char': '''', 'at': '\%#',         'input': '''''<C-g>U<Left>'},
-      \   {'char': '''', 'at': '\%#\h',       'input': '''',             },
       \   {'char': '''', 'at': '''''''\%#''', 'input': '<C-g>U<Right>',  },
       \   {'char':  '"', 'at': '\%#',         'input': '""<C-g>U<Left>', },
-      \   {'char':  '"', 'at': '\%#\h',       'input': '"',              },
       \   {'char':  '"', 'at': '\\\%#',       'input': '"',              },
       \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*\%#"',       'input': '""<C-g>U<Left>',      },
       \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#',  'input': '""',                  },
@@ -510,6 +508,7 @@ let s:rules += [
       \   {'char': '.', 'at': '\S\.\%# ',  'input': '<BS><Del> . ',   'filetype': ['vim']},
       \   {'char': '.', 'at': ' \.\%# ',   'input': '<Del> ',         'filetype': ['vim']},
       \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)(.*\%#', 'input': '...', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)(.*\.\.\.\%#', 'input': '<BS><BS><BS>', 'filetype': ['vim']},
       \ ]
 
 let s:rules += [
@@ -599,8 +598,8 @@ let s:rules += [
 
 " Fortran
 let s:rules += [
-      \   {'char': ':', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)\%((\d\+)\)\?\%(\s*,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|save\|intent(\%(in\|out\|inout\))\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
-      \   {'char': ':', 'at': '^\s*type(\h\w\*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|private\|public\|save\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
+      \   {'char': ':', 'at': '^\s*\%(integer\|real\%(([[:alnum:]_%()]*)\)\?\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)\%((\d\+)\)\?\%(\s*,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|save\|intent(\%(in\|out\|inout\))\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
+      \   {'char': ':', 'at': '^\s*type(\h\w*)\%(,\s*\%(dimension(\d\+\%(,\s*\d\+\))\|parameter\|allocatable\|private\|public\|save\)\)\?\%#', 'input': ' :: ', 'filetype': ['fortran']},
       \   {'char': ':', 'at': '^\s*\%(private\|public\)\%#', 'input': ' :: ', 'filetype': ['fortran']},
       \   {'char': ':', 'at': ' :: \%#', 'input': '<BS><BS><BS><BS>:',  'filetype': ['fortran']},
       \   {'char': '=', 'at': '/ \%#',   'input': '<BS>= ',             'filetype': ['fortran']},
@@ -609,6 +608,13 @@ let s:rules += [
       \   {'char': '=', 'at': ' /\%# ',  'input': '=',                  'filetype': ['fortran']},
       \   {'char': '=', 'at': '\S/\%#',  'input': '<BS> /= ',           'filetype': ['fortran']},
       \   {'char': '=', 'at': ' /= \%#', 'input': '<BS><BS><BS><BS>/=', 'filetype': ['fortran']},
+      \   {'char': '&', 'at': '^\s*if (.*\%#',   'input': ' .and. ', 'filetype': ['fortran']},
+      \   {'char': '&', 'at': '^\s*if (.*\s\%#', 'input': '.and. ',  'filetype': ['fortran']},
+      \   {'char': '|', 'at': '^\s*if (.*\%#',   'input': ' .or. ',  'filetype': ['fortran']},
+      \   {'char': '|', 'at': '^\s*if (.*\s\%#', 'input': '.or. ',   'filetype': ['fortran']},
+      \   {'char': '!', 'at': '^\s*if (.\+\%#',  'input': ' .not. ', 'filetype': ['fortran']},
+      \   {'char': '!', 'at': '^\s*if (\%#',     'input': '.not. ',  'filetype': ['fortran']},
+      \   {'char': '!', 'at': '^\s*if (.*\s\%#', 'input': '.not. ',  'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\a*\%#', 'input': '<C-r>=LocalComplete(["type"], StCol(''\%(^\|\<\)\a*''))<CR>', 'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)[^:]*\%#', 'input': '<C-r>=LocalComplete(["attr"], StCol(''\%(^\|\<\)\a*''))<CR>', 'filetype': ['fortran']},
       \ ]
@@ -770,15 +776,15 @@ function! Smartinput_toggle_switch()
   if g:is_smartinput_active
     for item in s:trig
       if item[0] == item[2]
-        execute "iunmap " . item[0]
-        execute "cunmap " . item[0]
+        execute 'iunmap ' . item[0]
+        execute 'cunmap ' . item[0]
       else
         if item[2] =~# '^<Plug>.\+'
-          execute "imap " . item[0] . " " . item[2]
-          execute "cmap " . item[0] . " " . item[2]
+          execute 'imap ' . item[0] . ' ' . item[2]
+          execute 'cmap ' . item[0] . ' ' . item[2]
         else
-          execute "inoremap " . item[0] . " " . item[2]
-          execute "cnoremap " . item[0] . " " . item[2]
+          execute 'inoremap ' . item[0] . ' ' . item[2]
+          execute 'cnoremap ' . item[0] . ' ' . item[2]
         endif
       endif
     endfor
@@ -810,7 +816,7 @@ function! LocalComplete(kinds, ...) abort
     " if has_key(b:local_compl, 'updatefunc')
       " call b:local_compl.updatefunc()
     " endif
-    if p == ''
+    if p ==# ''
       for kind in a:kinds
         let candidates += map(copy(get(b:local_compl, kind, [])), '{"word": v:val, "menu": kind}')
       endfor
@@ -834,7 +840,7 @@ endfunction
 
 function! StCol(pat) abort
   " PP! a:pat
-  return searchpos(a:pat, 'bcn', line("."))[1] - 1
+  return searchpos(a:pat, 'bcn', line('.'))[1] - 1
 endfunction
 "}}}
 " *** anzu.vim *** {{{
@@ -946,12 +952,12 @@ call neocomplete#custom#source('_', 'converters',
 inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
 if maparg('<Plug>(smartinput_CR)', 'i') ==# ''
   function! s:my_cr_function() abort
-    return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
+    return (pumvisible() ? "\<C-y>" : '' ) . "\<CR>"
   endfunction
 else
   function! s:my_cr_function() abort
     call feedkeys("\<Plug>(smartinput_CR)", 'm')
-    return (pumvisible() ? "\<C-y>" : "" )
+    return (pumvisible() ? "\<C-y>" : '' )
   endfunction
 endif
 
@@ -1122,21 +1128,21 @@ function! FuncNameCompl(ArgLead, CmdLine, CursorPos) abort
   return join(uniq(sort(map(getline(1, '$'), 'matchstr(v:val, ''\k\{3,}\ze('')'))), "\n")
 endfunction
 
-autocmd User OperatorSandwichAddPre,OperatorSandwichReplacePre NeoCompleteLock
-autocmd User OperatorSandwichAddPost,OperatorSandwichReplacePost NeoCompleteUnlock
+autocmd vimrc User OperatorSandwichAddPre,OperatorSandwichReplacePre NeoCompleteLock
+autocmd vimrc User OperatorSandwichAddPost,OperatorSandwichReplacePost NeoCompleteUnlock
 
 let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
-      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String'], 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String'], 'inner_syntax': ['Constant', 'String'], 'input': ["'", '7']},
+      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
+      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
+      \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
       \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
       \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
       \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
-      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
       \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
       \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
       \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
       \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
       \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
@@ -1144,17 +1150,18 @@ let g:sandwich#recipes = [
 
 let g:operator#sandwich#recipes = [
       \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
-      \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ["\<C-f>"]},
+      \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ["\<C-f>"]},
       \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
       \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
-      \   {'buns': ['if', 'endif'], 'filetype': ['vim'], 'kind': ['add'],    'motionwise': ['line'], 'nesting': 1, 'syntax': ['Statement'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"], 'input': ['i'], 'cursor': 'head'},
-      \   {'buns': ['if', 'endif'], 'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'nesting': 1, 'syntax': ['Statement'], 'linewise': 2, 'command': ["'[,']normal! <<"], 'input': ['i']},
+      \   {'buns': ['if', 'endif'], 'filetype': ['vim'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"], 'input': ['i'], 'cursor': 'head'},
+      \   {'buns': ['if', 'endif'], 'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"], 'input': ['i']},
       \ ]
 
 let g:textobj#sandwich#recipes = [
       \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
       \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'nesting': 1, 'expr': 1, 'synchro': 1, 'input': ['f']},
       \   {'external': ["\<Plug>(textobj-functioncall-innerparen-a)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
+      \   {'buns': ['\<if.*$', 'endif\>'], 'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \ ]
 "}}}
 "*** unite.vim *** {{{
@@ -1202,13 +1209,13 @@ endif
 if !isdirectory(expand($USERCACHEDIR . '/reanimate'))
   call mkdir($USERCACHEDIR . '/reanimate')
 endif
-let g:reanimate_save_dir = $USERCACHEDIR."/reanimate"
+let g:reanimate_save_dir = $USERCACHEDIR . '/reanimate'
 
 " default session file name
-let g:reanimate_default_save_name = ""
+let g:reanimate_default_save_name = ''
 
 " session options
-let g:reanimate_sessionoptions="buffers,curdir,folds,globals,help,slash,tabpages,winsize"
+let g:reanimate_sessionoptions = 'buffers,curdir,folds,globals,help,slash,tabpages,winsize'
 
 call unite#custom#default_action('reanimate', 'reanimate_load')
 nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
@@ -1332,7 +1339,7 @@ function! s:isolate_tab_next(...)
     let diff = a:1
   endif
   " calculate destination buffer number
-  let destindex = (match(t:isolated_buf_list, bufnr("%")) + diff) % len(t:isolated_buf_list)
+  let destindex = (match(t:isolated_buf_list, bufnr('%')) + diff) % len(t:isolated_buf_list)
   silent exec 'buffer ' . t:isolated_buf_list[destindex]
 endfunction
 
@@ -1344,7 +1351,7 @@ function! s:isolate_tab_previous(...)
     let diff = a:1
   endif
   " calculate destination buffer number
-  let destindex = (match(t:isolated_buf_list, bufnr("%")) - (diff % len(t:isolated_buf_list)) + len(t:isolated_buf_list)) % len(t:isolated_buf_list)
+  let destindex = (match(t:isolated_buf_list, bufnr('%')) - (diff % len(t:isolated_buf_list)) + len(t:isolated_buf_list)) % len(t:isolated_buf_list)
   silent exec 'buffer ' . t:isolated_buf_list[destindex]
 endfunction
 
@@ -1419,7 +1426,7 @@ set wrapscan                        " go back to the top candidate after getting
 if has('migemo')
   set migemo                        " use g? sequence of migemo
 
-  if &encoding == 'cp932'
+  if &encoding ==# 'cp932'
     set migemodict=$USERDIR/dict/cp932/migemo-dict
   else
     set migemodict=$USERDIR/dict/utf-8/migemo-dict
@@ -1453,7 +1460,7 @@ autocmd vimrc BufReadPost *
   \ endif
 
 " im control (for win, and partially for *nix)  "{{{
-if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != '')
+if has('win32') || (has('unix') && &imactivatefunc !=# '' && &imactivatekey !=# '')
   " at first
   augroup im-off
     autocmd!
@@ -1467,7 +1474,7 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
       if strlen(@") != strchars(@")
         " contains multibyte character
         setl iminsert=2
-      elseif @" =~ '\n\+'
+      elseif @" =~# '\n\+'
         let &l:iminsert = b:iminsert
       else
         setl iminsert=0
@@ -1481,7 +1488,7 @@ if has('win32') || (has('unix') && &imactivatefunc != '' && &imactivatekey != ''
       if strlen(@") != strchars(@")
         " contains multibyte character
         setl iminsert=2
-      elseif @" =~ '\n\+'
+      elseif @" =~# '\n\+'
         let &l:iminsert = b:iminsert
       else
         setl iminsert=0
@@ -1580,7 +1587,7 @@ function! GuiTabLabel()
   let bufnrlist = tabpagebuflist(v:lnum)
 
   for bufnr in bufnrlist
-    if getbufvar(bufnr, "&modified")
+    if getbufvar(bufnr, '&modified')
       let label .= '+'
       break
     endif
@@ -1599,23 +1606,23 @@ set guitablabel=%{GuiTabLabel()}
 
 " statusline displaying
 " copie... inspired from vim-neatstatus
-let &statusline =""
+let &statusline =''
 " file path
-let &statusline .=" %<%F "
+let &statusline .=' %<%F '
 " read only, modified, modifiable flags in brackets
-let &statusline .="%([%R%M]%) "
+let &statusline .='%([%R%M]%) '
 
 " right-align everything past this point
-let &statusline .="%= "
+let &statusline .='%= '
 
 " file type (eg. python, ruby, etc..)
-let &statusline .="%(| %{&filetype} %)| "
+let &statusline .='%(| %{&filetype} %)| '
 " file format (eg. unix, dos, etc..)
-let &statusline .="%{&fileformat} | "
+let &statusline .='%{&fileformat} | '
 " file encoding (eg. utf8, latin1, etc..)
-let &statusline .="%(%{(&fenc!=''?&fenc:&enc)} | %)"
+let &statusline .='%(%{(&fenc!=""?&fenc:&enc)} | %)'
 " buffer number
-let &statusline .="BUF #%n |"
+let &statusline .='BUF #%n |'
 "}}}
 "***** filetype settings ***** {{{
 " These settings would be moved to ftplugin/$filetype.vim gradually
@@ -1652,7 +1659,7 @@ function! s:help_conf_optimizer()
     let s:sidescrolloff = &sidescrolloff
     let &sidescroll     = 1
     let &sidescrolloff  = 0
-  elseif (&buftype !=# 'help') && exists("s:sidescroll")
+  elseif (&buftype !=# 'help') && exists('s:sidescroll')
     let &sidescroll     = s:sidescroll
     let &sidescrolloff  = s:sidescrolloff
     unlet s:sidescrolloff
@@ -1747,7 +1754,7 @@ function! s:namaenonaikohainegala()
   if winnr('$') == 1
     let g:namaenonaiko = []
     for nr in range(1, bufnr('$'))
-      if bufname(nr) == '' && bufexists(nr)
+      if bufname(nr) ==# '' && bufexists(nr)
         call add(g:namaenonaiko, [nr, getbufvar(nr, '&buftype')])
         call setbufvar(nr, '&buftype', 'nowrite')
       endif
@@ -1885,7 +1892,14 @@ function! s:wildcard_for_multibyte_characers(kind) abort
 endfunction
 
 " get into incert mode at a character before the end of line.
+" call hoge(piyo)
+"               # I want to insert here.
+" NOTE: 'nnoremap gA $i' is not good, because it is not repeatable.
 nnoremap gA A<C-g>U<Left>
+
+" browse fix-points
+nnoremap [q :<C-u>execute v:count1 . 'cprevious'<CR>
+nnoremap ]q :<C-u>execute v:count1 . 'cnext'<CR>
 
 " A variant of i_CTRL-w "{{{
 let g:stop_pattern = [' ', '_', '#', '-', '/', '\\', ':', '(', ')', '\[', '\]', '{', '}']
@@ -1929,7 +1943,8 @@ endfunction
 inoremap <expr> <C-l> <SID>follow_prevline()
 "}}}
 " textobj-lastchanged "{{{
-" New NFA regular expression engine does not support the pattern '\%''['.
+" New NFA regular expression engine has not support the pattern '\%''[' yet.
+" https://github.com/vim-jp/issues/issues/623
 " FIXME: Which is better to assume inclusive or exclusive?
 function! TextobjLastchanged(mode) abort
   let [view, whichwrap, virtualedit] = [winsaveview(), &whichwrap, &virtualedit]
@@ -2066,7 +2081,7 @@ function! s:preset_macros(...)
 
   for target in targets
     if has_key(g:macros, target)
-      execute "let @" . target . " = '" . substitute(g:macros[target], "'", "''", 'g') . "'"
+      execute 'let @' . target . " = '" . substitute(g:macros[target], "'", "''", 'g') . "'"
     endif
   endfor
 endfunction
