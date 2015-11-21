@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 13-Nov-2015.
+" Last Change: 20-Nov-2015.
 "
 "***** Todo *****
 
@@ -1049,7 +1049,7 @@ let g:quickrun_config = {
       \ 'julia' : {
       \         'command': 'julia',
       \         'cmdopt': '-q --color=no',
-      \         'hook/output_encode/encoding' : has('win32') ? 'cp932' : '&fileencoding',
+      \         'runner': 'vimproc',
       \       },
       \ 'maxima' : {
       \         'command': 'maxima',
@@ -1781,7 +1781,7 @@ function! s:tobacchirigomen()
   endif
 endfunction
 "}}}
-"***** key mapping ***** {{{
+"***** key mappings ***** {{{
 "--------------------------------------------------------------------------
 " do not store a character cut by x,s
 nnoremap x "_x
@@ -2014,6 +2014,77 @@ call textobj#user#plugin('number', {
   \ })
 "}}}
 "}}}
+"***** commands ***** {{{
+"--------------------------------------------------------------------------
+" simple performance checker
+function! Tic()
+  let g:hayasa_maruwakari_kun = reltime()
+endfunction
+function! Toc()
+  echom reltimestr(reltime(g:hayasa_maruwakari_kun))
+endfunction
+function! Time(cmd)
+  call Tic()
+  execute a:cmd
+  call Toc()
+endfunction
+command! -nargs=0 Tic call Tic()
+command! -nargs=0 Toc call Toc()
+command! -nargs=1 Time call Time(<q-args>)
+
+" yank path
+function! s:yank_path(path) abort
+  let pathlist = map(map(glob(a:path, 1, 1), 'fnamemodify(v:val, ":p")'), 'filereadable(v:val) || isdirectory(v:val) ? v:val : ""')
+  if pathlist != []
+    let path = join(pathlist, "\n")
+    call setreg(v:register, path, 'v')
+    echo path
+  else
+    echo 'No path has been found.'
+  endif
+endfunction
+function! YankPathComp(ArgLead, CmdLine, CursorPos) abort
+  " To avoid E77 with -complete=file
+  return join(glob(a:ArgLead, 1, 1), "\n")
+endfunction
+command! -nargs=1 -complete=custom,YankPathComp YankPath call s:yank_path(<q-args>)
+
+" Open file browser
+if has('win32')
+  function! s:open_explorer(path) abort
+    let shellslash = &shellslash
+    let &shellslash = 0
+    try
+      let path = a:path ==# '' ? expand('%:p:h') : fnamemodify(a:path, ':p')
+      execute '!start explorer ' . printf('"%s"', path)
+    finally
+      let &shellslash = shellslash
+    endtry
+  endfunction
+
+  command! -nargs=? -complete=dir OpenExplorer call s:open_explorer(<q-args>)
+endif
+
+" Modified :edit command
+function! EditCompl(ArgLead, CmdLine, CursorPos) abort
+  let separator = has('win32') && !&shellslash ? '\' : '/'
+  let buffers = map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'expand(bufname(v:val))')
+  let oldfiles = filter(map(copy(v:oldfiles), 'expand(v:val)'), 'filereadable(v:val)')
+  let cdfiles = filter(split(glob(expand('%:p:h') . separator . '*'), "\n"), 'filereadable(v:val)')
+  let candidates = buffers + oldfiles + cdfiles
+  for string in split(a:ArgLead, '[^\\]\%(\\\\\)*\s')
+    call filter(candidates, 'stridx(v:val, string) > -1')
+  endfor
+  return map(candidates, 'simplify(v:val)')
+endfunction
+command! -nargs=1 -complete=customlist,EditCompl E edit <args>
+
+" Variants of :buffer command, split and display buffer
+" FIXME: ':tabedit' makes a new (unnecessary) empty buffer.
+command! -nargs=1 -complete=buffer S   split | buffer <args>
+command! -nargs=1 -complete=buffer V  vsplit | buffer <args>
+command! -nargs=1 -complete=buffer T tabedit | buffer <args>
+"}}}
 "***** abbreviation ***** {{{
 let s:greeks = [
       \   ['alpha', 'α'], ['Alpha', 'Α'],
@@ -2229,59 +2300,6 @@ command! -nargs=1 TextobjInstantAdd    let g:textobj_instant_patterns += [<q-arg
 command! -nargs=1 TextobjInstantDelete call filter(g:textobj_instant_patterns, 'v:val != <q-args>')
 command!          TextobjInstantClear  let g:textobj_instant_patterns = []
 
-" simple performance checker
-function! Tic()
-  let g:hayasa_maruwakari_kun = reltime()
-endfunction
-
-function! Toc()
-  echom reltimestr(reltime(g:hayasa_maruwakari_kun))
-endfunction
-
-function! Time(cmd)
-  call Tic()
-  execute a:cmd
-  call Toc()
-endfunction
-
-command! -nargs=0 Tic call Tic()
-command! -nargs=0 Toc call Toc()
-command! -nargs=1 Time call Time(<q-args>)
-
-" yank path
-function! s:yank_path(path) abort
-  let pathlist = map(map(glob(a:path, 1, 1), 'fnamemodify(v:val, ":p")'), 'filereadable(v:val) || isdirectory(v:val) ? v:val : ""')
-  if pathlist != []
-    let path = join(pathlist, "\n")
-    call setreg(v:register, path, 'v')
-    echo path
-  else
-    echo 'No path has been found.'
-  endif
-endfunction
-
-" To avoid E77 with -complete=file
-function! YankPathComp(ArgLead, CmdLine, CursorPos) abort
-  return join(glob(a:ArgLead, 1, 1), "\n")
-endfunction
-
-command! -nargs=1 -complete=custom,YankPathComp YankPath call s:yank_path(<q-args>)
-
-" Open file browser
-if has('win32')
-  function! s:open_explorer(path) abort
-    let shellslash = &shellslash
-    let &shellslash = 0
-    try
-      let path = a:path ==# '' ? expand('%:p:h') : fnamemodify(a:path, ':p')
-      execute '!start explorer ' . printf('"%s"', path)
-    finally
-      let &shellslash = shellslash
-    endtry
-  endfunction
-
-  command! -nargs=? -complete=dir OpenExplorer call s:open_explorer(<q-args>)
-endif
 "}}}
 "***** finalize (rather for reloading .vimrc) ***** {{{
 " loading local settings
