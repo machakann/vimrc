@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 20-Nov-2015.
+" Last Change: 19-Dec-2015.
 "
 "***** Todo *****
 
@@ -41,7 +41,7 @@ call neobundle#begin(expand($USERDIR) . '/bundle/')
 " NeoBundle       'davidhalter/jedi-vim'
 NeoBundle       'JuliaLang/julia-vim'
 " NeoBundle       'julia-vim', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'julia-vim-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
+" NeoBundle       'julia-vim-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'kana/vim-operator-user'
 NeoBundle       'kana/vim-operator-replace'
 NeoBundle       'kana/vim-smartinput'
@@ -50,21 +50,18 @@ NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'machakann/vim-columnmove'
-NeoBundle       'vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
+" NeoBundle       'vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-lion'
 NeoBundle       'machakann/vim-operator-insert'
-NeoBundle       'machakann/vim-operator-jerk'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-sandwich'
 " NeoBundle       'vim-sandwich', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
-NeoBundle       'machakann/vim-textobj-equation'
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
-NeoBundle       'Shougo/neocomplete'
 NeoBundle       'Shougo/neomru.vim'
 NeoBundle       'Shougo/unite.vim'
 NeoBundle       'Shougo/vimproc.vim' , {
@@ -80,7 +77,6 @@ NeoBundle       'thinca/vim-visualstar'
 NeoBundle       'thinca/vim-quickrun'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
-NeoBundle       'tpope/vim-fugitive'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
 NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
@@ -95,29 +91,18 @@ NeoBundleLazy   'osyo-manga/vim-anzu', {
       \   'mappings' : '<Plug>(anzu-',
       \ }}
 NeoBundleLazy   'sjl/gundo.vim', {
-      \ 'autoload' : {'commands': 'GundoToggle'}
+      \   'autoload' : {'commands': 'GundoToggle'}
       \ }
-NeoBundleLazy   'Shougo/neosnippet.vim', {
-      \ 'autoload' : {
-      \   'insert'    : 1,
-      \   'filetypes' : ['neosnippet'],
-      \   },
+NeoBundleLazy   'Shougo/neocomplete'
+NeoBundleLazy   'ujihisa/neco-look', {
+      \   'depends': 'Shougo/neocomplete',
+      \   'type'   : 'nosync',
       \ }
-NeoBundle       'Shougo/neosnippet-snippets'
-NeoBundle       'ujihisa/neco-look', {
-      \ 'depends'  : 'Shougo/neocomplete',
-      \ 'type' : 'nosync',
-      \}
 NeoBundleLazy   'vim-jp/vital.vim', {
       \ 'autoload' : {
       \   'commands' : 'Vitalize',
       \   }
       \ }
-
-if has('gui_running')
-  NeoBundle 'thinca/vim-localrc'
-endif
-
 call neobundle#end()
 
 filetype plugin indent on       " Required!
@@ -149,36 +134,37 @@ let g:smartinput_no_default_key_mappings = 1
 
 " map to trigger
 let s:trig = [
-      \     ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',   '<BS>'],
-      \     ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',   '<CR>'],
-      \     ['<Plug>(smartinput_^k)', '<Plug>(smartinput_^k)',  '<C-k>'],
-      \     ['<Plug>(smartinput_^n)', '<Plug>(smartinput_^n)',  '<C-n>'],
-      \     ['(',     '(',     '('    ],
-      \     [')',     ')',     ')'    ],
-      \     ['[',     '[',     '['    ],
-      \     [']',     ']',     ']'    ],
-      \     ['{',     '{',     '{'    ],
-      \     ['}',     '}',     '}'    ],
-      \     ['''',    '''',    ''''   ],
-      \     ['"',     '"',     '"'    ],
-      \     ['<',     '<',     '<'    ],
-      \     ['>',     '>',     '>'    ],
-      \     ['+',     '+',     '+'    ],
-      \     ['-',     '-',     '-'    ],
-      \     ['*',     '*',     '*'    ],
-      \     ['/',     '/',     '/'    ],
-      \     ['%',     '%',     '%'    ],
-      \     ['&',     '&',     '&'    ],
-      \     ['<Bar>', '<Bar>', '<Bar>'],
-      \     ['=',     '=',     '='    ],
-      \     ['~',     '~',     '~'    ],
-      \     ['#',     '#',     '#'    ],
-      \     ['^',     '^',     '^'    ],
-      \     ['?',     '?',     '?'    ],
-      \     [':',     ':',     ':'    ],
-      \     ['.',     '.',     '.'    ],
-      \     [',',     ',',     ','    ],
-      \    ]
+      \   ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',   '<BS>'],
+      \   ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',   '<CR>'],
+      \   ['<Plug>(smartinput_^k)', '<Plug>(smartinput_^k)',  '<C-k>'],
+      \   ['<Plug>(smartinput_^n)', '<Plug>(smartinput_^n)',  '<C-n>'],
+      \   ['(', '(', '('],
+      \   [')', ')', ')'],
+      \   ['[', '[', '['],
+      \   [']', ']', ']'],
+      \   ['{', '{', '{'],
+      \   ['}', '}', '}'],
+      \   ["'", "'", "'"],
+      \   ['"', '"', '"'],
+      \   ['<', '<', '<'],
+      \   ['>', '>', '>'],
+      \   ['+', '+', '+'],
+      \   ['-', '-', '-'],
+      \   ['*', '*', '*'],
+      \   ['/', '/', '/'],
+      \   ['%', '%', '%'],
+      \   ['&', '&', '&'],
+      \   ['=', '=', '='],
+      \   ['~', '~', '~'],
+      \   ['#', '#', '#'],
+      \   ['^', '^', '^'],
+      \   ['!', '!', '!'],
+      \   ['?', '?', '?'],
+      \   [':', ':', ':'],
+      \   ['.', '.', '.'],
+      \   [',', ',', ','],
+      \   ['<Bar>', '<Bar>', '<Bar>'],
+      \ ]
 
 for item in s:trig
   call smartinput#map_to_trigger('i', item[0], item[1], item[2])
@@ -538,6 +524,10 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*let\s\+&\l*\%#', 'input': '<C-r>=LocalComplete(["options"], StCol(''&\zs''))<CR>', 'filetype': ['vim']},
       \ ]
 
+let s:rules += [
+      \   {'char': '!', 'at': '^\s*fu\%[nction]\%#', 'input': '!  abort<Left><Left><Left><Left><Left><Left>', 'filetype': ['vim']},
+      \ ]
+
 " matlab
 let s:rules += [
       \   {'char': '%', 'at': '^\s*\%#',     'input': '% ',      'filetype': ['matlab']},
@@ -608,15 +598,18 @@ let s:rules += [
       \   {'char': '=', 'at': ' /\%# ',  'input': '=',                  'filetype': ['fortran']},
       \   {'char': '=', 'at': '\S/\%#',  'input': '<BS> /= ',           'filetype': ['fortran']},
       \   {'char': '=', 'at': ' /= \%#', 'input': '<BS><BS><BS><BS>/=', 'filetype': ['fortran']},
-      \   {'char': '&', 'at': '^\s*if (.*\%#',   'input': ' .and. ', 'filetype': ['fortran']},
-      \   {'char': '&', 'at': '^\s*if (.*\s\%#', 'input': '.and. ',  'filetype': ['fortran']},
-      \   {'char': '|', 'at': '^\s*if (.*\%#',   'input': ' .or. ',  'filetype': ['fortran']},
-      \   {'char': '|', 'at': '^\s*if (.*\s\%#', 'input': '.or. ',   'filetype': ['fortran']},
-      \   {'char': '!', 'at': '^\s*if (.\+\%#',  'input': ' .not. ', 'filetype': ['fortran']},
-      \   {'char': '!', 'at': '^\s*if (\%#',     'input': '.not. ',  'filetype': ['fortran']},
-      \   {'char': '!', 'at': '^\s*if (.*\s\%#', 'input': '.not. ',  'filetype': ['fortran']},
+      \   {'char': '&', 'at': '^\s*\%(else\s\+\)\?if (.*\%#',   'input': ' .and. ', 'filetype': ['fortran']},
+      \   {'char': '&', 'at': '^\s*\%(else\s\+\)\?if (.*\s\%#', 'input': '.and. ',  'filetype': ['fortran']},
+      \   {'char': '|', 'at': '^\s*\%(else\s\+\)\?if (.*\%#',   'input': ' .or. ',  'filetype': ['fortran']},
+      \   {'char': '|', 'at': '^\s*\%(else\s\+\)\?if (.*\s\%#', 'input': '.or. ',   'filetype': ['fortran']},
+      \   {'char': '!', 'at': '^\s*\%(else\s\+\)\?if (.\+\%#',  'input': ' .not. ', 'filetype': ['fortran']},
+      \   {'char': '!', 'at': '^\s*\%(else\s\+\)\?if (\%#',     'input': '.not. ',  'filetype': ['fortran']},
+      \   {'char': '!', 'at': '^\s*\%(else\s\+\)\?if (.*\s\%#', 'input': '.not. ',  'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\a*\%#', 'input': '<C-r>=LocalComplete(["type"], StCol(''\%(^\|\<\)\a*''))<CR>', 'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\%(integer\|real\|double precision\|complex\|complex([[:alnum:]_%()]*)\|logical\|character\)[^:]*\%#', 'input': '<C-r>=LocalComplete(["attr"], StCol(''\%(^\|\<\)\a*''))<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.and\. \%#', 'input': '<BS><BS><BS><BS><BS><BS><BS>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.or\. \%#',  'input': '<BS><BS><BS><BS><BS><BS>',     'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.not\. \%#', 'input': '<BS><BS><BS><BS><BS><BS><BS>', 'filetype': ['fortran']},
       \ ]
 " ' + ' -> '+' -> '++' -> '+++' ...
 let s:rules += [
@@ -706,10 +699,7 @@ let s:rules += [
       \   {'char': '=', 'at': '[^=]=\%#', 'input': '<BS> == ', 'filetype': ['dosbatch', 'sh']},
       \ ]
 
-for item in s:rules
-  call smartinput#define_rule(item)
-endfor
-unlet item
+call map(copy(s:rules), 'smartinput#define_rule(v:val)')
 let g:is_smartinput_active = 1
 
 " These mappings could be modified somewhere else.
@@ -717,25 +707,9 @@ let g:is_smartinput_active = 1
 imap <BS>  <Plug>(smartinput_BS)
 cmap <BS>  <Plug>(smartinput_BS)
 imap <CR>  <Plug>(smartinput_CR)
-imap <expr> <C-k> <SID>i_CTRL_k()
+imap <C-k> <Plug>(smartinput_^k)
 cmap <C-k> <Plug>(smartinput_^k)
 imap <expr> <C-n> <SID>i_CTRL_n()
-
-function! s:i_CTRL_k() abort
-  let key = ''
-  if s:smartinput_has_rule('<Plug>(smartinput_^k)', 0)
-    let key = "\<Plug>(smartinput_^k)"
-  elseif neosnippet#expandable()
-    let key = "\<Plug>(neosnippet_expand)"
-  elseif s:smartinput_has_rule('<Plug>(smartinput_^k)', -1)
-    let key = "\<Plug>(smartinput_^k)"
-  elseif neosnippet#jumpable()
-    let key = "\<Plug>(neosnippet_jump)"
-  elseif s:smartinput_has_rule('<Plug>(smartinput_^k)', -2)
-    let key = "\<Plug>(smartinput_^k)"
-  endif
-  return key
-endfunction
 
 function! s:i_CTRL_n() abort
   if pumvisible()
@@ -812,10 +786,6 @@ function! LocalComplete(kinds, ...) abort
     let startpos   = startpos >= 0 ? startpos : col
     let p = startpos <= col ? getline('.')[startpos : col] : ''
     let n = strlen(p) - 1
-    " PP! [startpos, col, p, getline('.')]
-    " if has_key(b:local_compl, 'updatefunc')
-      " call b:local_compl.updatefunc()
-    " endif
     if p ==# ''
       for kind in a:kinds
         let candidates += map(copy(get(b:local_compl, kind, [])), '{"word": v:val, "menu": kind}')
@@ -841,6 +811,15 @@ endfunction
 function! StCol(pat) abort
   " PP! a:pat
   return searchpos(a:pat, 'bcn', line('.'))[1] - 1
+endfunction
+
+" lovely aid for ', ' rule
+autocmd vimrc InsertLeave * call s:eliminate_trailing_space()
+function! s:eliminate_trailing_space() abort
+  let lnum = line('.')
+  if col('.') == col([lnum, '$'])-1 && search(', \+$', 'cen', lnum) != 0
+    call setline(lnum, matchstr(getline(lnum), '.*,\ze \+$'))
+  endif
 endfunction
 "}}}
 " *** anzu.vim *** {{{
@@ -890,103 +869,89 @@ nnoremap <silent> <M-O> :<C-u>call columnmove#b('n', '', 0, {'strict_wbege':0})<
 " autocmd vimrc FileType python setlocal omnifunc=jedi#completions
 "}}}
 "*** neocomplete.vim *** {{{
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-" Ignore cases
-let g:neocomplete#enable_ignore_case = 1
-" Set completion start length
-let g:neocomplete#auto_completion_start_length = 3
-" Set minimum syntax keyword length.
-let g:neocomplete#sources#syntax#min_keyword_length = 3
-let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-" Assign data directory path.
-let g:neocomplete#data_directory = $USERCACHEDIR . '/.neocon'
-" Delimiter automatic insertion.
-let g:neocomplete#enable_auto_delimiter = 1
-" Delimiter patterns for smart completion.
-if !exists('g:neocomplete#delimiter_patterns')
-  let g:neocomplete#delimiter_patterns= {}
-endif
-let g:neocomplete#delimiter_patterns.vim = ['#', '.']
+let s:bundle = neobundle#get('neocomplete')
+function! s:bundle.hooks.on_source(bundle)
+  " Use neocomplete.
+  let g:neocomplete#enable_at_startup = 1
+  " Ignore cases
+  let g:neocomplete#enable_ignore_case = 1
+  " Set completion start length
+  let g:neocomplete#auto_completion_start_length = 3
+  " Set minimum syntax keyword length.
+  let g:neocomplete#sources#syntax#min_keyword_length = 3
+  let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
+  " Assign data directory path.
+  let g:neocomplete#data_directory = $USERCACHEDIR . '/.neocon'
+  " Delimiter automatic insertion.
+  let g:neocomplete#enable_auto_delimiter = 1
+  " Delimiter patterns for smart completion.
+  if !exists('g:neocomplete#delimiter_patterns')
+    let g:neocomplete#delimiter_patterns= {}
+  endif
+  let g:neocomplete#delimiter_patterns.vim = ['#', '.']
 
-" Define dictionary.
-let g:neocomplete#sources#dictionary#dictionaries = {
-  \   'default' : '',
-  \   'vimshell' : $USERCACHEDIR . '/.vimshell/command-history',
-  \   'autohotkey' : $USERDIR . '/dict/AHK.dict'
-  \ }
+  " Define dictionary.
+  let g:neocomplete#sources#dictionary#dictionaries = {
+    \   'default' : '',
+    \   'vimshell' : $USERCACHEDIR . '/.vimshell/command-history',
+    \   'autohotkey' : $USERDIR . '/dict/AHK.dict'
+    \ }
 
-" Define keyword.
-if !exists('g:neocomplete#keyword_patterns')
-    let g:neocomplete#keyword_patterns = {}
-endif
-let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+  " Define keyword.
+  if !exists('g:neocomplete#keyword_patterns')
+      let g:neocomplete#keyword_patterns = {}
+  endif
+  let g:neocomplete#keyword_patterns['default'] = '\h\w*'
 
-" Input assist for English
-if !exists('g:neocomplete#text_mode_filetypes')
-    let g:neocomplete#text_mode_filetypes = {}
-endif
-let g:neocomplete#text_mode_filetypes.plaintex = 1
+  " Input assist for English
+  if !exists('g:neocomplete#text_mode_filetypes')
+      let g:neocomplete#text_mode_filetypes = {}
+  endif
+  let g:neocomplete#text_mode_filetypes.plaintex = 1
 
-" Enable heavy omni completion.
-if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
-endif
-if !exists('g:neocomplete#force_omni_input_patterns')
-  let g:neocomplete#force_omni_input_patterns = {}
-endif
-let g:jedi#auto_vim_configuration = 0
-let g:neocomplete#force_omni_input_patterns.python = '[^. \t]\.\w*'
-let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\%(\h\w*\)\?'
-let g:neocomplete#sources#omni#input_patterns.scilab = '[^. \t]\+\.\?\w*'
+  " Enable heavy omni completion.
+  if !exists('g:neocomplete#sources#omni#input_patterns')
+    let g:neocomplete#sources#omni#input_patterns = {}
+  endif
+  if !exists('g:neocomplete#force_omni_input_patterns')
+    let g:neocomplete#force_omni_input_patterns = {}
+  endif
+  let g:jedi#auto_vim_configuration = 0
+  let g:neocomplete#force_omni_input_patterns.python = '[^. \t]\.\w*'
+  let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\%(\h\w*\)\?'
+  let g:neocomplete#sources#omni#input_patterns.scilab = '[^. \t]\+\.\?\w*'
 
-" Source optimization
-call neocomplete#custom_source('look', 'rank', 100)
-call neocomplete#custom_source('file', 'rank', 100)
-" Change default converter.
-call neocomplete#custom#source('_', 'converters',
-\ ['converter_remove_last_paren', 'converter_delimiter',
-\  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
+  " Change default converter.
+  call neocomplete#custom#source('_', 'converters',
+        \ ['converter_remove_last_paren', 'converter_delimiter',
+        \  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
 
-" Recommended key-mappings.
-inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-if maparg('<Plug>(smartinput_CR)', 'i') ==# ''
-  function! s:my_cr_function() abort
-    return (pumvisible() ? "\<C-y>" : '' ) . "\<CR>"
-  endfunction
-else
-  function! s:my_cr_function() abort
-    call feedkeys("\<Plug>(smartinput_CR)", 'm')
-    return (pumvisible() ? "\<C-y>" : '' )
-  endfunction
-endif
+  " Recommended key-mappings.
+  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+  if maparg('<Plug>(smartinput_CR)', 'i') ==# ''
+    function! s:my_cr_function() abort
+      return (pumvisible() ? "\<C-y>" : '' ) . "\<CR>"
+    endfunction
+  else
+    function! s:my_cr_function() abort
+      call feedkeys("\<Plug>(smartinput_CR)", 'm')
+      return (pumvisible() ? "\<C-y>" : '' )
+    endfunction
+  endif
 
-if maparg('<Plug>(smartinput_BS)', 'i') ==# ''
-  imap <expr> <C-h> neocomplete#smart_close_popup() . "\<BS>"
-  imap <expr> <BS> neocomplete#smart_close_popup() . "\<BS>"
-else
-  imap <expr> <C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-  imap <expr> <BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-endif
+  if maparg('<Plug>(smartinput_BS)', 'i') ==# ''
+    imap <expr> <C-h> neocomplete#smart_close_popup() . "\<BS>"
+    imap <expr> <BS> neocomplete#smart_close_popup() . "\<BS>"
+  else
+    imap <expr> <C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
+    imap <expr> <BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
+  endif
+endfunction
+unlet s:bundle
 "}}}
 "*** neomru.vim *** {{{
 let g:neomru#file_mru_path = $USERCACHEDIR . '/.neomru/file'
 let g:neomru#directory_mru_path = $USERCACHEDIR . '/.neomru/directly'
-"}}}
-"*** neosnippet.vim *** {{{
-" imap <expr> <C-k> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_jump_or_expand)" : "\<C-k>"
-smap        <C-k> <Plug>(neosnippet_expand_or_jump)
-xmap        <C-k> <Plug>(neosnippet_expand_target)
-xmap        <C-l> <Plug>(neosnippet_start_unite_snippet_target)
-
-" Tell Neosnippet about the other snippets
-let g:neosnippet#snippets_directory = $USERDIR . '/snippets'
-let g:neosnippet#data_directory = $USERCACHEDIR . '/neosnippet'
-
-" For snippet_complete marker.
-if has('conceal')
-  set conceallevel=2 concealcursor=i
-endif
 "}}}
 "*** operator-insert *** {{{
 " operator mappings
@@ -1045,11 +1010,11 @@ let g:quickrun_config = {
       \ '_' : {
       \         'runner/vimproc/updatetime' : 100,
       \         'hook/time/enable' : 1,
+      \         'runner': 'vimproc',
       \       },
       \ 'julia' : {
       \         'command': 'julia',
       \         'cmdopt': '-q --color=no',
-      \         'runner': 'vimproc',
       \       },
       \ 'maxima' : {
       \         'command': 'maxima',
@@ -1128,16 +1093,28 @@ function! FuncNameCompl(ArgLead, CmdLine, CursorPos) abort
   return join(uniq(sort(map(getline(1, '$'), 'matchstr(v:val, ''\k\{3,}\ze('')'))), "\n")
 endfunction
 
-autocmd vimrc User OperatorSandwichAddPre,OperatorSandwichReplacePre NeoCompleteLock
-autocmd vimrc User OperatorSandwichAddPost,OperatorSandwichReplacePost NeoCompleteUnlock
+autocmd vimrc User OperatorSandwichAddPre,OperatorSandwichReplacePre call s:compl_lock()
+autocmd vimrc User OperatorSandwichAddPost,OperatorSandwichReplacePost call s:compl_unlock()
+function! s:compl_lock() abort
+  if exists(':NeoCompleteLock') == 2
+    NeoCompleteLock
+  endif
+endfunction
+function! s:compl_unlock() abort
+  if exists(':NeoCompleteUnlock') == 2
+    NeoCompleteUnlock
+  endif
+endfunction
 
 let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
-      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
-      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
+      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
+      \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
       \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
       \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
+      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
       \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
       \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
       \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
@@ -1931,7 +1908,10 @@ function! s:follow_prevline()
   let dest = stridx(getline(prevnonblank(lnum-1)), text, head)
 
   if dest < 0
-    return ''
+    let dest = stridx(getline(nextnonblank(lnum+1)), text, head)
+    if dest < 0
+      return ''
+    endif
   endif
 
   return printf('%s%s%s',
@@ -2067,23 +2047,52 @@ endif
 
 " Modified :edit command
 function! EditCompl(ArgLead, CmdLine, CursorPos) abort
-  let separator = has('win32') && !&shellslash ? '\' : '/'
-  let buffers = map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'expand(bufname(v:val))')
-  let oldfiles = filter(map(copy(v:oldfiles), 'expand(v:val)'), 'filereadable(v:val)')
-  let cdfiles = filter(split(glob(expand('%:p:h') . separator . '*'), "\n"), 'filereadable(v:val)')
-  let candidates = buffers + oldfiles + cdfiles
+  let pwd = getcwd()
+  let len = strlen(pwd)
+  if a:CmdLine[0] ==# 'B'
+    let candidates = map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'expand(bufname(v:val))')
+  elseif a:CmdLine[0] ==# 'M'
+    let candidates = filter(map(copy(v:oldfiles), 'expand(v:val)'), 'filereadable(v:val)')
+  else
+    let separator = has('win32') && !&shellslash ? '\' : '/'
+    let candidates = filter(glob(pwd . separator . '*', 0, 1, 1), 'filereadable(v:val)')
+  endif
+  call map(candidates, 'v:val[: len-1] ==# pwd ? v:val[len+1 :] : v:val')
   for string in split(a:ArgLead, '[^\\]\%(\\\\\)*\s')
     call filter(candidates, 'stridx(v:val, string) > -1')
   endfor
-  return map(candidates, 'simplify(v:val)')
+  return candidates
 endfunction
 command! -nargs=1 -complete=customlist,EditCompl E edit <args>
+command! -nargs=1 -complete=customlist,EditCompl B edit <args>
+command! -nargs=1 -complete=customlist,EditCompl M edit <args>
+nnoremap <Space>e :E<Space>
+nnoremap <Space>b :B<Space>
+nnoremap <Space>m :M<Space>
 
 " Variants of :buffer command, split and display buffer
 " FIXME: ':tabedit' makes a new (unnecessary) empty buffer.
 command! -nargs=1 -complete=buffer S   split | buffer <args>
 command! -nargs=1 -complete=buffer V  vsplit | buffer <args>
 command! -nargs=1 -complete=buffer T tabedit | buffer <args>
+
+" glance a tag
+function! s:TagGlance(arg) abort
+  call s:TagGlanceClose()
+  execute 'stjump ' . a:arg
+  resize v:count1 " <- syntax sugar?
+  let t:GlanceWindow = winnr()
+  wincmd p
+endfunction
+function! s:TagGlanceClose() abort
+  if exists('t:GlanceWindow')
+    execute t:GlanceWindow . 'wincmd w'
+    quit
+    unlet t:GlanceWindow
+  endif
+endfunction
+command! -nargs=1 TagGlance call s:TagGlance(<q-args>)
+command! TagGlanceClose call s:TagGlanceClose()
 "}}}
 "***** abbreviation ***** {{{
 let s:greeks = [
