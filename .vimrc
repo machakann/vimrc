@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 19-Dec-2015.
+" Last Change: 31-Jan-2016.
 "
 "***** Todo *****
 
@@ -56,6 +56,7 @@ NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-sandwich'
 " NeoBundle       'vim-sandwich', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
+NeoBundle       'machakann/vim-swap'
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'mattn/webapi-vim'
@@ -134,6 +135,7 @@ let g:smartinput_no_default_key_mappings = 1
 
 " map to trigger
 let s:trig = [
+      \   ['<Plug>(smartinput_SPACE)', '<Plug>(smartinput_SPACE)', '<Space>'],
       \   ['<Plug>(smartinput_BS)', '<Plug>(smartinput_BS)',   '<BS>'],
       \   ['<Plug>(smartinput_CR)', '<Plug>(smartinput_CR)',   '<CR>'],
       \   ['<Plug>(smartinput_^k)', '<Plug>(smartinput_^k)',  '<C-k>'],
@@ -525,7 +527,23 @@ let s:rules += [
       \ ]
 
 let s:rules += [
-      \   {'char': '!', 'at': '^\s*fu\%[nction]\%#', 'input': '!  abort<Left><Left><Left><Left><Left><Left>', 'filetype': ['vim']},
+      \   {'char': '!', 'at': '^\s*fu\%#', 'input': 'nction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '!', 'at': '^\s*fun\%#', 'input': 'ction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '!', 'at': '^\s*func\%#', 'input': 'tion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '!', 'at': '^\s*funct\%#', 'input': 'ion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '!', 'at': '^\s*functi\%#', 'input': 'on!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '!', 'at': '^\s*functio\%#', 'input': 'n!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '!', 'at': '^\s*function\%#', 'input': '!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%#', 'input': 'nction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fun\%#', 'input': 'ction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*func\%#', 'input': 'tion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*funct\%#', 'input': 'ion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*functi\%#', 'input': 'on!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*functio\%#', 'input': 'n!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*function\%#', 'input': '!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\S.*\%#', 'input': '<C-r>=searchpair("(", "", ")", "bn", "", line(".")) > 0 || searchpair(''\['', "", ''\]'', "bn", "", line(".")) > 0 ? " " : " in "<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': '<CR>endwhile<Esc>kA ', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*for\s\+\S.* in \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['vim']},
       \ ]
 
 " matlab
@@ -710,6 +728,7 @@ imap <CR>  <Plug>(smartinput_CR)
 imap <C-k> <Plug>(smartinput_^k)
 cmap <C-k> <Plug>(smartinput_^k)
 imap <expr> <C-n> <SID>i_CTRL_n()
+imap <Space> <Plug>(smartinput_SPACE)
 
 function! s:i_CTRL_n() abort
   if pumvisible()
@@ -1074,6 +1093,30 @@ nmap s <Nop>
 xmap s <Nop>
 nmap sx sdb
 nmap sc srb
+nmap s( <Plug>(operator-sandwich-add-query1st)(
+nmap s8 <Plug>(operator-sandwich-add-query1st)(
+nmap s) <Plug>(operator-sandwich-add-query1st))
+nmap s9 <Plug>(operator-sandwich-add-query1st))
+xmap s( <Plug>(operator-sandwich-add)(
+xmap s8 <Plug>(operator-sandwich-add)(
+xmap s) <Plug>(operator-sandwich-add))
+xmap s9 <Plug>(operator-sandwich-add))
+nmap s[ <Plug>(operator-sandwich-add-query1st)[
+nmap s] <Plug>(operator-sandwich-add-query1st)]
+xmap s[ <Plug>(operator-sandwich-add)[
+xmap s] <Plug>(operator-sandwich-add)]
+nmap s{ <Plug>(operator-sandwich-add-query1st){
+nmap s} <Plug>(operator-sandwich-add-query1st)}
+xmap s{ <Plug>(operator-sandwich-add){
+xmap s} <Plug>(operator-sandwich-add)}
+nmap s" <Plug>(operator-sandwich-add-query1st)"
+nmap s2 <Plug>(operator-sandwich-add-query1st)"
+xmap s" <Plug>(operator-sandwich-add)"
+xmap s2 <Plug>(operator-sandwich-add)"
+nmap s' <Plug>(operator-sandwich-add-query1st)'
+nmap s7 <Plug>(operator-sandwich-add-query1st)'
+xmap s' <Plug>(operator-sandwich-add)'
+xmap s7 <Plug>(operator-sandwich-add)'
 
 function! GetChar() abort
   let c = getchar()
@@ -1209,6 +1252,7 @@ set swapfile                        " use swap file
 set backupdir=$USERCACHEDIR/backup  " assign path to make backup files
 let &directory=&backupdir           " assign that path to make swap files is same as that for backup file
 set clipboard=unnamed               " share clipboard with OS
+set display+=lastline               " force to display long lines as possible
 set spellfile=$USERDIR/spell/en.ascii.add
                                     " use file to add wors for spell check
 set spelllang=en,cjk                " use english for spell check and cjk region is ignored
@@ -1716,6 +1760,9 @@ function! s:qf_flash() abort
   execute 'tabnext' . view.tabnr
   execute view.winnr . 'wincmd w'
   call winrestview(view.view)
+  if exists(':HierClear') == 2
+    HierClear
+  endif
 endfunction
 command! -nargs=0 QfFlash call s:qf_flash()
 
