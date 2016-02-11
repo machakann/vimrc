@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 31-Jan-2016.
+" Last Change: 10-Feb-2016.
 "
 "***** Todo *****
 
@@ -39,6 +39,7 @@ end
 call neobundle#begin(expand($USERDIR) . '/bundle/')
 
 " NeoBundle       'davidhalter/jedi-vim'
+NeoBundle       'haya14busa/vim-operator-flashy'
 NeoBundle       'JuliaLang/julia-vim'
 " NeoBundle       'julia-vim', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 " NeoBundle       'julia-vim-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
@@ -56,7 +57,8 @@ NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-sandwich'
 " NeoBundle       'vim-sandwich', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'machakann/vim-swap'
+" NeoBundle       'machakann/vim-swap'
+NeoBundle       'vim-swap', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'mattn/webapi-vim'
@@ -985,6 +987,11 @@ xmap <Space>O <Plug>(operator-insert-O)
 omap gn <Plug>(gn-for-operator-insert-i)
 omap gN <Plug>(gN-for-operator-insert-a)
 "}}}
+"*** operator-flashy *** {{{
+" FIXME: Operator-flashy is awesome, but it is unintentionally repeated by dot command even without cpo-y.
+map y <Plug>(operator-flashy)
+highlight! link Flashy IncSearch
+"}}}
 "*** patternjump *** {{{
 "   let g:patternjump_highlight = 1
 let g:patternjump_caching        = 1
@@ -1579,7 +1586,7 @@ endif
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
 set background=light
-colorscheme mckn
+colorscheme tatami
 set cmdheight=1                     " the height of commandline
 set cursorline                      " highlight corsor line
 set laststatus=2                    " always display status line
@@ -1603,27 +1610,28 @@ autocmd vimrc WinLeave * set nocursorline
 autocmd vimrc WinEnter,BufRead * set cursorline
 
 " tabline
-function! GuiTabLabel()
-  let label = ''
-  let bufnrlist = tabpagebuflist(v:lnum)
+" function! GuiTabLabel()
+  " let label = ''
+  " let bufnrlist = tabpagebuflist(v:lnum)
 
-  for bufnr in bufnrlist
-    if getbufvar(bufnr, '&modified')
-      let label .= '+'
-      break
-    endif
-  endfor
+  " for bufnr in bufnrlist
+    " if getbufvar(bufnr, '&modified')
+      " let label .= '+'
+      " break
+    " endif
+  " endfor
 
-  let activewinnr = tabpagewinnr(v:lnum)
-  let activebufnr = bufnr(bufnrlist[activewinnr - 1])
-  let label .= activebufnr
-  let label .= ' '
+  " let activewinnr = tabpagewinnr(v:lnum)
+  " let activebufnr = bufnr(bufnrlist[activewinnr - 1])
+  " let label .= activebufnr
+  " let label .= ' '
 
-  let title = pathshorten(simplify(bufname(bufnrlist[activewinnr - 1])))
-  let title = title ==# '' ? '[anonymous]' : title
-  return label . title
-endfunction
-set guitablabel=%{GuiTabLabel()}
+  " let title = pathshorten(simplify(bufname(bufnrlist[activewinnr - 1])))
+  " let title = title ==# '' ? '[anonymous]' : title
+  " return label . title
+" endfunction
+" set guitablabel=%{GuiTabLabel()}
+set guioptions-=e
 
 " statusline displaying
 " copie... inspired from vim-neatstatus
@@ -1818,7 +1826,8 @@ cnoremap <C-n> <Down>
 cnoremap <Down> <C-n>
 
 " match 'Y' behavior with 'D' : Y = yy -> y$
-nnoremap Y y$
+" NOTE: Use nmap for operator-flashy plugin.
+nmap Y y$
 
 " move cursor to the end of selected area after yank
 nnoremap gy :set operatorfunc=YankAndJumpToTail<CR>g@
@@ -2045,18 +2054,18 @@ call textobj#user#plugin('number', {
 "--------------------------------------------------------------------------
 " simple performance checker
 function! Tic()
-  let g:hayasa_maruwakari_kun = reltime()
+  let s:hayasa_maruwakari_kun = reltime()
 endfunction
 function! Toc()
-  echom reltimestr(reltime(g:hayasa_maruwakari_kun))
+  return reltimestr(reltime(s:hayasa_maruwakari_kun))
 endfunction
 function! Time(cmd)
   call Tic()
   execute a:cmd
-  call Toc()
+  echomsg Toc()
 endfunction
 command! -nargs=0 Tic call Tic()
-command! -nargs=0 Toc call Toc()
+command! -nargs=0 Toc echomsg Toc()
 command! -nargs=1 Time call Time(<q-args>)
 
 " yank path
