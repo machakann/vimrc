@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 10-Feb-2016.
+" Last Change: 14-Feb-2016.
 "
 "***** Todo *****
 
@@ -61,6 +61,7 @@ NeoBundle       'machakann/vim-sandwich'
 NeoBundle       'vim-swap', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
+NeoBundle       'vim-vimhelplint', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'sgur/vim-textobj-parameter'
@@ -89,6 +90,7 @@ NeoBundleLazy   'jceb/vim-hier', {
       \ 'autoload' : {
       \   'commands' : ['HierUpdate', 'HierClear', 'HierStart', 'HierStop'],
       \ }}
+NeoBundle 'osyo-manga/vim-watchdogs'
 NeoBundleLazy   'osyo-manga/vim-anzu', {
       \ 'autoload' : {
       \   'mappings' : '<Plug>(anzu-',
@@ -513,19 +515,6 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': '\\(\%#\\)',   'input': '<BS><BS><Del><Del>',         'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '\\\[\%#\\\]', 'input': '<BS><BS><Del><Del>',         'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_CR)', 'at': '{\%#}', 'input': '<CR>\<Tab><Esc>O\<Tab><Tab>',      'filetype': ['vim']},
-      \ ]
-
-let s:rules += [
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '\<\k\+\%#', 'input': '<C-r>=LocalComplete(["vals", "builtin_funcs"], StCol(''\<[^.]''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': ' &\k*\%#', 'input': '<C-r>=LocalComplete(["options"], StCol(''&\zs''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '\<[sg]:\k*\%#', 'input': '<C-r>=LocalComplete(["funcs", "vals"], StCol(''\<[sg]:''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '\<[abglstvw]:\k*\%#', 'input': '<C-r>=LocalComplete(["vals", "funcs"], StCol(''\<[abglstvw]:''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*:\?\w*\%#', 'input': '<C-r>=LocalComplete(["commands"], StCol(''\%(^\|\s\zs\)''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '\s|\s*\%#', 'input': '<C-r>=LocalComplete(["commands"], StCol(''\s\zs''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*\%(un\)\?let\s\+\%([abglstvw]:\)\?\k*\%#', 'input': '<C-r>=LocalComplete(["vals"], StCol(''\s\zs''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*call\s\+\k*\%#', 'input': '<C-r>=LocalComplete(["builtin_funcs", "funcs"], StCol(''\s\zs''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*call\s\+[sg]:\k*\%#', 'input': '<C-r>=LocalComplete(["funcs", "builtin_funcs"], StCol(''\<[sg]:''))<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^n)', 'at': '^\s*let\s\+&\l*\%#', 'input': '<C-r>=LocalComplete(["options"], StCol(''&\zs''))<CR>', 'filetype': ['vim']},
       \ ]
 
 let s:rules += [
@@ -1071,6 +1060,9 @@ let g:quickrun_config = {
       \         'command': has('win32') ? 'Rscript' : 'R',
       \         'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
       \       },
+      \ 'help/watchdogs_checker'   : {
+      \         'type': 'watchdogs_checker/help',
+      \       },
       \ }
 "}}}
 "*** submode.vim *** {{{
@@ -1124,6 +1116,8 @@ nmap s' <Plug>(operator-sandwich-add-query1st)'
 nmap s7 <Plug>(operator-sandwich-add-query1st)'
 xmap s' <Plug>(operator-sandwich-add)'
 xmap s7 <Plug>(operator-sandwich-add)'
+nmap sf <Plug>(operator-sandwich-add-query1st)<C-f>
+xmap sf <Plug>(operator-sandwich-add)
 
 function! GetChar() abort
   let c = getchar()
@@ -1668,7 +1662,7 @@ autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
 autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
 
 "*** help ***"
-autocmd vimrc FileType help if &buftype == 'help' | vertical resize 78 | endif
+autocmd vimrc FileType help if &buftype == 'help' | vertical resize 79 | endif
 
 augroup help_optimizer
   au!
