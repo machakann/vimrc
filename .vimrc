@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 14-Feb-2016.
+" Last Change: 19-Feb-2016.
 "
 "***** Todo *****
 
@@ -57,11 +57,11 @@ NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-sandwich'
 " NeoBundle       'vim-sandwich', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-" NeoBundle       'machakann/vim-swap'
-NeoBundle       'vim-swap', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
+NeoBundle       'machakann/vim-swap'
+" NeoBundle       'vim-swap', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
-NeoBundle       'vim-vimhelplint', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
+NeoBundle       'machakann/vim-vimhelplint'
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'sgur/vim-textobj-parameter'
@@ -79,18 +79,17 @@ NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
 NeoBundle       'thinca/vim-prettyprint'
 NeoBundle       'thinca/vim-visualstar'
 NeoBundle       'thinca/vim-quickrun'
+NeoBundle       'thinca/vim-template'
 NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
-NeoBundle       'ujihisa/unite-colorscheme' , {'depends' : 'Shougo/unite.vim'}
 NeoBundle       'vim-jp/vimdoc-ja'
 
 NeoBundleLazy   'jceb/vim-hier', {
       \ 'autoload' : {
       \   'commands' : ['HierUpdate', 'HierClear', 'HierStart', 'HierStop'],
       \ }}
-NeoBundle 'osyo-manga/vim-watchdogs'
 NeoBundleLazy   'osyo-manga/vim-anzu', {
       \ 'autoload' : {
       \   'mappings' : '<Plug>(anzu-',
@@ -518,22 +517,12 @@ let s:rules += [
       \ ]
 
 let s:rules += [
-      \   {'char': '!', 'at': '^\s*fu\%#', 'input': 'nction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '!', 'at': '^\s*fun\%#', 'input': 'ction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '!', 'at': '^\s*func\%#', 'input': 'tion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '!', 'at': '^\s*funct\%#', 'input': 'ion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '!', 'at': '^\s*functi\%#', 'input': 'on!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '!', 'at': '^\s*functio\%#', 'input': 'n!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '!', 'at': '^\s*function\%#', 'input': '!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%#', 'input': 'nction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fun\%#', 'input': 'ction!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*func\%#', 'input': 'tion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*funct\%#', 'input': 'ion!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*functi\%#', 'input': 'on!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*functio\%#', 'input': 'n!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*function\%#', 'input': '!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': ' <CR>endif<Esc>kA', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\S.*\%#', 'input': '<C-r>=searchpair("(", "", ")", "bn", "", line(".")) > 0 || searchpair(''\['', "", ''\]'', "bn", "", line(".")) > 0 ? " " : " in "<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': '<CR>endwhile<Esc>kA ', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': ' <CR>endwhile<Esc>kA', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*try\%#', 'input': ' <CR>endtry<Esc>kA', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*augroup\%#', 'input': ' <CR>augroup END<Esc>kA', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*for\s\+\S.* in \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['vim']},
       \ ]
 
@@ -619,6 +608,13 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.and\. \%#', 'input': '<BS><BS><BS><BS><BS><BS><BS>', 'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.or\. \%#',  'input': '<BS><BS><BS><BS><BS><BS>',     'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.not\. \%#', 'input': '<BS><BS><BS><BS><BS><BS><BS>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*su\%[broutine]\%#', 'input': '<C-w>subroutine <CR>end subroutine <C-f><Esc>kA', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function <CR>end function <C-f><Esc>kA', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': ' ()<CR>end if<Esc>k0f(a', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\s\+(.*)\%#$', 'input': ' then', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*do\%#$', 'input': ' <CR>end do<Esc>kA', 'filetype': ['fortran']},
+      \   {'char': '(', 'at': '^\s*function\s\+\h\k*\%#', 'input': '<C-r>=FortranSyncName("function")<CR>()<C-g>U<Left>', 'filetype': ['fortran']},
+      \   {'char': '(', 'at': '^\s*subroutine\s\+\h\k*\%#', 'input': '<C-r>=FortranSyncName("subroutine")<CR>()<C-g>U<Left>', 'filetype': ['fortran']},
       \ ]
 " ' + ' -> '+' -> '++' -> '+++' ...
 let s:rules += [
@@ -699,6 +695,8 @@ let s:rules += [
       \   {'char': '>', 'at': ' = \%#', 'input': '<BS>> ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '/\%#', 'input': '<BS> /= ', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function <CR>end<Esc>kA', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': ' <CR>end<Esc>kA', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
       \ ]
 
@@ -830,6 +828,35 @@ function! s:eliminate_trailing_space() abort
   if col('.') == col([lnum, '$'])-1 && search(', \+$', 'cen', lnum) != 0
     call setline(lnum, matchstr(getline(lnum), '.*,\ze \+$'))
   endif
+endfunction
+
+function! FortranSyncName(identifier) abort
+  let pattern = '^\s*end\s\+' . a:identifier . ' $'
+  let [botline, startcol] = searchpos(pattern, 'enW', 0, 500)
+  if botline <= 0
+    return ''
+  endif
+
+  let topline = line('.')
+  if topline+1 <= botline-1
+    let indent = indent(topline)
+    if filter(map(range(topline+1, botline-1), 'indent(v:val)'), 'v:val != 0 && v:val <= indent') != []
+      return ''
+    endif
+  endif
+
+  let view = winsaveview()
+  let name = matchstr(getline(view.lnum), printf('^\s*%s\s\+\zs\h\k*\ze', a:identifier))
+  let reg  = ['"', getreg('"'), getregtype('"')]
+  try
+    call cursor([botline, startcol])
+    let @" = name
+    normal! ""p
+  finally
+    call call('setreg', reg)
+    call winrestview(view)
+    return ''
+  endtry
 endfunction
 "}}}
 " *** anzu.vim *** {{{
@@ -983,14 +1010,14 @@ highlight! link Flashy IncSearch
 "}}}
 "*** patternjump *** {{{
 "   let g:patternjump_highlight = 1
-let g:patternjump_caching        = 1
-let g:patternjump_move_afap      = 1
+let g:patternjump_caching   = 1
+let g:patternjump_move_afap = 1
 
 let g:patternjump_patterns = {
   \ '_' : {
   \   'i' : {
-  \     'head' : ['^\s*\zs\S', ',', '[^)\]}]\zs)', '[^)\]}]\zs]', '[^)\]}]\zs}', '$'],
-  \     'tail' : ['\<\k*\>', '[^.deDE-]\zs-\?\<\d\+\%(\.\d*\)\?\%([deDE]-\?\d\+\)\?\>', '[''"])}]\+[])}]'],
+  \     'head' : ['\<\k*\>', '^\s*\zs\S', ',', '[^)\]}"'']\zs[)\]}]', '[([{"'']\zs[^([{]', '[)\]}"'']\+', '$'],
+  \     'tail' : ['\<\k*\>', '^\s*\zs\S', ',', '[^)\]}"'']\zs[)\]}]', '[([{"'']\zs[^([{]', '[)\]}"'']\+', '$'],
   \     },
   \   'n' : {
   \     'head' : ['[[({''"]\+\zs\k'],
@@ -1059,9 +1086,6 @@ let g:quickrun_config = {
       \ 'r'   : {
       \         'command': has('win32') ? 'Rscript' : 'R',
       \         'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
-      \       },
-      \ 'help/watchdogs_checker'   : {
-      \         'type': 'watchdogs_checker/help',
       \       },
       \ }
 "}}}
@@ -1185,6 +1209,9 @@ let g:textobj#sandwich#recipes = [
       \   {'buns': ['\<if.*$', 'endif\>'], 'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \ ]
 "}}}
+"*** template.vim *** {{{
+let g:template_dir = $USERDIR
+"}}}
 "*** unite.vim *** {{{
 if neobundle#tap('unite.vim')
   nnoremap [Unite] <Nop>
@@ -1252,7 +1279,7 @@ set backup                          " use backup
 set swapfile                        " use swap file
 set backupdir=$USERCACHEDIR/backup  " assign path to make backup files
 let &directory=&backupdir           " assign that path to make swap files is same as that for backup file
-set clipboard=unnamed               " share clipboard with OS
+set clipboard=unnamed,unnamedplus   " share clipboard with OS
 set display+=lastline               " force to display long lines as possible
 set spellfile=$USERDIR/spell/en.ascii.add
                                     " use file to add wors for spell check
@@ -1483,6 +1510,8 @@ autocmd vimrc BufReadPost *
 
 " im control (for win, and partially for *nix)  "{{{
 if has('win32') || (has('unix') && &imactivatefunc !=# '' && &imactivatekey !=# '')
+  let g:im_auto_switch_filetype_white_list = ['julia']
+
   " at first
   augroup im-off
     autocmd!
@@ -1559,9 +1588,11 @@ if has('win32') || (has('unix') && &imactivatefunc !=# '' && &imactivatekey !=# 
       autocmd! * <buffer>
     augroup END
 
-    let lines = join(getline(1, get(g:, 'im_auto_switch_checked_lnum', 30)), '')
-    if strlen(lines) != strchars(lines)
-      call s:im_auto_switch_start()
+    if filter(split(&filetype, '\.'), 'match(g:im_auto_switch_filetype_white_list, v:val) > -1') != []
+      let lines = join(getline(1, get(g:, 'im_auto_switch_checked_lnum', 30)), '')
+      if strlen(lines) != strchars(lines)
+        call s:im_auto_switch_start()
+      endif
     endif
   endfunction
 
@@ -1653,13 +1684,9 @@ let &statusline .='BUF #%n |'
 "*** AutoHotkey ***
 autocmd vimrc FileType autohotkey setlocal dictionary+=$USERDIR/dict/AHK.dict foldmethod=marker commentstring=;%s
 
-"*** scilab ***"
-autocmd vimrc FileType scilab setlocal omnifunc=scilabcomplete#Complete
-
 "*** FORTRAN ***"
-" autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
-                              " \| let b:fortran_fold=1
 autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
+                              \| let b:fortran_fold=1
 
 "*** help ***"
 autocmd vimrc FileType help if &buftype == 'help' | vertical resize 79 | endif
@@ -2121,10 +2148,9 @@ nnoremap <Space>b :B<Space>
 nnoremap <Space>m :M<Space>
 
 " Variants of :buffer command, split and display buffer
-" FIXME: ':tabedit' makes a new (unnecessary) empty buffer.
-command! -nargs=1 -complete=buffer S   split | buffer <args>
-command! -nargs=1 -complete=buffer V  vsplit | buffer <args>
-command! -nargs=1 -complete=buffer T tabedit | buffer <args>
+command! -nargs=1 -complete=buffer S split     | buffer <args>
+command! -nargs=1 -complete=buffer V vsplit    | buffer <args>
+command! -nargs=1 -complete=buffer T tabedit % | buffer <args>
 
 " glance a tag
 function! s:TagGlance(arg) abort
