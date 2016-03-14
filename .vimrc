@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 19-Feb-2016.
+" Last Change: 14-Mar-2016.
 "
 "***** Todo *****
 
@@ -51,6 +51,7 @@ NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
 NeoBundle       'machakann/vim-columnmove'
+" NeoBundle       'vim-columnmove', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 " NeoBundle       'vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-lion'
 NeoBundle       'machakann/vim-operator-insert'
@@ -62,6 +63,7 @@ NeoBundle       'machakann/vim-swap'
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'machakann/vim-vimhelplint'
+" NeoBundle       'vim-vimhelplint', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'sgur/vim-textobj-parameter'
@@ -459,6 +461,7 @@ let s:rules += [
       \   {'char': '?', 'at': '=\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
       \   {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
       \   {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
+      \   {'char': '~', 'at': '!\%#',  'input': '<BS> !~ ', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
@@ -517,12 +520,13 @@ let s:rules += [
       \ ]
 
 let s:rules += [
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function!  abort<CR>endfunction<Esc>k0f!la', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': ' <CR>endif<Esc>kA', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\S.*\%#', 'input': '<C-r>=searchpair("(", "", ")", "bn", "", line(".")) > 0 || searchpair(''\['', "", ''\]'', "bn", "", line(".")) > 0 ? " " : " in "<CR>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': ' <CR>endwhile<Esc>kA', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*try\%#', 'input': ' <CR>endtry<Esc>kA', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*augroup\%#', 'input': ' <CR>augroup END<Esc>kA', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function!  abort", "endfunction", " ")<CR><Esc>0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': '<C-r>=CloseBlock(" ", "endif", " ")<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\S.*\%#', 'input': '<C-r>=VimCloseForBlock()<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': '<C-r>=CloseBlock(" ", "endwhile", " ")<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*augroup\%#', 'input': '<C-r>=CloseBlock(" ", "augroup END", " ")<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*try\%#', 'input': '<C-r>=CloseBlock("", "endtry", " ")<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_CR)', 'at': '^\s*try\%#', 'input': '<C-r>=CloseBlock("", "endtry", "<C-v><CR>", "<C-v><CR>")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*for\s\+\S.* in \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['vim']},
       \ ]
 
@@ -532,6 +536,8 @@ let s:rules += [
       \   {'char': '%', 'at': '^\s*%\+ \%#', 'input': '<BS>%% ', 'filetype': ['matlab']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*%\s\%#',         'input': '<BS><BS>',      'filetype': ['matlab']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*\(%%\)\+%\s\%#', 'input': '<BS><BS><BS> ', 'filetype': ['matlab']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function<C-r>=CloseBlock("function ", "end", " ")<CR>', 'filetype': ['matlab']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': '<C-r>=CloseBlock(" ", "end", " ")<CR>', 'filetype': ['matlab']},
       \ ]
 
 " scilab
@@ -608,11 +614,15 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.and\. \%#', 'input': '<BS><BS><BS><BS><BS><BS><BS>', 'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.or\. \%#',  'input': '<BS><BS><BS><BS><BS><BS>',     'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \.not\. \%#', 'input': '<BS><BS><BS><BS><BS><BS><BS>', 'filetype': ['fortran']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*su\%[broutine]\%#', 'input': '<C-w>subroutine <CR>end subroutine <C-f><Esc>kA', 'filetype': ['fortran']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function <CR>end function <C-f><Esc>kA', 'filetype': ['fortran']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': ' ()<CR>end if<Esc>k0f(a', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*su\%[broutine]\%#', 'input': '<C-w>subroutine<C-r>=CloseBlock(" ", "end subroutine <C-v><C-f>", " ")<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function<C-r>=CloseBlock(" ", "end function <C-v><C-f>", " ")<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': ' ()<C-g>U<Left>', 'filetype': ['fortran']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\s\+(.*)\%#$', 'input': ' then', 'filetype': ['fortran']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*do\%#$', 'input': ' <CR>end do<Esc>kA', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*do\%#$', 'input': '<C-r>=CloseBlock(" ", " end do", " ")<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\s\+(.*)\s\+then\%#', 'input': '<C-r>=CloseBlock("", "end if", " ")<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_CR)',    'at': '^\s*if\s\+(.*)\s\+then\%#', 'input': '<C-r>=CloseBlock("", "end if", "<C-v><CR>", "<C-v><CR>")<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_CR)',    'at': '^\s*if\s\+(.*)\%#', 'input': '<C-r>=CloseBlock(" then", "end if", "<C-v><CR>", "<C-v><CR>")<CR>', 'filetype': ['fortran']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*function\s\+\h\k*(.*)\%#', 'input': ' result()<C-g>U<Left>', 'filetype': ['fortran']},
       \   {'char': '(', 'at': '^\s*function\s\+\h\k*\%#', 'input': '<C-r>=FortranSyncName("function")<CR>()<C-g>U<Left>', 'filetype': ['fortran']},
       \   {'char': '(', 'at': '^\s*subroutine\s\+\h\k*\%#', 'input': '<C-r>=FortranSyncName("subroutine")<CR>()<C-g>U<Left>', 'filetype': ['fortran']},
       \ ]
@@ -696,7 +706,7 @@ let s:rules += [
       \   {'char': '=', 'at': '*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '/\%#', 'input': '<BS> /= ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function <CR>end<Esc>kA', 'filetype': ['julia']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': ' <CR>end<Esc>kA', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': ' <CR>end<Esc>kA', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
       \ ]
 
@@ -830,6 +840,27 @@ function! s:eliminate_trailing_space() abort
   endif
 endfunction
 
+function! CloseBlock(current, close, fallback, ...) abort
+  let nnb = nextnonblank(line('.')+1)
+  let nnb_indent = indent(nnb)
+  let cur_indent = indent('.')
+  let closetext  = escape(substitute(get(split(a:close, "\n"), 0, '$'), '[^[:print:]]', '', 'g'), '~"\.^$[]*')
+  let additional = get(a:000, 0, '')
+  if nnb == 0 || nnb_indent < cur_indent || (nnb_indent == cur_indent && getline(nnb) !~# '^\s*' . closetext)
+    return printf("%s\<CR>%s\<Esc>kA%s", a:current, a:close, additional)
+  else
+    return a:fallback
+  endif
+endfunction
+
+function! VimCloseForBlock() abort
+  if searchpair("(", "", ")", "bn", "", line(".")) > 0 || searchpair('\[', "", '\]', "bn", "", line(".")) > 0
+    return ' '
+  else
+    return CloseBlock(' in ', 'endfor', ' ')
+  endif
+endfunction
+
 function! FortranSyncName(identifier) abort
   let pattern = '^\s*end\s\+' . a:identifier . ' $'
   let [botline, startcol] = searchpos(pattern, 'enW', 0, 500)
@@ -885,19 +916,7 @@ nnoremap <silent> <Space>cc :<C-u>CawToggle<CR>
 xnoremap <silent> <Space>c  <Esc>:set operatorfunc=Operator_caw<CR>gvg@
 "}}}
 "*** columnmove *** {{{
-let g:columnmove_auto_scroll = 1
-let g:columnmove_strict_wbege = 1
 let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
-
-nnoremap <silent>      <M-e> :<C-u>call columnmove#e('n', '', 0, {'strict_wbege':0})<CR>
-xnoremap <silent>      <M-e> :<C-u>call columnmove#e('x', '', 0, {'strict_wbege':0})<CR>
-onoremap <silent>      <M-e> :<C-u>call columnmove#e('o', 'V', 0, {'strict_wbege':0})<CR>
-onoremap <silent>     v<M-e> :<C-u>call columnmove#e('o', '', 0, {'strict_wbege':0})<CR>
-onoremap <silent>     V<M-e> :<C-u>call columnmove#e('o', 'V', 0, {'strict_wbege':0})<CR>
-onoremap <silent> <C-v><M-e> :<C-u>call columnmove#e('o', "<Bslash><lt>C-v>", 0, {'strict_wbege':1})<CR>
-
-nnoremap <silent> <M-o> :<C-u>call columnmove#e('n', '', 0, {'strict_wbege':0})<CR>o
-nnoremap <silent> <M-O> :<C-u>call columnmove#b('n', '', 0, {'strict_wbege':0})<CR>o
 "}}}
 "*** jedi.vim *** {{{
 " let g:jedi#auto_initialization = 1
@@ -1106,10 +1125,10 @@ call submode#enter_with('changetab', 'n', '', 'gT', 'gT')
 call submode#map('changetab', 'n', '', 't', 'gt')
 call submode#map('changetab', 'n', '', 'T', 'gT')
 " buffer move
-call submode#enter_with('changebuffer', 'n', '', 'gb', ':IsolateTabNext<CR>')
-call submode#enter_with('changebuffer', 'n', '', 'gB', ':IsolateTabPrevious<CR>')
-call submode#map('changebuffer', 'n', '', 'b', ':IsolateTabNext<CR>')
-call submode#map('changebuffer', 'n', '', 'B', ':IsolateTabPrevious<CR>')
+call submode#enter_with('changebuffer', 'n', '', 'gb', ':bn<CR>')
+call submode#enter_with('changebuffer', 'n', '', 'gB', ':bN<CR>')
+call submode#map('changebuffer', 'n', '', 'b', ':bn<CR>')
+call submode#map('changebuffer', 'n', '', 'B', ':bN<CR>')
 "}}}
 "*** sandwich.vim *** {{{
 nmap s <Nop>
@@ -1143,6 +1162,47 @@ xmap s7 <Plug>(operator-sandwich-add)'
 nmap sf <Plug>(operator-sandwich-add-query1st)<C-f>
 xmap sf <Plug>(operator-sandwich-add)
 
+let g:sandwich#recipes = [
+      \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
+      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
+      \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
+      \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
+      \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
+      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
+      \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
+      \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
+      \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
+      \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+      \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+      \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
+      \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
+      \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
+      \ ]
+
+let g:operator#sandwich#recipes = [
+      \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
+      \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ["\<C-f>"]},
+      \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
+      \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
+      \   {'buns': ['VimSandwichBlocks(1)', 'VimSandwichBlocks(0)'], 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'expr': 1, 'linewise': 1, 'command': ["'[+1,']-1normal! >>"], 'input': ['B'], 'cursor': 'head'},
+      \   {'buns': ['if',    'endif'],    'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
+      \   {'buns': ['for',   'endfor'],   'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
+      \   {'buns': ['while', 'endwhile'], 'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
+      \   {'buns': ['try',   'endtry'],   'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
+      \ ]
+
+let g:textobj#sandwich#recipes = [
+      \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
+      \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'nesting': 1, 'expr': 1, 'synchro': 1, 'input': ['f']},
+      \   {'external': ["\<Plug>(textobj-functioncall-innerparen-a)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
+      \   {'buns': ['^\s*\zsif.*$',    'endif\ze\s*$'],    'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*\zsfor.*$',   'endfor\ze\s*$'],   'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*\zswhile.*$', 'endwhile\ze\s*$'], 'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*\zstry.*$',   'endtry\ze\s*$'],   'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \ ]
+
 function! GetChar() abort
   let c = getchar()
   let c = type(c) == type(0) ? nr2char(c) : c
@@ -1174,39 +1234,49 @@ function! s:compl_unlock() abort
   endif
 endfunction
 
-let g:sandwich#recipes = [
-      \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
-      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
-      \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
-      \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
-      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
-      \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
-      \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
-      \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
-      \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
-      \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
-      \ ]
-
-let g:operator#sandwich#recipes = [
-      \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
-      \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ["\<C-f>"]},
-      \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
-      \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
-      \   {'buns': ['if', 'endif'], 'filetype': ['vim'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"], 'input': ['i'], 'cursor': 'head'},
-      \   {'buns': ['if', 'endif'], 'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"], 'input': ['i']},
-      \ ]
-
-let g:textobj#sandwich#recipes = [
-      \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
-      \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'nesting': 1, 'expr': 1, 'synchro': 1, 'input': ['f']},
-      \   {'external': ["\<Plug>(textobj-functioncall-innerparen-a)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
-      \   {'buns': ['\<if.*$', 'endif\>'], 'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
+function! VimSandwichBlocks(is_head) abort
+  let table = {
+        \   'i': {'start': 'if',    'end': 'endif'},
+        \   'f': {'start': 'for',   'end': 'endfor'},
+        \   'w': {'start': 'while', 'end': 'endwhile'},
+        \   't': {'start': 'try',   'end': 'endtry'},
+        \ }
+  if a:is_head
+    call s:vim_sandwich_blocks_echo_choices(table)
+    let s:c = GetChar()
+    if s:c ==# '' || !count(keys(table), s:c)
+      echo ''
+      throw 'OperatorSandwichCancel'
+    else
+      return table[s:c]['start']
+    endif
+  else
+    return table[s:c]['end']
+  endif
+endfunction
+function! s:vim_sandwich_blocks_echo_choices(table) abort
+  echohl MoreMsg
+  echo 'sandwich.vim: '
+  echohl NONE
+  let first = 1
+  for [key, value] in items(a:table)
+    if !first
+      echon ', '
+    endif
+    echon value.start . ': '
+    echohl Underlined
+    echon key
+    echohl NONE
+    let first = 0
+  endfor
+  redraw
+endfunction
+"}}}
+"*** swap.vim *** {{{
+let g:swap#rules  = deepcopy(g:swap#default_rules)
+let g:swap#rules += [
+      \   {'mode': 'x', 'delimiter': ['\s*[-+]\s*'], 'braket': [['(', ')']], 'priority': -10},
+      \   {'mode': 'x', 'delimiter': ['\s*[*/]\s*'], 'braket': [['(', ')']], 'priority': -20},
       \ ]
 "}}}
 "*** template.vim *** {{{
@@ -1214,15 +1284,11 @@ let g:template_dir = $USERDIR
 "}}}
 "*** unite.vim *** {{{
 if neobundle#tap('unite.vim')
-  nnoremap [Unite] <Nop>
-  nmap     <Space>u [Unite]
-  nnoremap [Unite]u :Unite<Space>
-  nnoremap [Unite]c :Unite history/command command<CR>
-  nnoremap [Unite]y :Unite register history/yank<CR>
-  nnoremap [Unite]m :Unite -no-split file_mru<CR>
-  nnoremap [Unite]b :Unite -no-split buffer_tab buffer<CR>
-  nnoremap [Unite]d :Unite -no-split directory_mru directory directory/new<CR>
-  nnoremap [Unite]p :Unite neobundle/update<CR>
+  nnoremap <Space>uu :Unite<Space>
+  nnoremap <Space>um :Unite -no-split file_mru<CR>
+  nnoremap <Space>ub :Unite -no-split buffer_tab buffer<CR>
+  nnoremap <Space>ud :Unite -no-split directory_mru directory directory/new<CR>
+  nnoremap <Space>up :Unite neobundle/update<CR>
 
   if has('win32')
     nnoremap <Space>uf :Unite file_rec buffer<CR>
@@ -1239,17 +1305,17 @@ if neobundle#tap('unite.vim')
   call unite#custom#default_action('directory',     'lcd')
   call unite#custom#default_action('directory_mru', 'lcd')
   call unite#custom#source('file_mru', 'ignore_pattern', '\f*[\/]doc[\/]\f\+\.\(jax\|txt\)')
-  hi link uniteStatusSourceNames Directory
-  hi link uniteStatusSourceCandidates ModeMsg
+  " hi link uniteStatusSourceNames Directory
+  " hi link uniteStatusSourceCandidates ModeMsg
 
   " last ':messages'
   " http://d.hatena.ne.jp/osyo-manga/20131030/1383144724
   let g:unite_source_alias_aliases = {'messages' : {'source': 'output', 'args': 'message'}}
-"   call unite#custom#source('messages', 'sorters', 'sorter_reverse')
+  "   call unite#custom#source('messages', 'sorters', 'sorter_reverse')
   call unite#custom#default_action('messages', 'yank')
   call unite#custom#profile('source/messages', 'context', {'start_insert' : 0})
   call unite#custom#source('messages', 'syntax', '')
-  nnoremap [Unite]M :Unite messages<CR>
+  nnoremap <Space>uM :Unite messages<CR>
 endif
 "}}}
 "*** reanimate *** {{{
@@ -1336,134 +1402,6 @@ endif
 " never use 'r' and 'o' option in formatoptions
 autocmd vimrc FileType * setlocal formatoptions-=r
 autocmd vimrc FileType * setlocal formatoptions-=o
-
-"isolate-tab {{{
-" TODO
-" unite source... -> found it : buffer_tab
-" IsolateTabBuffers command
-" Imperfect...
-
-let g:ignore_filename_pattern = ['vimfiler:.*']
-let g:ignore_filetype_pattern = ['qf']
-
-function! s:isolate_tab_add(nr, filename)
-  " define 't:isolated_buf_list' in new tab
-  if !has_key(t:, 'isolated_buf_list')
-    let t:isolated_buf_list = []
-  endif
-
-  " check ignore pattern
-  let matched = 0
-  for pattern in g:ignore_filename_pattern
-    if a:filename =~# pattern
-      let matched = 1
-    endif
-  endfor
-
-  " add new buffer to 't:isolated_buf_list'
-  if matched == 0
-    if match(t:isolated_buf_list, a:nr) == -1
-      if !buflisted(a:nr)
-        call add(t:isolated_buf_list, a:nr)
-      endif
-    endif
-  endif
-endfunction
-
-function! s:isolate_tab_delete(nr)
-  if has_key(t:, 'isolated_buf_list')
-    " delete buffer number from 't:isolated_buf_list'
-    let delbuf_idx = match(t:isolated_buf_list, a:nr)
-    if delbuf_idx >= 0
-      call remove(t:isolated_buf_list, delbuf_idx)
-    endif
-  endif
-endfunction
-
-function! s:isolate_tab_next(...)
-  " default displacement is 1
-  if a:0 == 0
-    let diff = 1
-  else
-    let diff = a:1
-  endif
-  " calculate destination buffer number
-  let destindex = (match(t:isolated_buf_list, bufnr('%')) + diff) % len(t:isolated_buf_list)
-  silent exec 'buffer ' . t:isolated_buf_list[destindex]
-endfunction
-
-function! s:isolate_tab_previous(...)
-  " default displacement is 1
-  if a:0 == 0
-    let diff = 1
-  else
-    let diff = a:1
-  endif
-  " calculate destination buffer number
-  let destindex = (match(t:isolated_buf_list, bufnr('%')) - (diff % len(t:isolated_buf_list)) + len(t:isolated_buf_list)) % len(t:isolated_buf_list)
-  silent exec 'buffer ' . t:isolated_buf_list[destindex]
-endfunction
-
-function! s:isolate_tab_do(order)
-  for buf_num in t:isolated_buf_list
-    execute 'buffer' buf_num
-    execute a:order
-  endfor
-endfunction
-
-function! s:isolate_tab_ignore_filetypes()
-  for filetype in g:ignore_filetype_pattern
-    execute 'au vimrc FileType ' . ' call s:isolate_tab_delete(bufnr("%"))'
-  endfor
-endfunction
-
-au vimrc BufAdd    * call s:isolate_tab_add(expand("<abuf>"), expand("<afile>"))
-au vimrc BufDelete * call s:isolate_tab_delete(expand("<abuf>"))
-call s:isolate_tab_ignore_filetypes()
-
-command! -nargs=? IsolateTabNext     call s:isolate_tab_next(<args>)
-command! -nargs=? IsolateTabPrevious call s:isolate_tab_previous(<args>)
-command! -nargs=1 IsolateTabDo       call s:isolate_tab_do(<args>)
-"}}}
-" preferable alternate of help command. {{{
-function! s:pref_alt_help(...)
-  let bang = a:1
-  let  arg = a:2
-  " Searching for the help window.
-  let helptabnr = 0
-  let helpwinnr = 0
-  for tnr in range(1, tabpagenr('$'))
-    for wnr in range(1, tabpagewinnr(tnr, '$'))
-      let buftype = gettabwinvar(tnr, wnr, '&buftype')
-      if buftype ==# 'help'
-        let helptabnr = tnr
-        let helpwinnr = wnr
-        break
-      endif
-    endfor
-  endfor
-
-  if helptabnr == 0 && helpwinnr == 0
-    let width  = winwidth(0)
-    let height = winheight(0)
-    if width >= 140
-      execute 'vert help' . bang . ' ' . arg
-    elseif height >= width*3/4
-      execute 'help' . bang . ' ' . arg
-    else
-      execute 'tab help' . bang . ' ' . arg
-    endif
-  else
-    execute 'normal! ' . helptabnr . 'gt'
-    execute 'normal! ' . helpwinnr . "\<C-w>w"
-    execute 'help' . bang . ' ' . arg
-  endif
-  normal! 0
-endfunction
-
-command! -bang -nargs=? -complete=help Help call s:pref_alt_help('<bang>', <f-args>)
-nnoremap <Space>h :Help<Space>
-"}}}
 "}}}
 "***** searching behavior ***** {{{
 "--------------------------------------------------------------------------
@@ -1610,7 +1548,7 @@ endif
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
-set background=light
+set background=dark
 colorscheme tatami
 set cmdheight=1                     " the height of commandline
 set cursorline                      " highlight corsor line
@@ -1634,26 +1572,26 @@ set lazyredraw
 autocmd vimrc WinLeave * set nocursorline
 autocmd vimrc WinEnter,BufRead * set cursorline
 
-" tabline
+" " tabline
 " function! GuiTabLabel()
-  " let label = ''
-  " let bufnrlist = tabpagebuflist(v:lnum)
+"   let label = ''
+"   let bufnrlist = tabpagebuflist(v:lnum)
 
-  " for bufnr in bufnrlist
-    " if getbufvar(bufnr, '&modified')
-      " let label .= '+'
-      " break
-    " endif
-  " endfor
+"   for bufnr in bufnrlist
+"     if getbufvar(bufnr, '&modified')
+"       let label .= '+'
+"       break
+"     endif
+"   endfor
 
-  " let activewinnr = tabpagewinnr(v:lnum)
-  " let activebufnr = bufnr(bufnrlist[activewinnr - 1])
-  " let label .= activebufnr
-  " let label .= ' '
+"   let activewinnr = tabpagewinnr(v:lnum)
+"   let activebufnr = bufnr(bufnrlist[activewinnr - 1])
+"   let label .= activebufnr
+"   let label .= ' '
 
-  " let title = pathshorten(simplify(bufname(bufnrlist[activewinnr - 1])))
-  " let title = title ==# '' ? '[anonymous]' : title
-  " return label . title
+"   let title = pathshorten(simplify(bufname(bufnrlist[activewinnr - 1])))
+"   let title = title ==# '' ? '[anonymous]' : title
+"   return label . title
 " endfunction
 " set guitablabel=%{GuiTabLabel()}
 set guioptions-=e
@@ -1836,6 +1774,16 @@ endfunction
 "}}}
 "***** key mappings ***** {{{
 "--------------------------------------------------------------------------
+" No need. See :help dos-standard-mappings.
+if has('win32')
+  silent! vunmap <C-x>
+endif
+
+" disable distracting keys
+map  <F1> <Nop>
+map! <F1> <Nop>
+imap <C-\> <Nop>
+
 " do not store a character cut by x,s
 nnoremap x "_x
 " nnoremap s "_s
@@ -1906,7 +1854,7 @@ onoremap a" 2i"
 xnoremap a" 2i"
 
 " Close all the foldings in the buffer
-nnoremap z_ ma:silent %normal! zC<CR>'a
+nnoremap z_ ma:silent! %normal! zC<CR>'a
 
 " Clear highlight
 nnoremap <Space><Space> :nohlsearch<CR>
@@ -2000,49 +1948,7 @@ endfunction
 inoremap <expr> <C-l> <SID>follow_prevline()
 "}}}
 " textobj-lastchanged "{{{
-" New NFA regular expression engine has not support the pattern '\%''[' yet.
-" https://github.com/vim-jp/issues/issues/623
-" FIXME: Which is better to assume inclusive or exclusive?
-function! TextobjLastchanged(mode) abort
-  let [view, whichwrap, virtualedit] = [winsaveview(), &whichwrap, &virtualedit]
-  let [&whichwrap, &virtualedit] = ['h,l', 'onemore']   " I wish someone else wrote yet another syntax/vim.vim.
-  try
-    let head  = getpos("'[")
-    let tail  = getpos("']")
-    let empty = [0, 0, 0, 0]
-  finally
-    let [&whichwrap, &virtualedit] = [whichwrap, virtualedit]
-    call winrestview(view)
-  endtry
-
-  if head != empty && tail != empty && s:is_ahead(tail, head)
-    normal! v
-    call setpos('.', head)
-    normal! o
-    call setpos('.', tail)
-
-    " counter measure for the 'selection' option being 'exclusive'
-    if &selection ==# 'exclusive'
-      normal! l
-    endif
-  else
-    " re-select the last selected if visual mode
-    if a:mode ==# 'x'
-      normal! gv
-    endif
-  endif
-
-  " flash echoing
-  echo ''
-endfunction
-
-function! s:is_ahead(pos1, pos2) abort
-  return a:pos1[1] > a:pos2[1] || (a:pos1[1] == a:pos2[1] && a:pos1[2] > a:pos2[2])
-endfunction
-
-nnoremap <silent> gm :<C-u>call TextobjLastchanged('n')<CR>
-xnoremap <silent> gm :<C-u>call TextobjLastchanged('x')<CR>
-onoremap <silent> gm :<C-u>call TextobjLastchanged('o')<CR>
+noremap <silent> gm :<C-u>normal! v`[o`]<CR>
 "}}}
 " textobj-number "{{{
 " NOTE: Fortran allows the expression ended with dot, like 1. (= 1.0), 1.d0 (= 1.0d0)
@@ -2122,6 +2028,45 @@ if has('win32')
   command! -nargs=? -complete=dir OpenExplorer call s:open_explorer(<q-args>)
 endif
 
+" preferable alternate of help command.
+function! s:pref_alt_help(...)
+  let bang = a:1
+  let  arg = a:2
+  " Searching for the help window.
+  let helptabnr = 0
+  let helpwinnr = 0
+  for tnr in range(1, tabpagenr('$'))
+    for wnr in range(1, tabpagewinnr(tnr, '$'))
+      let buftype = gettabwinvar(tnr, wnr, '&buftype')
+      if buftype ==# 'help'
+        let helptabnr = tnr
+        let helpwinnr = wnr
+        break
+      endif
+    endfor
+  endfor
+
+  if helptabnr == 0 && helpwinnr == 0
+    let width  = winwidth(0)
+    let height = winheight(0)
+    if width >= 140
+      execute 'vert help' . bang . ' ' . arg
+    elseif height >= 40 || height >= width/2
+      execute 'help' . bang . ' ' . arg
+    else
+      execute 'tab help' . bang . ' ' . arg
+    endif
+  else
+    execute 'normal! ' . helptabnr . 'gt'
+    execute 'normal! ' . helpwinnr . "\<C-w>w"
+    execute 'help' . bang . ' ' . arg
+  endif
+  normal! 0
+endfunction
+
+command! -bang -nargs=? -complete=help Help call s:pref_alt_help('<bang>', <f-args>)
+nnoremap <Space>h :Help<Space>
+
 " Modified :edit command
 function! EditCompl(ArgLead, CmdLine, CursorPos) abort
   let pwd = getcwd()
@@ -2132,11 +2077,19 @@ function! EditCompl(ArgLead, CmdLine, CursorPos) abort
     let candidates = filter(map(copy(v:oldfiles), 'expand(v:val)'), 'filereadable(v:val)')
   else
     let separator = has('win32') && !&shellslash ? '\' : '/'
-    let candidates = filter(glob(pwd . separator . '*', 0, 1, 1), 'filereadable(v:val)')
+    if a:ArgLead ==# ''
+      let candidates = filter(glob(pwd . separator . '*', 0, 1, 1), 'filereadable(v:val) || isdirectory(v:val)')
+    elseif isdirectory(a:ArgLead)
+      " FIXME: This path determination is not a perfect solution!
+      let path = a:ArgLead[strlen(a:ArgLead)-1] !=# separator ? a:ArgLead . separator : a:ArgLead
+      let candidates = filter(glob(path . '*', 0, 1, 1), 'filereadable(v:val) || isdirectory(v:val)')
+    else
+      let candidates = filter(glob(a:ArgLead . '*', 0, 1, 1), 'filereadable(v:val) || isdirectory(v:val)')
+    endif
   endif
   call map(candidates, 'v:val[: len-1] ==# pwd ? v:val[len+1 :] : v:val')
   for string in split(a:ArgLead, '[^\\]\%(\\\\\)*\s')
-    call filter(candidates, 'stridx(v:val, string) > -1')
+    call filter(candidates, 'match(v:val, ''\c'' . escape(string, ''~"\.^$[]*'')) > -1')
   endfor
   return candidates
 endfunction
