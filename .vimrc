@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 14-Mar-2016.
+" Last Change: 24-Mar-2016.
 "
 "***** Todo *****
 
@@ -50,8 +50,8 @@ NeoBundle       'kana/vim-submode'
 NeoBundle       'kana/vim-textobj-user'
 NeoBundle       'kana/vim-textobj-indent'
 NeoBundle       'kana/vim-textobj-line'
+NeoBundle       'Konfekt/FastFold'
 NeoBundle       'machakann/vim-columnmove'
-" NeoBundle       'vim-columnmove', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 " NeoBundle       'vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-lion'
 NeoBundle       'machakann/vim-operator-insert'
@@ -65,6 +65,7 @@ NeoBundle       'machakann/vim-textobj-delimited'
 NeoBundle       'machakann/vim-vimhelplint'
 " NeoBundle       'vim-vimhelplint', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'mattn/webapi-vim'
+NeoBundle       'mbbill/undotree'
 NeoBundle       'osyo-manga/vim-reanimate'
 NeoBundle       'sgur/vim-textobj-parameter'
 NeoBundleFetch  'Shougo/neobundle.vim'
@@ -96,9 +97,6 @@ NeoBundleLazy   'osyo-manga/vim-anzu', {
       \ 'autoload' : {
       \   'mappings' : '<Plug>(anzu-',
       \ }}
-NeoBundleLazy   'sjl/gundo.vim', {
-      \   'autoload' : {'commands': 'GundoToggle'}
-      \ }
 NeoBundleLazy   'Shougo/neocomplete'
 NeoBundleLazy   'ujihisa/neco-look', {
       \   'depends': 'Shougo/neocomplete',
@@ -846,7 +844,7 @@ function! CloseBlock(current, close, fallback, ...) abort
   let cur_indent = indent('.')
   let closetext  = escape(substitute(get(split(a:close, "\n"), 0, '$'), '[^[:print:]]', '', 'g'), '~"\.^$[]*')
   let additional = get(a:000, 0, '')
-  if nnb == 0 || nnb_indent < cur_indent || (nnb_indent == cur_indent && getline(nnb) !~# '^\s*' . closetext)
+  if nnb == 0 || nnb_indent < cur_indent || (nnb_indent == cur_indent && getline(nnb) !~# printf('^\s*\%%(%s\|else\)', closetext))
     return printf("%s\<CR>%s\<Esc>kA%s", a:current, a:close, additional)
   else
     return a:fallback
@@ -902,14 +900,14 @@ nmap # <Plug>(anzu-sharp-with-echo)
 "}}}
 "*** caw.vim *** {{{
 " skip blank line
-let g:caw_i_skip_blank_line = 1
+let g:caw_tildepos_skip_blank_line = 1
 
 function! Operator_caw(type)
   " There is some room to be improved, but menndoi.
-  execute "'[,']normal \<Plug>(caw:i:toggle)"
+  execute "'[,']normal \<Plug>(caw:tildepos:toggle)"
 endfunction
 
-command! -nargs=0 CawToggle normal <Plug>(caw:i:toggle)
+command! -nargs=0 CawToggle normal <Plug>(caw:tildepos:toggle)
 
 nnoremap <silent> <Space>c  :<C-u>set operatorfunc=Operator_caw<CR>g@
 nnoremap <silent> <Space>cc :<C-u>CawToggle<CR>
@@ -1160,7 +1158,11 @@ nmap s7 <Plug>(operator-sandwich-add-query1st)'
 xmap s' <Plug>(operator-sandwich-add)'
 xmap s7 <Plug>(operator-sandwich-add)'
 nmap sf <Plug>(operator-sandwich-add-query1st)<C-f>
-xmap sf <Plug>(operator-sandwich-add)
+xmap sf <Plug>(operator-sandwich-add)<C-f>
+
+" keep cursor position after an operation
+call operator#sandwich#set('all', 'all', 'cursor', 'keep')
+nmap . <Plug>(operator-sandwich-dot)
 
 let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
@@ -1548,7 +1550,7 @@ endif
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
-set background=dark
+set background=light
 colorscheme tatami
 set cmdheight=1                     " the height of commandline
 set cursorline                      " highlight corsor line
@@ -1557,7 +1559,7 @@ set list                            " visualize special characters
 set listchars=tab:>-,trail:-,eol:$,nbsp:%,extends:>,precedes:<
                                     " assign alternative expression for special characters
 set nonumber                        " do not display row number
-set showbreak=-\                    " display the sign for wrapped lines
+set showbreak=<\                    " display the sign for wrapped lines
 set showcmd                         " display command information in commandline
 set showmode                        " display current mode
 set showmatch                       " emphasize correspondent parenthesis
