@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 24-Mar-2016.
+" Last Change: 09-Apr-2016.
 "
 "***** Todo *****
 
@@ -900,18 +900,15 @@ nmap # <Plug>(anzu-sharp-with-echo)
 "}}}
 "*** caw.vim *** {{{
 " skip blank line
-let g:caw_tildepos_skip_blank_line = 1
+let g:caw_hatpos_skip_blank_line = 1
 
-function! Operator_caw(type)
-  " There is some room to be improved, but menndoi.
-  execute "'[,']normal \<Plug>(caw:tildepos:toggle)"
-endfunction
+command! -nargs=0 CawToggle normal <Plug>(caw:hatpos:toggle)
 
-command! -nargs=0 CawToggle normal <Plug>(caw:tildepos:toggle)
-
-nnoremap <silent> <Space>c  :<C-u>set operatorfunc=Operator_caw<CR>g@
-nnoremap <silent> <Space>cc :<C-u>CawToggle<CR>
-xnoremap <silent> <Space>c  <Esc>:set operatorfunc=Operator_caw<CR>gvg@
+nmap <Space>c <Plug>(operator-caw-hatpos-toggle)
+xmap <Space>c <Plug>(operator-caw-hatpos-toggle)
+omap <SID>line :normal! v^og_<CR>
+nmap gci <Plug>(operator-caw-hatpos-comment)<SID>line
+xmap gci <Plug>(operator-caw-hatpos-comment)
 "}}}
 "*** columnmove *** {{{
 let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
@@ -1188,7 +1185,7 @@ let g:operator#sandwich#recipes = [
       \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ["\<C-f>"]},
       \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
       \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
-      \   {'buns': ['VimSandwichBlocks(1)', 'VimSandwichBlocks(0)'], 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'expr': 1, 'linewise': 1, 'command': ["'[+1,']-1normal! >>"], 'input': ['B'], 'cursor': 'head'},
+      \   {'buns': ['VimSandwichBlocks(1)', 'VimSandwichBlocks(0)'], 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'expr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['B'], 'cursor': 'head'},
       \   {'buns': ['if',    'endif'],    'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
       \   {'buns': ['for',   'endfor'],   'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
       \   {'buns': ['while', 'endwhile'], 'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
@@ -1198,7 +1195,7 @@ let g:operator#sandwich#recipes = [
 let g:textobj#sandwich#recipes = [
       \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
       \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'nesting': 1, 'expr': 1, 'synchro': 1, 'input': ['f']},
-      \   {'external': ["\<Plug>(textobj-functioncall-innerparen-a)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
+      \   {'external': ["\<Plug>(textobj-parameter-i)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
       \   {'buns': ['^\s*\zsif.*$',    'endif\ze\s*$'],    'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \   {'buns': ['^\s*\zsfor.*$',   'endfor\ze\s*$'],   'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \   {'buns': ['^\s*\zswhile.*$', 'endwhile\ze\s*$'], 'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
@@ -1212,7 +1209,11 @@ function! GetChar() abort
 endfunction
 
 function! FuncName() abort
+  call operator#sandwich#show('stuff')
+  echohl MoreMsg
   let funcname = input('funcname: ', '', 'custom,FuncNameCompl')
+  echohl NONE
+  call operator#sandwich#quench('stuff')
   if funcname ==# ''
     throw 'OperatorSandwichCancel'
   endif
@@ -1257,21 +1258,25 @@ function! VimSandwichBlocks(is_head) abort
   endif
 endfunction
 function! s:vim_sandwich_blocks_echo_choices(table) abort
-  echohl MoreMsg
-  echo 'sandwich.vim: '
-  echohl NONE
+  let messages = [['sandwich.vim: ', 'MoreMsg']]
   let first = 1
   for [key, value] in items(a:table)
     if !first
-      echon ', '
+      let messages += [[', ', 'NONE']]
     endif
-    echon value.start . ': '
-    echohl Underlined
-    echon key
-    echohl NONE
+    let messages += [[value.start . ': ', 'NONE']]
+    let messages += [[key, 'Underlined']]
     let first = 0
   endfor
-  redraw
+  call s:echo(messages)
+endfunction
+function! s:echo(messages) abort
+  echo ''
+  for [mes, hi_group] in a:messages
+    execute 'echohl ' . hi_group
+    echon mes
+    echohl NONE
+  endfor
 endfunction
 "}}}
 "*** swap.vim *** {{{
