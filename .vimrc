@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 09-Apr-2016.
+" Last Change: 17-Apr-2016.
 "
 "***** Todo *****
 
@@ -62,8 +62,6 @@ NeoBundle       'machakann/vim-swap'
 " NeoBundle       'vim-swap', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
-NeoBundle       'machakann/vim-vimhelplint'
-" NeoBundle       'vim-vimhelplint', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'mbbill/undotree'
 NeoBundle       'osyo-manga/vim-reanimate'
@@ -499,14 +497,15 @@ let s:rules += [
       \   {'char': '.', 'at': ' \.\%#\S',  'input': ' ',              'filetype': ['vim']},
       \   {'char': '.', 'at': '\S\.\%# ',  'input': '<BS><Del> . ',   'filetype': ['vim']},
       \   {'char': '.', 'at': ' \.\%# ',   'input': '<Del> ',         'filetype': ['vim']},
-      \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)(.*\%#', 'input': '...', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)(.*\.\.\.\%#', 'input': '<BS><BS><BS>', 'filetype': ['vim']},
+      \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\%(\.\k\+\)\?\|\%(g:\)\?\u\k*\%(\.\k\+\)\?\)(.*\%#', 'input': '...', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\%(\.\k\+\)\?\|\%(g:\)\?\u\k*\%(\.\k\+\)\?\)(.*\.\.\.\%#', 'input': '<BS><BS><BS>', 'filetype': ['vim']},
+      \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)\%#', 'input': '. dict<C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left>', 'filetype': ['vim']},
       \ ]
 
 let s:rules += [
       \   {'char': ')', 'at': '\%#\\)',  'input': '<C-g>U<Right><C-g>U<Right>', 'filetype': ['vim']},
       \   {'char': ']', 'at': '\%#\\\]', 'input': '<C-g>U<Right><C-g>U<Right>', 'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_^k)', 'at': '(\%#)',       'input': '<BS><Del>\%(\)<C-g>U<Left><C-g>U<Left>', 'filetype': ['vim'], 'priority': -2},
+      \   {'char': '<Plug>(smartinput_^k)', 'at': '(\%#)',       'input': '<BS><Del>\%(\)<C-g>U<Left><C-g>U<Left>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\[\%#\]',     'input': '<BS><Del>\[\]<C-g>U<Left><C-g>U<Left>',  'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '<\%#>',       'input': '<BS><Del>\<\><C-g>U<Left><C-g>U<Left>',  'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\\%(\%#\\)',  'input': '<BS><BS>(',                  'filetype': ['vim']},
@@ -534,7 +533,7 @@ let s:rules += [
       \   {'char': '%', 'at': '^\s*%\+ \%#', 'input': '<BS>%% ', 'filetype': ['matlab']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*%\s\%#',         'input': '<BS><BS>',      'filetype': ['matlab']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*\(%%\)\+%\s\%#', 'input': '<BS><BS><BS> ', 'filetype': ['matlab']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function<C-r>=CloseBlock("function ", "end", " ")<CR>', 'filetype': ['matlab']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function ", "end", " ")<CR>', 'filetype': ['matlab']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': '<C-r>=CloseBlock(" ", "end", " ")<CR>', 'filetype': ['matlab']},
       \ ]
 
@@ -735,17 +734,12 @@ function! s:i_CTRL_n() abort
   endif
 endfunction
 
-function! s:smartinput_has_rule(key, priority) abort
+function! s:smartinput_has_rule(key) abort
   let ft = &filetype
   let rules = deepcopy(s:rules)
   call filter(rules, 'v:val["char"] ==# a:key')
   call filter(rules, '!has_key(v:val, "filetype") || match(v:val["filetype"], ft) >= 0')
   call filter(rules, '!has_key(v:val, "mode") || match(v:val["mode"], "i") >= 0')
-  if a:priority == 0
-    call filter(rules, '!has_key(v:val, "priority") || v:val["priority"] == 0')
-  else
-    call filter(rules, 'has_key(v:val, "priority") && v:val["priority"] == a:priority')
-  endif
   let has_rule = 0
   for rule in rules
     if search(rule.at, 'bcnW')
@@ -1185,7 +1179,7 @@ let g:operator#sandwich#recipes = [
       \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ["\<C-f>"]},
       \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
       \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
-      \   {'buns': ['VimSandwichBlocks(1)', 'VimSandwichBlocks(0)'], 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'expr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['B'], 'cursor': 'head'},
+      \   {'buns': 'VimSandwichBlocks()', 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'listexpr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['B'], 'cursor': 'headend'},
       \   {'buns': ['if',    'endif'],    'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
       \   {'buns': ['for',   'endfor'],   'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
       \   {'buns': ['while', 'endwhile'], 'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
@@ -1237,25 +1231,20 @@ function! s:compl_unlock() abort
   endif
 endfunction
 
-function! VimSandwichBlocks(is_head) abort
+function! VimSandwichBlocks() abort
   let table = {
         \   'i': {'start': 'if',    'end': 'endif'},
         \   'f': {'start': 'for',   'end': 'endfor'},
         \   'w': {'start': 'while', 'end': 'endwhile'},
         \   't': {'start': 'try',   'end': 'endtry'},
         \ }
-  if a:is_head
-    call s:vim_sandwich_blocks_echo_choices(table)
-    let s:c = GetChar()
-    if s:c ==# '' || !count(keys(table), s:c)
-      echo ''
-      throw 'OperatorSandwichCancel'
-    else
-      return table[s:c]['start']
-    endif
-  else
-    return table[s:c]['end']
+  call s:vim_sandwich_blocks_echo_choices(table)
+  let s:c = GetChar()
+  if s:c ==# '' || !count(keys(table), s:c)
+    echo ''
+    throw 'OperatorSandwichCancel'
   endif
+  return [table[s:c]['start'], table[s:c]['end']]
 endfunction
 function! s:vim_sandwich_blocks_echo_choices(table) abort
   let messages = [['sandwich.vim: ', 'MoreMsg']]
@@ -1268,15 +1257,7 @@ function! s:vim_sandwich_blocks_echo_choices(table) abort
     let messages += [[key, 'Underlined']]
     let first = 0
   endfor
-  call s:echo(messages)
-endfunction
-function! s:echo(messages) abort
-  echo ''
-  for [mes, hi_group] in a:messages
-    execute 'echohl ' . hi_group
-    echon mes
-    echohl NONE
-  endfor
+  call sandwich#util#echo(messages)
 endfunction
 "}}}
 "*** swap.vim *** {{{
@@ -1374,9 +1355,6 @@ set wildmenu                        " use extended commandline completion
 " set wildmode=longest:full,full      " way to complete in cmdline
 set wildignore+=*.o
 
-" always set current directory to the directory of current file
-" au vimrc BufEnter * execute ":lcd " . expand("%:p:h")
-
 " use command-line window instead of command-line mode
 " vim-users.jp Hacks #161
 " nnoremap <sid>(command-line-enter) q:
@@ -1439,7 +1417,6 @@ set whichwrap=b,s,h,l,<,>,[,]       " do not stop cursor at head/tail of line, m
 
 " indentation option
 set autoindent                      " add indent automatically
-set cindent                         " use c style indentation
 set expandtab                       " use soft tabs
 set tabstop=4                       " the width of a tab character
 let &shiftwidth = &tabstop          " inserted number of space by a tab stroke or deleted number of space by a BS stroke
