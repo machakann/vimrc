@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 17-Apr-2016.
+" Last Change: 22-Apr-2016.
 "
 "***** Todo *****
 
@@ -1167,11 +1167,15 @@ let g:sandwich#recipes = [
       \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
       \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
       \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
-      \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
       \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
       \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
       \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
+      \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+      \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+      \   {'buns': ['^\s*\zsif.*$',    'endif\ze\s*$'],    'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*\zsfor.*$',   'endfor\ze\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*\zswhile.*$', 'endwhile\ze\s*$'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*\zstry.*$',   'endtry\ze\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \ ]
 
 let g:operator#sandwich#recipes = [
@@ -1180,20 +1184,13 @@ let g:operator#sandwich#recipes = [
       \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
       \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
       \   {'buns': 'VimSandwichBlocks()', 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'listexpr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['B'], 'cursor': 'headend'},
-      \   {'buns': ['if',    'endif'],    'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
-      \   {'buns': ['for',   'endfor'],   'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
-      \   {'buns': ['while', 'endwhile'], 'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
-      \   {'buns': ['try',   'endtry'],   'filetype': ['vim'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 2, 'command': ["'[,']normal! <<"]},
       \ ]
 
+" FIXME: Near future, "synchro" option would become true in default. It should not bother users.
 let g:textobj#sandwich#recipes = [
       \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
-      \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'nesting': 1, 'expr': 1, 'synchro': 1, 'input': ['f']},
+      \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'nesting': 0, 'expr': 1, 'synchro': 1, 'input': ['f']},
       \   {'external': ["\<Plug>(textobj-parameter-i)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
-      \   {'buns': ['^\s*\zsif.*$',    'endif\ze\s*$'],    'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*\zsfor.*$',   'endfor\ze\s*$'],   'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*\zswhile.*$', 'endwhile\ze\s*$'], 'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*\zstry.*$',   'endtry\ze\s*$'],   'filetype': ['vim'], 'kind': ['auto'], 'nesting': 1, 'regex': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \ ]
 
 function! GetChar() abort
