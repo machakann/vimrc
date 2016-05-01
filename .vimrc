@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 22-Apr-2016.
+" Last Change: 01-May-2016.
 "
 "***** Todo *****
 
@@ -1155,6 +1155,9 @@ xmap sf <Plug>(operator-sandwich-add)<C-f>
 call operator#sandwich#set('all', 'all', 'cursor', 'keep')
 nmap . <Plug>(operator-sandwich-dot)
 
+" highlight
+let g:operator#sandwich#highlight_duration = 500
+
 let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
       \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
@@ -1172,10 +1175,10 @@ let g:sandwich#recipes = [
       \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
       \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
       \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['^\s*\zsif.*$',    'endif\ze\s*$'],    'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*\zsfor.*$',   'endfor\ze\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*\zswhile.*$', 'endwhile\ze\s*$'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*\zstry.*$',   'endtry\ze\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*if.*$',    'endif\s*$'],    'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*for.*$',   'endfor\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*while.*$', 'endwhile\s*$'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': ['^\s*try.*$',   'endtry\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \ ]
 
 let g:operator#sandwich#recipes = [
@@ -1780,7 +1783,9 @@ cnoremap <Down> <C-n>
 nmap Y y$
 
 " move cursor to the end of selected area after yank
-nnoremap gy :set operatorfunc=YankAndJumpToTail<CR>g@
+nnoremap <expr> <SID>(YankAndJumpToTailPrerequisite) YankAndJumpToTailPrerequisite()
+nnoremap <SID>(g@) g@
+nmap gy <SID>(YankAndJumpToTailPrerequisite)<SID>(g@)
 xnoremap gy y`>
 xnoremap Y y`>
 
@@ -1794,6 +1799,10 @@ function! YankAndJumpToTail(motionwise) abort
 
   let key_seq = printf(":call setpos('.', %s)\<CR>:echo \<CR>", string(getpos("']")))
   call feedkeys(key_seq, 'n')
+endfunction
+function! YankAndJumpToTailPrerequisite() abort
+  set operatorfunc=YankAndJumpToTail
+  return ''
 endfunction
 
 " line-break without any change to current line in insert mode
