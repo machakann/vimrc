@@ -1,10 +1,9 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 01-May-2016.
+" Last Change: 13-Aug-2016.
 "
 "***** Todo *****
-
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
 " encoding and file format
@@ -39,7 +38,7 @@ end
 call neobundle#begin(expand($USERDIR) . '/bundle/')
 
 " NeoBundle       'davidhalter/jedi-vim'
-NeoBundle       'haya14busa/vim-operator-flashy'
+" NeoBundle       'haya14busa/vim-operator-flashy'
 NeoBundle       'JuliaLang/julia-vim'
 " NeoBundle       'julia-vim', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 " NeoBundle       'julia-vim-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
@@ -58,10 +57,14 @@ NeoBundle       'machakann/vim-operator-insert'
 NeoBundle       'machakann/vim-patternjump'
 NeoBundle       'machakann/vim-sandwich'
 " NeoBundle       'vim-sandwich', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
+NeoBundle       'machakann/vim-highlightedyank'
+" NeoBundle       'vim-highlightedyank', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-swap'
 " NeoBundle       'vim-swap', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'machakann/vim-textobj-functioncall'
 NeoBundle       'machakann/vim-textobj-delimited'
+NeoBundle       'machakann/vim-textobj-equation'
+" NeoBundle       'vim-textobj-mathblock', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'mattn/webapi-vim'
 NeoBundle       'mbbill/undotree'
 NeoBundle       'osyo-manga/vim-reanimate'
@@ -486,6 +489,7 @@ let s:rules += [
       \   {'char': '=', 'at': ' \.= \%#', 'input': '<BS><BS><BS><BS>.=',  'mode': 'i:', 'filetype': ['vim']},
       \   {'char': '=', 'at': '<C-r>\%#', 'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
       \   {'char': '=', 'at': '\C\<set\%[local]\> \w\+\%#', 'input': '=', 'mode': 'i',  'filetype': ['vim']},
+      \   {'char': '=', 'at': '^\s*let\s\+\[\%(\k\+,\s*\)*\k\+\%#\]', 'input': '<C-g>U<Right> = ', 'mode': 'i',  'filetype': ['vim']},
       \ ]
 
 " '.' -> ' . ' -> '..' -> '...'
@@ -519,8 +523,10 @@ let s:rules += [
 let s:rules += [
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function!  abort", "endfunction", " ")<CR><Esc>0f!la', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': '<C-r>=CloseBlock(" ", "endif", " ")<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#\s', 'input': '<C-r>=CloseBlock("", "endif", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\S.*\%#', 'input': '<C-r>=VimCloseForBlock()<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#', 'input': '<C-r>=CloseBlock(" ", "endwhile", " ")<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#\s', 'input': '<C-r>=CloseBlock("", "endwhile", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*augroup\%#', 'input': '<C-r>=CloseBlock(" ", "augroup END", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*try\%#', 'input': '<C-r>=CloseBlock("", "endtry", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_CR)', 'at': '^\s*try\%#', 'input': '<C-r>=CloseBlock("", "endtry", "<C-v><CR>", "<C-v><CR>")<CR>', 'filetype': ['vim']},
@@ -702,6 +708,12 @@ let s:rules += [
       \   {'char': '>', 'at': ' = \%#', 'input': '<BS>> ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '/\%#', 'input': '<BS> /= ', 'filetype': ['julia']},
+      \   {'char': '>', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
+      \   {'char': '<', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\.<\%#', 'input': '<BS><BS> .<= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\.>\%#', 'input': '<BS><BS> .>= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\.< \%#', 'input': '<BS><BS><BS> .<= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\.> \%#', 'input': '<BS><BS><BS> .>= ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function <CR>end<Esc>kA', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': ' <CR>end<Esc>kA', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
@@ -839,7 +851,7 @@ function! CloseBlock(current, close, fallback, ...) abort
   let closetext  = escape(substitute(get(split(a:close, "\n"), 0, '$'), '[^[:print:]]', '', 'g'), '~"\.^$[]*')
   let additional = get(a:000, 0, '')
   if nnb == 0 || nnb_indent < cur_indent || (nnb_indent == cur_indent && getline(nnb) !~# printf('^\s*\%%(%s\|else\)', closetext))
-    return printf("%s\<CR>%s\<Esc>kA%s", a:current, a:close, additional)
+    return printf("%s\<End>\<CR>%s\<Esc>kA%s", a:current, a:close, additional)
   else
     return a:fallback
   endif
@@ -1011,10 +1023,9 @@ xmap <Space>O <Plug>(operator-insert-O)
 omap gn <Plug>(gn-for-operator-insert-i)
 omap gN <Plug>(gN-for-operator-insert-a)
 "}}}
-"*** operator-flashy *** {{{
-" FIXME: Operator-flashy is awesome, but it is unintentionally repeated by dot command even without cpo-y.
-map y <Plug>(operator-flashy)
-highlight! link Flashy IncSearch
+"*** highlightedyank *** {{{
+map y <Plug>(highlightedyank)
+let g:highlightedyank_highlight_duration = 3000
 "}}}
 "*** patternjump *** {{{
 "   let g:patternjump_highlight = 1
@@ -1055,7 +1066,6 @@ xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\<\k*\>', '[^.deDE-
 xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
 "}}}
 "*** quickrun.vim *** {{{
-let g:quickrun_config = {}
 let g:quickrun_config = {
       \ '_' : {
       \         'runner/vimproc/updatetime' : 100,
@@ -1063,8 +1073,8 @@ let g:quickrun_config = {
       \         'runner': 'vimproc',
       \       },
       \ 'julia' : {
-      \         'command': 'julia',
-      \         'cmdopt': '-q --color=no',
+      \         'exec': 'julia -E "include(\"%S\")"',
+      \         'debug': 'quickrun_debug',
       \       },
       \ 'maxima' : {
       \         'command': 'maxima',
@@ -1148,74 +1158,58 @@ nmap s' <Plug>(operator-sandwich-add-query1st)'
 nmap s7 <Plug>(operator-sandwich-add-query1st)'
 xmap s' <Plug>(operator-sandwich-add)'
 xmap s7 <Plug>(operator-sandwich-add)'
-nmap sf <Plug>(operator-sandwich-add-query1st)<C-f>
-xmap sf <Plug>(operator-sandwich-add)<C-f>
+nmap sf <Plug>(operator-sandwich-add-query1st)f
+xmap sf <Plug>(operator-sandwich-add)f
 
 " keep cursor position after an operation
 call operator#sandwich#set('all', 'all', 'cursor', 'keep')
 nmap . <Plug>(operator-sandwich-dot)
 
 " highlight
-let g:operator#sandwich#highlight_duration = 500
+call operator#sandwich#set('all',    'all', 'hi_duration', 3000)
+call operator#sandwich#set('delete', 'all', 'hi_duration', 200)
 
-let g:sandwich#recipes = [
-      \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
-      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
-      \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
-      \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
-      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
-      \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
-      \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
-      \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
-      \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
-      \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
-      \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['^\s*if.*$',    'endif\s*$'],    'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*for.*$',   'endfor\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*while.*$', 'endwhile\s*$'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*try.*$',   'endtry\s*$'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \ ]
+" let g:sandwich#recipes = [
+"       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
+"       \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
+"       \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
+"       \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
+"       \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
+"       \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
+"       \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
+"       \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
+"       \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
+"       \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
+"       \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
+"       \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
+"       \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
+"       \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
+"       \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+"       \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+"       \   {'buns': ['^\s*if\>',    '\<endif\>'],    'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+"       \   {'buns': ['^\s*for\>',   '\<endfor\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+"       \   {'buns': ['^\s*while\>', '\<endwhile\>'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+"       \   {'buns': ['^\s*try\>',   '\<endtry\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+"       \ ]
 
-let g:operator#sandwich#recipes = [
-      \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
-      \   {'buns': ['FuncName()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ["\<C-f>"]},
-      \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
-      \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
-      \   {'buns': 'VimSandwichBlocks()', 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'listexpr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['B'], 'cursor': 'headend'},
-      \ ]
+" let g:operator#sandwich#recipes = [
+"       \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
+"       \   {'buns': ['sandwich#magicchar#f#fname()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ['f']},
+"       \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
+"       \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
+"       \   {'buns': 'VimSandwichBlocks()', 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'listexpr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['b'], 'cursor': 'headend'},
+"       \   {'external': ["\<Plug>(textobj-functioncall-innerparen-a)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['replace']},
+"       \ ]
 
-" FIXME: Near future, "synchro" option would become true in default. It should not bother users.
-let g:textobj#sandwich#recipes = [
-      \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
-      \   {'buns': ['GetChar()', 'GetChar()'], 'kind': ['query'], 'nesting': 0, 'expr': 1, 'synchro': 1, 'input': ['f']},
-      \   {'external': ["\<Plug>(textobj-parameter-i)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['query'], 'synchro': 1, 'input': ["\<C-f>"]},
-      \ ]
+" let g:textobj#sandwich#recipes = [
+"       \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['delete', 'replace', 'query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
+"       \   {'external': ["\<Plug>(textobj-parameter-i)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['delete', 'query'], 'input': ['f']},
+"       \ ]
 
 function! GetChar() abort
   let c = getchar()
   let c = type(c) == type(0) ? nr2char(c) : c
   return c ==# "\<Esc>" || c ==# "\<C-c>" ? '' : c
-endfunction
-
-function! FuncName() abort
-  call operator#sandwich#show('stuff')
-  echohl MoreMsg
-  let funcname = input('funcname: ', '', 'custom,FuncNameCompl')
-  echohl NONE
-  call operator#sandwich#quench('stuff')
-  if funcname ==# ''
-    throw 'OperatorSandwichCancel'
-  endif
-  return funcname . '('
-endfunction
-
-function! FuncNameCompl(ArgLead, CmdLine, CursorPos) abort
-  return join(uniq(sort(map(getline(1, '$'), 'matchstr(v:val, ''\k\{3,}\ze('')'))), "\n")
 endfunction
 
 autocmd vimrc User OperatorSandwichAddPre,OperatorSandwichReplacePre call s:compl_lock()
@@ -1263,8 +1257,12 @@ endfunction
 "*** swap.vim *** {{{
 let g:swap#rules  = deepcopy(g:swap#default_rules)
 let g:swap#rules += [
+      \   {'filetype': ['vim'], 'delimiter': ['\\|'], 'surrounds': ['\\%\{,2}(', '\\)'], 'braket': [['\(', '\)'], ['\%(', '\)']]},
       \   {'mode': 'x', 'delimiter': ['\s*[-+]\s*'], 'braket': [['(', ')']], 'priority': -10},
       \   {'mode': 'x', 'delimiter': ['\s*[*/]\s*'], 'braket': [['(', ')']], 'priority': -20},
+      \   {'mode': 'x', 'delimiter': ['\s*||\s*'], 'braket': [['(', ')']], 'priority': 10},
+      \   {'mode': 'x', 'delimiter': ['\s*&&\s*'], 'braket': [['(', ')']], 'priority': 10},
+      \   {'mode': 'x', 'body': '_\?\%(\h\k*_\)\+\h\k*_\?', 'delimiter': ['_'], 'priority': -30},
       \ ]
 "}}}
 "*** template.vim *** {{{
@@ -1533,7 +1531,7 @@ endif
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
 set background=light
-colorscheme tatami
+colorscheme lcnt
 set cmdheight=1                     " the height of commandline
 set cursorline                      " highlight corsor line
 set laststatus=2                    " always display status line
@@ -1805,7 +1803,7 @@ function! YankAndJumpToTailPrerequisite() abort
   return ''
 endfunction
 
-" line-break without any change to current line in insert mode
+" line-break without any change to the current line in insert mode
 " smartinputter no tashinami.
 inoremap <C-j> <Esc>o
 " inoremap <C-k> <Esc>O
@@ -1850,12 +1848,12 @@ nnoremap z_ ma:silent! %normal! zC<CR>'a
 nnoremap <Space><Space> :nohlsearch<CR>
 
 " wildcard for mulibyte characters of f, t, F, T
-noremap <silent> f<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('f')<CR>
-noremap <silent> t<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('t')<CR>
-noremap <silent> F<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('F')<CR>
-noremap <silent> T<CR> :<C-u>call <SID>wildcard_for_multibyte_characers('T')<CR>
+noremap <silent> f<CR> :<C-u>call <SID>wildcard_for_multibyte_characters('f')<CR>
+noremap <silent> t<CR> :<C-u>call <SID>wildcard_for_multibyte_characters('t')<CR>
+noremap <silent> F<CR> :<C-u>call <SID>wildcard_for_multibyte_characters('F')<CR>
+noremap <silent> T<CR> :<C-u>call <SID>wildcard_for_multibyte_characters('T')<CR>
 
-function! s:wildcard_for_multibyte_characers(kind) abort
+function! s:wildcard_for_multibyte_characters(kind) abort
   let flag = a:kind ==# 'F' || a:kind ==# 'T' ? 'b' : ''
   let stopline = line('.')
 
@@ -1867,7 +1865,7 @@ function! s:wildcard_for_multibyte_characers(kind) abort
 
   if has('patch-7.4.813')
     let reg = ['"', getreg('"'), getregtype('"')]
-    normal! yl
+    normal! ""yl
     let c = @@
     let search = {
           \   'char': c,
@@ -2337,8 +2335,12 @@ endif
 
 " start syntax highlighting
 syntax enable
+
 " to suppress highlighting the last searched word because of 'set hlsearch'
 nohlsearch
+
 " recall filetype autocommand
-doautocmd FileType
+if !has('vim_starting')
+  doautocmd FileType
+endif
 "}}}
