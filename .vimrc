@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 14-Aug-2016.
+" Last Change: 24-Oct-2016.
 "
 "***** Todo *****
 "***** startup ***** {{{
@@ -25,6 +25,8 @@ else
   let $USERCACHEDIR=expand('~/.vimcache')
 endif
 
+let $LANG = 'C'
+
 augroup vimrc
   autocmd!
 augroup END
@@ -39,7 +41,7 @@ call neobundle#begin(expand($USERDIR) . '/bundle/')
 
 " NeoBundle       'davidhalter/jedi-vim'
 " NeoBundle       'haya14busa/vim-operator-flashy'
-NeoBundle       'JuliaLang/julia-vim'
+NeoBundle       'JuliaEditorSupport/julia-vim'
 " NeoBundle       'julia-vim', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 " NeoBundle       'julia-vim-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
 NeoBundle       'kana/vim-operator-user'
@@ -88,6 +90,8 @@ NeoBundle       'thinca/vim-themis'
 " NeoBundle       'tommcdo/vim-lion'
 NeoBundle       'tyru/caw.vim'
 NeoBundle       'tyru/open-browser.vim'
+" NeoBundle       'vim-scripts/visualrepeat'
+" NeoBundle       'vim-scripts/ingo-library'
 NeoBundle       'vim-jp/vimdoc-ja'
 
 NeoBundleLazy   'jceb/vim-hier', {
@@ -503,7 +507,7 @@ let s:rules += [
       \   {'char': '.', 'at': ' \.\%# ',   'input': '<Del> ',         'filetype': ['vim']},
       \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\%(\.\k\+\)\?\|\%(g:\)\?\u\k*\%(\.\k\+\)\?\)(.*\%#', 'input': '...', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\%(\.\k\+\)\?\|\%(g:\)\?\u\k*\%(\.\k\+\)\?\)(.*\.\.\.\%#', 'input': '<BS><BS><BS>', 'filetype': ['vim']},
-      \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)\%#', 'input': '. dict<C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left>', 'filetype': ['vim']},
+      \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)\%#.*\%(dict\)\@!', 'input': '. dict<C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left>', 'filetype': ['vim']},
       \ ]
 
 let s:rules += [
@@ -567,19 +571,25 @@ let s:rules += [
       \ ]
 " '.^' -> '^' -> '^^' -> '^^^' ...
 let s:rules += [
-      \   {'char': '^', 'at': '\^\%#',  'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '^', 'at': '\%#', 'input': '.^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '^', 'at': '\^\%#', 'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '^', 'at': '\.\^\%#', 'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '[^^.]^\%#', 'input': '<BS>.^',    'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\.^\%#',    'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
 " '.*' -> '*' -> '**' -> '***' ...
 let s:rules += [
+      \   {'char': '*', 'at': '\%#', 'input': '.*', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '*', 'at': '\*\%#', 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '*', 'at': '\.\*\%#', 'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '[^*.]\*\%#', 'input': '<BS>.*',    'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\.\*\%#',    'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
 " './' -> '/' -> '//' -> '///' ...
 let s:rules += [
+      \   {'char': '/', 'at': '\%#', 'input': './', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '/', 'at': '/\%#', 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '/', 'at': '\./\%#', 'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '[^/.]/\%#', 'input': '<BS>./',    'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\./\%#',    'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
@@ -710,10 +720,14 @@ let s:rules += [
       \   {'char': '=', 'at': '/\%#', 'input': '<BS> /= ', 'filetype': ['julia']},
       \   {'char': '>', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
       \   {'char': '<', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '\.<\%#', 'input': '<BS><BS> .<= ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '\.>\%#', 'input': '<BS><BS> .>= ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '\.< \%#', 'input': '<BS><BS><BS> .<= ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '\.> \%#', 'input': '<BS><BS><BS> .>= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s\.<\%#', 'input': '<BS><BS>.<= ',  'filetype': ['julia']},
+      \   {'char': '=', 'at': '\S\.<\%#', 'input': '<BS><BS> .<= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s\.>\%#', 'input': '<BS><BS>.>= ',  'filetype': ['julia']},
+      \   {'char': '=', 'at': '\S\.>\%#', 'input': '<BS><BS> .>= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s\.< \%#', 'input': '<BS><BS><BS>.<= ',  'filetype': ['julia']},
+      \   {'char': '=', 'at': '\S\.< \%#', 'input': '<BS><BS><BS> .<= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s\.> \%#', 'input': '<BS><BS><BS>.>= ',  'filetype': ['julia']},
+      \   {'char': '=', 'at': '\S\.> \%#', 'input': '<BS><BS><BS> .>= ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function <CR>end<Esc>kA', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': ' <CR>end<Esc>kA', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
@@ -924,6 +938,9 @@ let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 " let g:jedi#rename_command = "<leader>R"
 " let g:jedi#popup_on_dot = 0
 " autocmd vimrc FileType python setlocal omnifunc=jedi#completions
+"}}}
+"*** julia.vim *** {{{
+let g:default_julia_version = '0.5'
 "}}}
 "*** neocomplete.vim *** {{{
 let s:bundle = neobundle#get('neocomplete')
@@ -1160,6 +1177,10 @@ xmap s' <Plug>(operator-sandwich-add)'
 xmap s7 <Plug>(operator-sandwich-add)'
 nmap sf <Plug>(operator-sandwich-add-query1st)f
 xmap sf <Plug>(operator-sandwich-add)f
+nmap sd  <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-query-a)
+nmap sdb <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-auto-a)
+nmap sr  <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-query-a)
+nmap srb <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-auto-a)
 
 " keep cursor position after an operation
 call operator#sandwich#set('all', 'all', 'cursor', 'keep')
@@ -1193,17 +1214,19 @@ let g:sandwich#recipes = [
       \ ]
 
 let g:operator#sandwich#recipes = [
-      \   {'buns': ['input("operator-sandwich:head: ")', 'input("operator-sandwich:tail: ")'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'input': ['i']},
       \   {'buns': ['sandwich#magicchar#f#fname()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ['f']},
       \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
       \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
       \   {'buns': 'VimSandwichBlocks()', 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'listexpr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['b'], 'cursor': 'headend'},
-      \   {'external': ["\<Plug>(textobj-functioncall-innerparen-a)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['replace']},
+      \   {'buns': 'sandwich#magicchar#i#input("operator")', 'kind': ['add', 'replace'], 'action': ['add'], 'listexpr': 1, 'input': ['i']},
+      \   {'buns': 'sandwich#magicchar#i#lastinput("operator", 1)', 'kind': ['add', 'replace'], 'action': ['add'], 'listexpr': 1, 'input': ['I']},
       \ ]
 
 let g:textobj#sandwich#recipes = [
-      \   {'buns': ['input("textobj-sandwich:head: ")', 'input("textobj-sandwich:tail: ")'], 'kind': ['delete', 'replace', 'query'], 'expr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
-      \   {'external': ["\<Plug>(textobj-parameter-i)", "\<Plug>(textobj-functioncall-a)"], 'noremap': 0, 'kind': ['delete', 'query'], 'input': ['f']},
+      \   {'external': ["\<Plug>(textobj-sandwich-function-ip)", "\<Plug>(textobj-sandwich-function-i)"], 'noremap': 0, 'kind': ['delete', 'replace', 'query'], 'input': ['f']},
+      \   {'external': ["\<Plug>(textobj-sandwich-function-ap)", "\<Plug>(textobj-sandwich-function-a)"], 'noremap': 0, 'kind': ['delete', 'replace', 'query'], 'input': ['F']},
+      \   {'buns': 'sandwich#magicchar#i#input("textobj", 1)', 'kind': ['delete', 'replace', 'query'], 'listexpr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
+      \   {'buns': 'sandwich#magicchar#i#lastinput("textobj")', 'kind': ['delete', 'replace', 'query'], 'listexpr': 1, 'regex': 1, 'synchro': 1, 'input': ['I']},
       \ ]
 
 function! GetChar() abort
@@ -1342,8 +1365,8 @@ set hidden                          " move out from current buffer without warni
 set history=100                     " the stored number of commands/searching history
 set iminsert=0                      " turn off ime when getting into insert mode
 set imsearch=0                      " turn off ime when getting into searching mode
-set splitbelow                      " open new window below the current when splitting
-set splitright                      " open new window in right hand side of the current when splitting
+" set splitbelow                      " open new window below the current when splitting
+" set splitright                      " open new window in right hand side of the current when splitting
 set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
 set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
 set viminfo&
@@ -1393,6 +1416,7 @@ set incsearch                       " use incremental search
 set ignorecase                      " ignore upper/lower case of searching word
 " set smartcase                       " do not ignore upper/lower cases when the searching word contains both of them
 set wrapscan                        " go back to the top candidate after getting to the end of file
+let &wildignorecase = &fileignorecase
 if has('migemo')
   set migemo                        " use g? sequence of migemo
 
@@ -1429,7 +1453,7 @@ autocmd vimrc BufReadPost *
   \ endif
 
 " im control (for win, and partially for *nix)  "{{{
-if has('win32') || (has('unix') && &imactivatefunc !=# '' && &imactivatekey !=# '')
+if has('win32')
   let g:im_auto_switch_filetype_white_list = ['julia']
 
   " at first
@@ -1530,10 +1554,11 @@ endif
 "}}}
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
-set background=light
-colorscheme lcnt
+" let g:colorscheme_no_italic = 1
+set background=dark
+colorscheme reki
 set cmdheight=1                     " the height of commandline
-set cursorline                      " highlight corsor line
+" set cursorline                      " highlight corsor line
 set laststatus=2                    " always display status line
 set list                            " visualize special characters
 set listchars=tab:>-,trail:-,eol:$,nbsp:%,extends:>,precedes:<
@@ -1551,8 +1576,8 @@ set nowrap                          " do not wrap in long line
 set lazyredraw
 
 " highlight cursor line only on active window - http://d.hatena.ne.jp/yuroyoro/searchdiary?word=vim%20
-autocmd vimrc WinLeave * set nocursorline
-autocmd vimrc WinEnter,BufRead * set cursorline
+" autocmd vimrc WinLeave * set nocursorline
+" autocmd vimrc WinEnter,BufRead * set cursorline
 
 " " tabline
 " function! GuiTabLabel()
@@ -1784,8 +1809,8 @@ nmap Y y$
 nnoremap <expr> <SID>(YankAndJumpToTailPrerequisite) YankAndJumpToTailPrerequisite()
 nnoremap <SID>(g@) g@
 nmap gy <SID>(YankAndJumpToTailPrerequisite)<SID>(g@)
-xnoremap gy y`>
-xnoremap Y y`>
+xmap gy y`>
+xmap Y y`>
 
 function! YankAndJumpToTail(motionwise) abort
   let v = a:motionwise ==# 'char' ? 'v'
@@ -1890,6 +1915,13 @@ nnoremap gA A<C-g>U<Left>
 " browse fix-points
 nnoremap [q :<C-u>execute v:count1 . 'cprevious'<CR>
 nnoremap ]q :<C-u>execute v:count1 . 'cnext'<CR>
+
+" move buffer list
+nnoremap <Space>b :ls<CR>:b
+
+" roaming matched texts in incremental searching by <Tab> key
+" cnoremap <expr> <Tab>   getcmdtype() =~# '[/?]' ? "\<C-g>" : "\<Tab>"
+" cnoremap <expr> <S-Tab> getcmdtype() =~# '[/?]' ? "\<C-t>" : "\<S-Tab>"
 
 " A variant of i_CTRL-w "{{{
 let g:stop_pattern = [' ', '_', '#', '-', '/', '\\', ':', '(', ')', '\[', '\]', '{', '}']
@@ -2062,30 +2094,30 @@ function! EditCompl(ArgLead, CmdLine, CursorPos) abort
   if a:CmdLine[0] ==# 'B'
     let candidates = map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'expand(bufname(v:val))')
   elseif a:CmdLine[0] ==# 'M'
-    let candidates = filter(map(copy(v:oldfiles), 'expand(v:val)'), 'filereadable(v:val)')
+    let candidates = map(copy(v:oldfiles), 'expand(v:val)')
   else
     let separator = has('win32') && !&shellslash ? '\' : '/'
     if a:ArgLead ==# ''
-      let candidates = filter(glob(pwd . separator . '*', 0, 1, 1), 'filereadable(v:val) || isdirectory(v:val)')
+      let candidates = glob(pwd . separator . '*', 0, 1, 1)
     elseif isdirectory(a:ArgLead)
       " FIXME: This path determination is not a perfect solution!
       let path = a:ArgLead[strlen(a:ArgLead)-1] !=# separator ? a:ArgLead . separator : a:ArgLead
-      let candidates = filter(glob(path . '*', 0, 1, 1), 'filereadable(v:val) || isdirectory(v:val)')
+      let candidates = glob(path . '*', 0, 1, 1)
     else
-      let candidates = filter(glob(a:ArgLead . '*', 0, 1, 1), 'filereadable(v:val) || isdirectory(v:val)')
+      let candidates = glob(a:ArgLead . '*', 0, 1, 1)
     endif
   endif
   call map(candidates, 'v:val[: len-1] ==# pwd ? v:val[len+1 :] : v:val')
   for string in split(a:ArgLead, '[^\\]\%(\\\\\)*\s')
     call filter(candidates, 'match(v:val, ''\c'' . escape(string, ''~"\.^$[]*'')) > -1')
   endfor
-  return candidates
+  return filter(candidates, 'filereadable(v:val) || isdirectory(v:val)')
 endfunction
 command! -nargs=1 -complete=customlist,EditCompl E edit <args>
 command! -nargs=1 -complete=customlist,EditCompl B edit <args>
 command! -nargs=1 -complete=customlist,EditCompl M edit <args>
 nnoremap <Space>e :E<Space>
-nnoremap <Space>b :B<Space>
+" nnoremap <Space>b :B<Space>
 nnoremap <Space>m :M<Space>
 
 " Variants of :buffer command, split and display buffer
