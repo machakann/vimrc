@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 24-Oct-2016.
+" Last Change: 06-Mar-2017.
 "
 "***** Todo *****
 "***** startup ***** {{{
@@ -11,8 +11,11 @@ if has('win32') && !has('gui_running')
   set encoding=cp932
 else
   set encoding=utf-8
+  if has('win32')
+    set shellpipe=2>\&1\|nkf\ -w>%s
+  endif
 endif
-set fileencodings=ucs-bom,utf-8,cp932,euc-jp,iso-2022-jp,latin1
+set fileencodings=ucs-bom,utf-8,euc-jp,cp932,latin1
 set fileformat=unix
 set fileformats=unix,dos
 scriptencoding utf-8
@@ -27,6 +30,13 @@ endif
 
 let $LANG = 'C'
 
+" SID
+function! s:SID() abort
+  return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfunction
+let s:SID = printf("\<SNR>%s_", s:SID())
+delfunction s:SID
+
 augroup vimrc
   autocmd!
 augroup END
@@ -38,80 +48,86 @@ if has('vim_starting')
   set rtp+=$USERDIR/bundle/neobundle.vim/
 end
 call neobundle#begin(expand($USERDIR) . '/bundle/')
+call neobundle#add('JuliaEditorSupport/julia-vim')
+" call neobundle#add('julia-vim', {'base': '~/Dropbox/Works/', 'frozen': 1})
+" call neobundle#add('julia-vim-extra', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('kana/vim-operator-user')
+call neobundle#add('kana/vim-operator-replace')
+" call neobundle#add('rhysd/vim-operator-surround')
+call neobundle#add('kana/vim-smartinput')
+call neobundle#add('kana/vim-submode')
+call neobundle#add('kana/vim-textobj-user')
+call neobundle#add('kana/vim-textobj-indent')
+call neobundle#add('kana/vim-textobj-line')
+call neobundle#add('Konfekt/FastFold')
+" call neobundle#add('itchyny/lightline.vim')
+" call neobundle#add('vim-airline/vim-airline')
+" call neobundle#add('t9md/vim-ezbar')
+call neobundle#add('machakann/vim-event-DotCommandPre')
+" call neobundle#add('vim-event-DotCommandPre', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('machakann/vim-colorscheme-kemonofriends')
+call neobundle#add('machakann/vim-columnmove')
+" call neobundle#add('vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('machakann/vim-lion')
+call neobundle#add('machakann/vim-operator-insert')
+call neobundle#add('machakann/vim-patternjump')
+call neobundle#add('machakann/vim-sandwich')
+" call neobundle#add('vim-sandwich', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('machakann/vim-highlightedyank')
+" call neobundle#add('vim-highlightedyank', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('machakann/vim-swap')
+" call neobundle#add('vim-swap', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('machakann/vim-textobj-functioncall')
+call neobundle#add('machakann/vim-textobj-delimited')
+" call neobundle#add('vim-copycat', {'base': '~/Dropbox/Works/', 'frozen': 1})
+" call neobundle#add('vim-textobj-mathblock', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('machakann/vim-vimhelplint')
+call neobundle#add('mattn/webapi-vim')
+call neobundle#add('mbbill/undotree')
+call neobundle#add('osyo-manga/vim-reanimate')
+call neobundle#add('sgur/vim-textobj-parameter')
+call neobundle#add('Shougo/neobundle.vim', {'fetch': 1})
+call neobundle#add('Shougo/neomru.vim')
+call neobundle#add('Shougo/unite.vim')
+call neobundle#add('Shougo/vimproc.vim', {
+  \ 'build' : {
+  \   'windows': 'tools\\update-dll-mingw',
+  \   'cygwin' : 'make -f make_cygwin.mak',
+  \   'mac'    : 'make -f make_mac.mak',
+  \   'unix'   : 'make -f make_unix.mak',
+  \  },
+  \ })
+call neobundle#add('superbrothers/vim-quickrun-markdown-gfm')
+call neobundle#add('thinca/vim-prettyprint')
+call neobundle#add('thinca/vim-visualstar')
+call neobundle#add('thinca/vim-quickrun')
+" call neobundle#add('thinca/vim-template')
+call neobundle#add('thinca/vim-themis')
+" call neobundle#add('tommcdo/vim-lion')
+call neobundle#add('tyru/caw.vim')
+call neobundle#add('tyru/open-browser.vim')
+call neobundle#add('vim-scripts/visualrepeat')
+call neobundle#add('vim-scripts/ingo-library')
+call neobundle#add('vim-jp/vimdoc-ja')
 
-" NeoBundle       'davidhalter/jedi-vim'
-" NeoBundle       'haya14busa/vim-operator-flashy'
-NeoBundle       'JuliaEditorSupport/julia-vim'
-" NeoBundle       'julia-vim', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-" NeoBundle       'julia-vim-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'kana/vim-operator-user'
-NeoBundle       'kana/vim-operator-replace'
-NeoBundle       'kana/vim-smartinput'
-NeoBundle       'kana/vim-submode'
-NeoBundle       'kana/vim-textobj-user'
-NeoBundle       'kana/vim-textobj-indent'
-NeoBundle       'kana/vim-textobj-line'
-NeoBundle       'Konfekt/FastFold'
-NeoBundle       'machakann/vim-columnmove'
-" NeoBundle       'vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'machakann/vim-lion'
-NeoBundle       'machakann/vim-operator-insert'
-NeoBundle       'machakann/vim-patternjump'
-NeoBundle       'machakann/vim-sandwich'
-" NeoBundle       'vim-sandwich', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'machakann/vim-highlightedyank'
-" NeoBundle       'vim-highlightedyank', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'machakann/vim-swap'
-" NeoBundle       'vim-swap', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'machakann/vim-textobj-functioncall'
-NeoBundle       'machakann/vim-textobj-delimited'
-NeoBundle       'machakann/vim-textobj-equation'
-" NeoBundle       'vim-textobj-mathblock', {'base': '~/Dropbox/Works/', 'type': 'nosync'}
-NeoBundle       'mattn/webapi-vim'
-NeoBundle       'mbbill/undotree'
-NeoBundle       'osyo-manga/vim-reanimate'
-NeoBundle       'sgur/vim-textobj-parameter'
-NeoBundleFetch  'Shougo/neobundle.vim'
-NeoBundle       'Shougo/neomru.vim'
-NeoBundle       'Shougo/unite.vim'
-NeoBundle       'Shougo/vimproc.vim' , {
-                \ 'build' : {
-                \     'windows' : 'tools\\update-dll-mingw',
-                \     'cygwin'  : 'make -f make_cygwin.mak',
-                \     'mac'     : 'make -f make_mac.mak',
-                \     'unix'    : 'make -f make_unix.mak',
-                \    },}
-NeoBundle       'superbrothers/vim-quickrun-markdown-gfm'
-NeoBundle       'thinca/vim-prettyprint'
-NeoBundle       'thinca/vim-visualstar'
-NeoBundle       'thinca/vim-quickrun'
-NeoBundle       'thinca/vim-template'
-NeoBundle       'thinca/vim-themis'
-" NeoBundle       'tommcdo/vim-lion'
-NeoBundle       'tyru/caw.vim'
-NeoBundle       'tyru/open-browser.vim'
-" NeoBundle       'vim-scripts/visualrepeat'
-" NeoBundle       'vim-scripts/ingo-library'
-NeoBundle       'vim-jp/vimdoc-ja'
-
-NeoBundleLazy   'jceb/vim-hier', {
-      \ 'autoload' : {
-      \   'commands' : ['HierUpdate', 'HierClear', 'HierStart', 'HierStop'],
-      \ }}
-NeoBundleLazy   'osyo-manga/vim-anzu', {
-      \ 'autoload' : {
-      \   'mappings' : '<Plug>(anzu-',
-      \ }}
-NeoBundleLazy   'Shougo/neocomplete'
-NeoBundleLazy   'ujihisa/neco-look', {
+call neobundle#add('jceb/vim-hier', {
+      \   'lazy': 1,
+      \   'autoload' : {'commands' : ['HierUpdate', 'HierClear', 'HierStart', 'HierStop'],}
+      \ })
+call neobundle#add('osyo-manga/vim-anzu', {
+      \   'lazy': 1,
+      \   'autoload' : {'mappings' : '<Plug>(anzu-',}
+      \ })
+call neobundle#add('Shougo/neocomplete', {'lazy': 1})
+call neobundle#add('ujihisa/neco-look', {
+      \   'lazy': 1,
       \   'depends': 'Shougo/neocomplete',
       \   'type'   : 'nosync',
-      \ }
-NeoBundleLazy   'vim-jp/vital.vim', {
-      \ 'autoload' : {
-      \   'commands' : 'Vitalize',
-      \   }
-      \ }
+      \ })
+call neobundle#add('vim-jp/vital.vim', {
+      \   'lazy': 1,
+      \   'autoload' : {'commands' : 'Vitalize',},
+      \ })
 call neobundle#end()
 
 filetype plugin indent on       " Required!
@@ -305,28 +321,25 @@ let s:rules += [
       \   {'char':  '"', 'at': '^\%([^"]*"[^"]*"\)*[^"]*"[^"]*\%#"', 'input': '<C-g>U<Right>',       },
       \   {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*\%#''', 'input': '''''<C-g>U<Left>',    },
       \   {'char': '''', 'at': '^\%([^'']*''[^'']*''\)*[^'']*''[^'']*\%#''', 'input': '<C-g>U<Right>'},
-      \   {'char': '''', 'at': '\C\%(^\|\<\)\%(I\|[Yy]ou\|[Ww]e\|[Tt]hey\|[Tt]hat\|[Ii]t\|[Ww]h\%([oy]\|at\|ere\|en\)\|[Hh]ow\)\%#', 'input': "'"},
-      \   {'char': '''', 'at': '\C\%(^\|\<\)\%([Ii]s\|[Aa]re\|[Ww]\%(as\|ere\|o\)\|[Dd]\%(o\%(es\)\?\|id\)\|[Hh]\%(ave\|as\)\|ca\|\%([CWcw]\|[Ss]h\)ould\|[Mm]ust\|[Mm]ight\)n\%#', 'input': "'t"},
-      \   {'char': '''', 'at': '\C\%(^\|\<\)[Ll]et\%#', 'input': "'s"},
       \ ]
 
 " correspondent parentheses
 let s:rules += [
-      \   {'char': '(',    'at': '\%#',   'input': '()<C-g>U<Left>',   'mode': 'i'},
-      \   {'char': ')',    'at': '\%#)',  'input': '<C-g>U<Right>',    'mode': 'i'},
-      \   {'char': '(',    'at': '\%#',   'input': '()<Left>',         'mode': '/?'},
-      \   {'char': ')',    'at': '\%#)',  'input': '<Right>',          'mode': '/?'},
-      \   {'char': '(',    'at': '[^\\]\%(\\\\\)*\\\%#', 'input': '(', 'mode': 'i/?'},
-      \   {'char': '[',    'at': '\%#',   'input': '[]<C-g>U<Left>',   'mode': 'i'},
-      \   {'char': ']',    'at': '\%#\]', 'input': '<C-g>U<Right>',    'mode': 'i'},
-      \   {'char': '[',    'at': '\%#',   'input': '[]<Left>',         'mode': '/?'},
-      \   {'char': ']',    'at': '\%#\]', 'input': '<Right>',          'mode': '/?'},
-      \   {'char': '[',    'at': '[^\\]\%(\\\\\)*\\\%#', 'input': '[', 'mode': 'i/?'},
-      \   {'char': '{',    'at': '\%#',   'input': '{}<C-g>U<Left>',   'mode': 'i'},
-      \   {'char': '}',    'at': '\%#}',  'input': '<C-g>U<Right>',    'mode': 'i'},
-      \   {'char': '{',    'at': '\%#',   'input': '{}<Left>',         'mode': '/?'},
-      \   {'char': '}',    'at': '\%#}',  'input': '<Right>',          'mode': '/?'},
-      \   {'char': '{',    'at': '[^\\]\%(\\\\\)*\\\%#', 'input': '{', 'mode': 'i/?'},
+      \   {'char': '(', 'at': '\%#',   'input': '()<C-g>U<Left>',   'mode': 'i'},
+      \   {'char': ')', 'at': '\%#)',  'input': '<C-g>U<Right>',    'mode': 'i'},
+      \   {'char': '(', 'at': '\%#',   'input': '()<Left>',         'mode': '/?'},
+      \   {'char': ')', 'at': '\%#)',  'input': '<Right>',          'mode': '/?'},
+      \   {'char': '(', 'at': '[^\\]\%(\\\\\)*\\\%#', 'input': '(', 'mode': 'i/?'},
+      \   {'char': '[', 'at': '\%#',   'input': '[]<C-g>U<Left>',   'mode': 'i'},
+      \   {'char': ']', 'at': '\%#\]', 'input': '<C-g>U<Right>',    'mode': 'i'},
+      \   {'char': '[', 'at': '\%#',   'input': '[]<Left>',         'mode': '/?'},
+      \   {'char': ']', 'at': '\%#\]', 'input': '<Right>',          'mode': '/?'},
+      \   {'char': '[', 'at': '[^\\]\%(\\\\\)*\\\%#', 'input': '[', 'mode': 'i/?'},
+      \   {'char': '{', 'at': '\%#',   'input': '{}<C-g>U<Left>',   'mode': 'i'},
+      \   {'char': '}', 'at': '\%#}',  'input': '<C-g>U<Right>',    'mode': 'i'},
+      \   {'char': '{', 'at': '\%#',   'input': '{}<Left>',         'mode': '/?'},
+      \   {'char': '}', 'at': '\%#}',  'input': '<Right>',          'mode': '/?'},
+      \   {'char': '{', 'at': '[^\\]\%(\\\\\)*\\\%#', 'input': '{', 'mode': 'i/?'},
       \ ]
 
 " delete correspondent parentheses and quotes
@@ -483,7 +496,7 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' !\~ \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' !\~# \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' !\~? \%#', 'input': '<BS><BS> ',    'filetype': ['vim']},
-      \   {'char': '<Plug>(smartinput_BS)', 'at': '"\s\%#',    'input': '<BS><BS>',     'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*"\s\%#','input': '<BS><BS>',     'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \. \%#',   'input': '<BS><BS><BS>', 'filetype': ['vim']},
       \   {'char': '=', 'at': '\. \%#',   'input': '<BS>= ',              'mode': 'i:', 'filetype': ['vim']},
       \   {'char': '=', 'at': ' \.\%#\S', 'input': '= ',                  'mode': 'i:', 'filetype': ['vim']},
@@ -494,6 +507,7 @@ let s:rules += [
       \   {'char': '=', 'at': '<C-r>\%#', 'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
       \   {'char': '=', 'at': '\C\<set\%[local]\> \w\+\%#', 'input': '=', 'mode': 'i',  'filetype': ['vim']},
       \   {'char': '=', 'at': '^\s*let\s\+\[\%(\k\+,\s*\)*\k\+\%#\]', 'input': '<C-g>U<Right> = ', 'mode': 'i',  'filetype': ['vim']},
+      \   {'char': '&', 'at': '\s\%#', 'input': '&<C-r>=Complete(col("."), getcompletion("", "option"))<CR><C-p>', 'filetype': ['vim']},
       \ ]
 
 " '.' -> ' . ' -> '..' -> '...'
@@ -507,7 +521,7 @@ let s:rules += [
       \   {'char': '.', 'at': ' \.\%# ',   'input': '<Del> ',         'filetype': ['vim']},
       \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\%(\.\k\+\)\?\|\%(g:\)\?\u\k*\%(\.\k\+\)\?\)(.*\%#', 'input': '...', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\%(\.\k\+\)\?\|\%(g:\)\?\u\k*\%(\.\k\+\)\?\)(.*\.\.\.\%#', 'input': '<BS><BS><BS>', 'filetype': ['vim']},
-      \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)\%#.*\%(dict\)\@!', 'input': '. dict<C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left>', 'filetype': ['vim']},
+      \   {'char': '.', 'at': '^\s*function!\?\s\+\%(\%(s:\)\?\k\+\|\%(g:\)\?\u\k*\)\%#\s\+\%(abort\)\?$', 'input': '. dict<C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left><C-g>U<Left>', 'filetype': ['vim']},
       \ ]
 
 let s:rules += [
@@ -525,7 +539,7 @@ let s:rules += [
       \ ]
 
 let s:rules += [
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function!  abort", "endfunction", " ")<CR><Esc>0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nctio]\%#', 'input': '<C-w><C-r>=CloseBlock("function!  abort", "endfunction", " ")<CR><Esc>0f!la', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': '<C-r>=CloseBlock(" ", "endif", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#\s', 'input': '<C-r>=CloseBlock("", "endif", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\S.*\%#', 'input': '<C-r>=VimCloseForBlock()<CR>', 'filetype': ['vim']},
@@ -638,6 +652,7 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*function\s\+\h\k*(.*)\%#', 'input': ' result()<C-g>U<Left>', 'filetype': ['fortran']},
       \   {'char': '(', 'at': '^\s*function\s\+\h\k*\%#', 'input': '<C-r>=FortranSyncName("function")<CR>()<C-g>U<Left>', 'filetype': ['fortran']},
       \   {'char': '(', 'at': '^\s*subroutine\s\+\h\k*\%#', 'input': '<C-r>=FortranSyncName("subroutine")<CR>()<C-g>U<Left>', 'filetype': ['fortran']},
+      \   {'char': '.', 'at': '\s\%#', 'input': '.<C-r>=Complete(col(".")-1, [".true.", ".false.", ".and.", ".or."])<CR><C-p>', 'filetype': ['fortran']},
       \ ]
 " ' + ' -> '+' -> '++' -> '+++' ...
 let s:rules += [
@@ -675,8 +690,8 @@ let s:rules += [
       \ ]
 
 let s:rules += [
-      \   {'char': '-',    'at': '< \%#',   'input': '<BS>- ',           'filetype': ['r']},
-      \   {'char': '>',    'at': '- \%#',   'input': '<BS>> ',           'filetype': ['r']},
+      \   {'char': '-', 'at': '< \%#',   'input': '<BS>- ', 'filetype': ['r']},
+      \   {'char': '>', 'at': '- \%#',   'input': '<BS>> ', 'filetype': ['r']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' <- \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['r']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' -> \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['r']},
       \ ]
@@ -728,8 +743,10 @@ let s:rules += [
       \   {'char': '=', 'at': '\S\.< \%#', 'input': '<BS><BS><BS> .<= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\.> \%#', 'input': '<BS><BS><BS>.>= ',  'filetype': ['julia']},
       \   {'char': '=', 'at': '\S\.> \%#', 'input': '<BS><BS><BS> .>= ', 'filetype': ['julia']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w>function <CR>end<Esc>kA', 'filetype': ['julia']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': ' <CR>end<Esc>kA', 'filetype': ['julia']},
+      \   {'char': '+', 'at': '\S\.\%#', 'input': '<BS> .+ ', 'filetype': ['julia']},
+      \   {'char': '-', 'at': '\S\.\%#', 'input': '<BS> .- ', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function ", "end", " ")<CR>', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': '<C-r>=CloseBlock(" ", "end", " ")<CR>', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
       \ ]
 
@@ -872,10 +889,15 @@ function! CloseBlock(current, close, fallback, ...) abort
 endfunction
 
 function! VimCloseForBlock() abort
-  if searchpair("(", "", ")", "bn", "", line(".")) > 0 || searchpair('\[', "", '\]', "bn", "", line(".")) > 0
+  let lnum = line('.')
+  if searchpair("(", "", ")", "bn", "", lnum) > 0 || searchpair('\[', "", '\]', "bn", "", lnum) > 0
     return ' '
   else
-    return CloseBlock(' in ', 'endfor', ' ')
+    let keyseq = CloseBlock(' in ', 'endfor', ' ')
+    if keyseq ==# ' ' && col('.') == col([lnum, '$'])
+      let keyseq = ' in '
+    endif
+    return keyseq
   endif
 endfunction
 
@@ -907,6 +929,11 @@ function! FortranSyncName(identifier) abort
     return ''
   endtry
 endfunction
+
+function! Complete(startcol, matches) abort
+  call complete(a:startcol, a:matches)
+  return ''
+endfunction
 "}}}
 " *** anzu.vim *** {{{
 " mapping
@@ -933,14 +960,10 @@ xmap gci <Plug>(operator-caw-hatpos-comment)
 "*** columnmove *** {{{
 let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 "}}}
-"*** jedi.vim *** {{{
-" let g:jedi#auto_initialization = 1
-" let g:jedi#rename_command = "<leader>R"
-" let g:jedi#popup_on_dot = 0
-" autocmd vimrc FileType python setlocal omnifunc=jedi#completions
+"*** event-DotCommandPre *** {{{
+nmap . <Plug>(event-DotCommandPre+Dot)
 "}}}
 "*** julia.vim *** {{{
-let g:default_julia_version = '0.5'
 "}}}
 "*** neocomplete.vim *** {{{
 let s:bundle = neobundle#get('neocomplete')
@@ -953,7 +976,6 @@ function! s:bundle.hooks.on_source(bundle)
   let g:neocomplete#auto_completion_start_length = 3
   " Set minimum syntax keyword length.
   let g:neocomplete#sources#syntax#min_keyword_length = 3
-  let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
   " Assign data directory path.
   let g:neocomplete#data_directory = $USERCACHEDIR . '/.neocon'
   " Delimiter automatic insertion.
@@ -963,6 +985,8 @@ function! s:bundle.hooks.on_source(bundle)
     let g:neocomplete#delimiter_patterns= {}
   endif
   let g:neocomplete#delimiter_patterns.vim = ['#', '.']
+  " no fuzzy matching
+  let g:neocomplete#enable_fuzzy_completion = 0
 
   " Define dictionary.
   let g:neocomplete#sources#dictionary#dictionaries = {
@@ -1043,6 +1067,7 @@ omap gN <Plug>(gN-for-operator-insert-a)
 "*** highlightedyank *** {{{
 map y <Plug>(highlightedyank)
 let g:highlightedyank_highlight_duration = 3000
+let g:highlightedyank_keep_curpos = 1
 "}}}
 "*** patternjump *** {{{
 "   let g:patternjump_highlight = 1
@@ -1085,9 +1110,9 @@ xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\k*\>', '[^.
 "*** quickrun.vim *** {{{
 let g:quickrun_config = {
       \ '_' : {
-      \         'runner/vimproc/updatetime' : 100,
+      \         'runner/vimproc/updatetime' : 500,
       \         'hook/time/enable' : 1,
-      \         'runner': 'vimproc',
+      \         'runner': 'job',
       \       },
       \ 'julia' : {
       \         'exec': 'julia -E "include(\"%S\")"',
@@ -1177,14 +1202,9 @@ xmap s' <Plug>(operator-sandwich-add)'
 xmap s7 <Plug>(operator-sandwich-add)'
 nmap sf <Plug>(operator-sandwich-add-query1st)f
 xmap sf <Plug>(operator-sandwich-add)f
-nmap sd  <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-query-a)
-nmap sdb <Plug>(operator-sandwich-delete)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-auto-a)
-nmap sr  <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-query-a)
-nmap srb <Plug>(operator-sandwich-replace)<Plug>(operator-sandwich-synchro-count)<Plug>(textobj-sandwich-auto-a)
 
 " keep cursor position after an operation
 call operator#sandwich#set('all', 'all', 'cursor', 'keep')
-nmap . <Plug>(operator-sandwich-dot)
 
 " highlight
 call operator#sandwich#set('all',    'all', 'hi_duration', 3000)
@@ -1211,6 +1231,12 @@ let g:sandwich#recipes = [
       \   {'buns': ['^\s*for\>',   '\<endfor\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \   {'buns': ['^\s*while\>', '\<endwhile\>'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
       \   {'buns': ['^\s*try\>',   '\<endtry\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+      \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['add'], 'action': ['add'], 'input': ['t']},
+      \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['T']},
+      \   {'buns': 'sandwich#magicchar#t#tagname()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['t']},
+      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 1, 'kind' : ['delete', 'textobj'], 'expr_filter': ['operator#sandwich#kind() !=# "replace"'], 'synchro': 1, 'linewise': 1, 'input': ['t', 'T']},
+      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 1, 'kind' : ['replace', 'query'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['T']},
+      \   {'external': ["\<Plug>(textobj-sandwich-tagname-i)", "\<Plug>(textobj-sandwich-tagname-a)"], 'noremap' : 0, 'kind' : ['replace', 'textobj'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['t']},
       \ ]
 
 let g:operator#sandwich#recipes = [
@@ -1233,19 +1259,6 @@ function! GetChar() abort
   let c = getchar()
   let c = type(c) == type(0) ? nr2char(c) : c
   return c ==# "\<Esc>" || c ==# "\<C-c>" ? '' : c
-endfunction
-
-autocmd vimrc User OperatorSandwichAddPre,OperatorSandwichReplacePre call s:compl_lock()
-autocmd vimrc User OperatorSandwichAddPost,OperatorSandwichReplacePost call s:compl_unlock()
-function! s:compl_lock() abort
-  if exists(':NeoCompleteLock') == 2
-    NeoCompleteLock
-  endif
-endfunction
-function! s:compl_unlock() abort
-  if exists(':NeoCompleteUnlock') == 2
-    NeoCompleteUnlock
-  endif
 endfunction
 
 function! VimSandwichBlocks() abort
@@ -1365,13 +1378,14 @@ set hidden                          " move out from current buffer without warni
 set history=100                     " the stored number of commands/searching history
 set iminsert=0                      " turn off ime when getting into insert mode
 set imsearch=0                      " turn off ime when getting into searching mode
-" set splitbelow                      " open new window below the current when splitting
-" set splitright                      " open new window in right hand side of the current when splitting
+set splitbelow                      " open new window below the current when splitting
+set splitright                      " open new window in right hand side of the current when splitting
 set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
 set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
 set viminfo&
 set viminfo+=n$USERCACHEDIR/viminfo.txt
                                     " assign path to viminfo file
+set viminfo^='1000                  " longer v:oldfiles lifetime
 set wildmenu                        " use extended commandline completion
 " set wildmode=longest:full,full      " way to complete in cmdline
 set wildignore+=*.o
@@ -1408,6 +1422,15 @@ endif
 " never use 'r' and 'o' option in formatoptions
 autocmd vimrc FileType * setlocal formatoptions-=r
 autocmd vimrc FileType * setlocal formatoptions-=o
+
+" disable default plugins
+let g:loaded_getscriptPlugin = 1
+let g:loaded_gzip = 1
+let g:loaded_logipat = 1
+let g:loaded_rrhelper = 1
+let g:loaded_spellfile_plugin = 1
+let g:loaded_vimballPlugin = 1
+let g:loaded_zipPlugin = 1
 "}}}
 "***** searching behavior ***** {{{
 "--------------------------------------------------------------------------
@@ -1555,8 +1578,14 @@ endif
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
 " let g:colorscheme_no_italic = 1
-set background=dark
+set background=light
+" set background=dark
 colorscheme reki
+" colorscheme kemonofriends
+" let g:colorscheme_kemonofriends_sandstar_active = 0
+" let g:lightline = {'colorscheme': 'kemonofriends'}
+" let g:airline_theme = 'kemonofriends'
+" let g:ezbar = {'theme': 'kemonofriends'}
 set cmdheight=1                     " the height of commandline
 " set cursorline                      " highlight corsor line
 set laststatus=2                    " always display status line
@@ -1792,8 +1821,8 @@ map! <F1> <Nop>
 imap <C-\> <Nop>
 
 " do not store a character cut by x,s
-nnoremap x "_x
-" nnoremap s "_s
+" nnoremap x "_x:<Esc>
+" nnoremap s "_s:<Esc>
 
 " I prefer to use <C-p>/<C-n> when ascending history
 cnoremap <C-p> <Up>
@@ -1802,31 +1831,11 @@ cnoremap <C-n> <Down>
 cnoremap <Down> <C-n>
 
 " match 'Y' behavior with 'D' : Y = yy -> y$
-" NOTE: Use nmap for operator-flashy plugin.
+" NOTE: Use nmap for highlightedyank plugin.
 nmap Y y$
 
 " move cursor to the end of selected area after yank
-nnoremap <expr> <SID>(YankAndJumpToTailPrerequisite) YankAndJumpToTailPrerequisite()
-nnoremap <SID>(g@) g@
-nmap gy <SID>(YankAndJumpToTailPrerequisite)<SID>(g@)
-xmap gy y`>
 xmap Y y`>
-
-function! YankAndJumpToTail(motionwise) abort
-  let v = a:motionwise ==# 'char' ? 'v'
-      \ : a:motionwise ==# 'line' ? 'V'
-      \ : "\<C-v>"
-
-  " use o_v, o_V, o_CTRL-v to keep the marks '<, '>
-  execute printf('normal! `["%sy%s`]', v:register, v)
-
-  let key_seq = printf(":call setpos('.', %s)\<CR>:echo \<CR>", string(getpos("']")))
-  call feedkeys(key_seq, 'n')
-endfunction
-function! YankAndJumpToTailPrerequisite() abort
-  set operatorfunc=YankAndJumpToTail
-  return ''
-endfunction
 
 " line-break without any change to the current line in insert mode
 " smartinputter no tashinami.
@@ -1834,21 +1843,7 @@ inoremap <C-j> <Esc>o
 " inoremap <C-k> <Esc>O
 
 " line-break for upper direction with hanging a following part
-" inoremap <S-CR> <Esc>lDO<C-r>*<Esc>I
-inoremap <silent> <S-CR> <Esc>:call Linebreak_udhfp()<CR>
-
-""" countermeasure for flickering
-function! Linebreak_udhfp()
-  if col('.') == col('$') - 1
-    call feedkeys('O', 'n')
-  else
-    let string = getline('.')
-    let col    = col('.')
-    call setline('.', string[: col - 1])
-    execute 'normal! O' . string[col :]
-    call feedkeys('I', 'n')
-  endif
-endfunction
+inoremap <S-CR> <Esc>lDO<C-r>"<Esc>I
 
 " check syntax group of the character under the cursor
 nnoremap \s :echo map(synstack(line('.'), col('.')), 'synIDattr(synIDtrans(v:val), "name")')<CR>
@@ -1917,11 +1912,31 @@ nnoremap [q :<C-u>execute v:count1 . 'cprevious'<CR>
 nnoremap ]q :<C-u>execute v:count1 . 'cnext'<CR>
 
 " move buffer list
-nnoremap <Space>b :ls<CR>:b
+nnoremap <Space>b :ls<CR>:b<Space>
 
 " roaming matched texts in incremental searching by <Tab> key
 " cnoremap <expr> <Tab>   getcmdtype() =~# '[/?]' ? "\<C-g>" : "\<Tab>"
 " cnoremap <expr> <S-Tab> getcmdtype() =~# '[/?]' ? "\<C-t>" : "\<S-Tab>"
+
+" Snake case motion
+let g:milestones = [' ', '_', '#', '/']
+function! s:n_underscore(direction) abort
+  let pattern = printf('\%%(%s\)\zs.', join(g:milestones, '\|'))
+  let flag = a:direction[0] ==# 'b' ? 'b' : ''
+  return search(pattern, flag, line('.'))
+endfunction
+nnoremap <silent> [_ :<C-u>call <SID>n_underscore('backward')<CR>
+nnoremap <silent> ]_ :<C-u>call <SID>n_underscore('forward')<CR>
+
+" search in visualmode
+xnoremap / <Esc>/<C-r>=<SID>visual_range()<CR>
+xnoremap ? <Esc>?<c-r>=<SID>visual_range()<CR>
+function! s:visual_range() abort
+  return printf('\%%>%sl\%%<%sl', line("'<") - 1, line("'>") + 1)
+endfunction
+
+" easy :global
+command! -nargs=1 -range=% Global <line1>,<line2>global//normal <args>/g
 
 " A variant of i_CTRL-w "{{{
 let g:stop_pattern = [' ', '_', '#', '-', '/', '\\', ':', '(', ')', '\[', '\]', '{', '}']
@@ -1996,6 +2011,47 @@ call textobj#user#plugin('number', {
   \   },
   \ })
 "}}}
+" paste operator  "{{{
+function! Operator_paste_prerequisite() abort "{{{
+  set operatorfunc=Operator_paste
+  let s:register = v:register ==# s:default_register() ? '' : '"' . v:register
+  return ''
+endfunction
+"}}}
+function! Operator_paste(motionwise) abort  "{{{
+  let v = s:v(a:motionwise)
+  execute printf('normal! `[%s`]%sp', v, s:register)
+endfunction
+"}}}
+function! s:default_register() abort  "{{{
+  if &clipboard =~# 'unnamedplus'
+    let default_register = '+'
+  elseif &clipboard =~# 'unnamed'
+    let default_register = '*'
+  else
+    let default_register = '"'
+  endif
+  return default_register
+endfunction
+"}}}
+function! s:v(motionwise) abort "{{{
+  if a:motionwise ==# 'char'
+    let v = 'v'
+  elseif a:motionwise ==# 'line'
+    let v = 'V'
+  elseif a:motionwise ==# 'block'
+    let v = "\<C-v>"
+  else
+    let v = a:motionwise
+  endif
+  return v
+endfunction
+"}}}
+nnoremap <expr> <SID>(operator-paste-prerequisite) Operator_paste_prerequisite()
+nmap <silent> <SID>(operator-paste) <SID>(operator-paste-prerequisite)g@
+nmap yp <SID>(operator-paste)
+nmap ypp <SID>(operator-paste)g@
+"}}}
 "}}}
 "***** commands ***** {{{
 "--------------------------------------------------------------------------
@@ -2050,21 +2106,32 @@ endif
 
 " preferable alternate of help command.
 function! s:pref_alt_help(...)
+  let [ splitright,  splitbelow] = [&splitright, &splitbelow]
+  let [&splitright, &splitbelow] = [1, 1]
   let bang = a:1
   let  arg = a:2
   " Searching for the help window.
   let helptabnr = 0
   let helpwinnr = 0
-  for tnr in range(1, tabpagenr('$'))
-    for wnr in range(1, tabpagewinnr(tnr, '$'))
-      let buftype = gettabwinvar(tnr, wnr, '&buftype')
-      if buftype ==# 'help'
-        let helptabnr = tnr
-        let helpwinnr = wnr
-        break
+  let tnr = tabpagenr()
+  for wnr in range(1, tabpagewinnr(tnr, '$'))
+    if gettabwinvar(tnr, wnr, '&buftype') ==# 'help'
+      let helptabnr = tnr
+      let helpwinnr = wnr
+      break
+    endif
+  endfor
+  if helptabnr == 0 && helpwinnr == 0
+    for tnr in range(1, tabpagenr('$'))
+      if tabpagewinnr(tnr, '$') == 1
+        if gettabwinvar(tnr, 1, '&buftype') ==# 'help'
+          let helptabnr = tnr
+          let helpwinnr = wnr
+          break
+        endif
       endif
     endfor
-  endfor
+  endif
 
   if helptabnr == 0 && helpwinnr == 0
     let width  = winwidth(0)
@@ -2081,6 +2148,8 @@ function! s:pref_alt_help(...)
     execute 'normal! ' . helpwinnr . "\<C-w>w"
     execute 'help' . bang . ' ' . arg
   endif
+
+  let [&splitright, &splitbelow] = [splitright, splitbelow]
   normal! 0
 endfunction
 
@@ -2088,12 +2157,24 @@ command! -bang -nargs=? -complete=help Help call s:pref_alt_help('<bang>', <f-ar
 nnoremap <Space>h :Help<Space>
 
 " Modified :edit command
+function! Edit(kind, arg) abort
+  let target = a:arg
+  if !filereadable(target)
+    let ArgLead = a:arg
+    let CmdLine = a:kind . ' ' . a:arg
+    let CursorPos = getcmdpos()
+    let candidates = filter(EditCompl(ArgLead, CmdLine, CursorPos), 'filereadable(v:val)')
+    let candidate = get(candidates, 0, '')
+    if candidate !=# ''
+      let target = candidate
+    endif
+  endif
+  execute 'edit ' . target
+endfunction
 function! EditCompl(ArgLead, CmdLine, CursorPos) abort
   let pwd = getcwd()
   let len = strlen(pwd)
-  if a:CmdLine[0] ==# 'B'
-    let candidates = map(filter(range(1, bufnr('$')), 'buflisted(v:val)'), 'expand(bufname(v:val))')
-  elseif a:CmdLine[0] ==# 'M'
+  if a:CmdLine[0] ==# 'M'
     let candidates = map(copy(v:oldfiles), 'expand(v:val)')
   else
     let separator = has('win32') && !&shellslash ? '\' : '/'
@@ -2106,6 +2187,7 @@ function! EditCompl(ArgLead, CmdLine, CursorPos) abort
     else
       let candidates = glob(a:ArgLead . '*', 0, 1, 1)
     endif
+    call map(candidates, 'isdirectory(v:val) ? v:val . separator : v:val')
   endif
   call map(candidates, 'v:val[: len-1] ==# pwd ? v:val[len+1 :] : v:val')
   for string in split(a:ArgLead, '[^\\]\%(\\\\\)*\s')
@@ -2113,11 +2195,9 @@ function! EditCompl(ArgLead, CmdLine, CursorPos) abort
   endfor
   return filter(candidates, 'filereadable(v:val) || isdirectory(v:val)')
 endfunction
-command! -nargs=1 -complete=customlist,EditCompl E edit <args>
-command! -nargs=1 -complete=customlist,EditCompl B edit <args>
-command! -nargs=1 -complete=customlist,EditCompl M edit <args>
+command! -nargs=1 -complete=customlist,EditCompl E call Edit('E', <q-args>)
+command! -nargs=1 -complete=customlist,EditCompl M call Edit('M', <q-args>)
 nnoremap <Space>e :E<Space>
-" nnoremap <Space>b :B<Space>
 nnoremap <Space>m :M<Space>
 
 " Variants of :buffer command, split and display buffer
