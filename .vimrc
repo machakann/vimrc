@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 06-Mar-2017.
+" Last Change: 13-Mar-2017.
 "
 "***** Todo *****
 "***** startup ***** {{{
@@ -84,19 +84,20 @@ call neobundle#add('machakann/vim-textobj-delimited')
 call neobundle#add('machakann/vim-vimhelplint')
 call neobundle#add('mattn/webapi-vim')
 call neobundle#add('mbbill/undotree')
+call neobundle#add('neomake/neomake')
 call neobundle#add('osyo-manga/vim-reanimate')
 call neobundle#add('sgur/vim-textobj-parameter')
 call neobundle#add('Shougo/neobundle.vim', {'fetch': 1})
 call neobundle#add('Shougo/neomru.vim')
 call neobundle#add('Shougo/unite.vim')
-call neobundle#add('Shougo/vimproc.vim', {
-  \ 'build' : {
-  \   'windows': 'tools\\update-dll-mingw',
-  \   'cygwin' : 'make -f make_cygwin.mak',
-  \   'mac'    : 'make -f make_mac.mak',
-  \   'unix'   : 'make -f make_unix.mak',
-  \  },
-  \ })
+" call neobundle#add('Shougo/vimproc.vim', {
+"   \ 'build' : {
+"   \   'windows': 'tools\\update-dll-mingw',
+"   \   'cygwin' : 'make -f make_cygwin.mak',
+"   \   'mac'    : 'make -f make_mac.mak',
+"   \   'unix'   : 'make -f make_unix.mak',
+"   \  },
+"   \ })
 call neobundle#add('superbrothers/vim-quickrun-markdown-gfm')
 call neobundle#add('thinca/vim-prettyprint')
 call neobundle#add('thinca/vim-visualstar')
@@ -106,8 +107,10 @@ call neobundle#add('thinca/vim-themis')
 " call neobundle#add('tommcdo/vim-lion')
 call neobundle#add('tyru/caw.vim')
 call neobundle#add('tyru/open-browser.vim')
-call neobundle#add('vim-scripts/visualrepeat')
-call neobundle#add('vim-scripts/ingo-library')
+" call neobundle#add('vim-scripts/visualrepeat')
+" call neobundle#add('vim-scripts/ingo-library')
+" call neobundle#add('vim-scripts/ConflictMotions')
+" call neobundle#add('vim-scripts/CountJump')
 call neobundle#add('vim-jp/vimdoc-ja')
 
 call neobundle#add('jceb/vim-hier', {
@@ -570,18 +573,17 @@ let s:rules += [
       \ ]
 
 " common in matlab, scilab and julia
-" ' + ' -> '+' -> '++' -> '+++' ...
+" '+' -> ' + ' -> '++' -> '+++' ...
 let s:rules += [
-      \   {'char': '+', 'at': '\%#',    'input': ' + ',           'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '+', 'at': ' + \%#', 'input': '<BS><BS><BS>+', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '+', 'at': '+\%#',   'input': '+',             'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '+', 'at': '\%#',      'input': '+',              'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '+', 'at': '[^+]+\%#', 'input': '<BS> + ',        'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '+', 'at': ' + \%#',   'input': '<BS><BS><BS>++', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
-" ' - ' -> '-' -> '--' -> '---' ...
+" '-' -> ' - ' -> '--' -> '---' ...
 let s:rules += [
-      \   {'char': '-', 'at': '\%#',    'input': ' - ',           'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '-', 'at': ' - \%#', 'input': '<BS><BS><BS>-', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '-', 'at': '-\%#',   'input': '-',             'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '-', 'at': '\c[(=<>,ed]\s*\%#', 'input': '-',  'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '-', 'at': '\%#',      'input': '-',              'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '-', 'at': '[^-]-\%#', 'input': '<BS> - ',        'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '-', 'at': ' - \%#',   'input': '<BS><BS><BS>--', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
 " '.^' -> '^' -> '^^' -> '^^^' ...
 let s:rules += [
@@ -730,6 +732,8 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_^n)', 'at': '\%(Dict\|Array\)\%#', 'input': '{, }<Left><Left><Left><C-r>=LocalComplete(["type"])<CR>', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': 'Vector\%#', 'input': '{}<Left><C-r>=LocalComplete(["type"])<CR>', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_^n)', 'at': '\%(convert\|zeros\|ones\)\%#', 'input': '(, )<Left><Left><Left><C-r>=LocalComplete(["type"])<CR>', 'filetype': ['julia']},
+      \   {'char': '>', 'at': '-\%#', 'input': '<BS> -> ', 'filetype': ['julia']},
+      \   {'char': '>', 'at': ' - \%#', 'input': '<BS>> ', 'filetype': ['julia']},
       \   {'char': '>', 'at': ' = \%#', 'input': '<BS>> ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '/\%#', 'input': '<BS> /= ', 'filetype': ['julia']},
@@ -743,6 +747,7 @@ let s:rules += [
       \   {'char': '=', 'at': '\S\.< \%#', 'input': '<BS><BS><BS> .<= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\.> \%#', 'input': '<BS><BS><BS>.>= ',  'filetype': ['julia']},
       \   {'char': '=', 'at': '\S\.> \%#', 'input': '<BS><BS><BS> .>= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': ',\s*\k\+\%#', 'input': '=', 'filetype': ['julia']},
       \   {'char': '+', 'at': '\S\.\%#', 'input': '<BS> .+ ', 'filetype': ['julia']},
       \   {'char': '-', 'at': '\S\.\%#', 'input': '<BS> .- ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function ", "end", " ")<CR>', 'filetype': ['julia']},
@@ -1234,8 +1239,8 @@ let g:sandwich#recipes = [
       \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['add'], 'action': ['add'], 'input': ['t']},
       \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['T']},
       \   {'buns': 'sandwich#magicchar#t#tagname()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['t']},
-      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 1, 'kind' : ['delete', 'textobj'], 'expr_filter': ['operator#sandwich#kind() !=# "replace"'], 'synchro': 1, 'linewise': 1, 'input': ['t', 'T']},
-      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 1, 'kind' : ['replace', 'query'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['T']},
+      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 0, 'kind' : ['delete', 'textobj'], 'expr_filter': ['operator#sandwich#kind() !=# "replace"'], 'synchro': 1, 'linewise': 1, 'input': ['t', 'T']},
+      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 0, 'kind' : ['replace', 'query'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['T']},
       \   {'external': ["\<Plug>(textobj-sandwich-tagname-i)", "\<Plug>(textobj-sandwich-tagname-a)"], 'noremap' : 0, 'kind' : ['replace', 'textobj'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['t']},
       \ ]
 
@@ -1567,7 +1572,6 @@ if has('win32')
     autocmd!
     autocmd BufRead * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
     autocmd SessionLoadPost * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
-    autocmd SourceCmd ~/.vimrc doautoall im_auto_switch BufRead
   augroup END
 
   command! IMAutoSwitchStart call s:im_auto_switch_start()
@@ -1582,7 +1586,7 @@ set background=light
 " set background=dark
 colorscheme reki
 " colorscheme kemonofriends
-" let g:colorscheme_kemonofriends_sandstar_active = 0
+let g:colorscheme_kemonofriends_sandstar_active = 0
 " let g:lightline = {'colorscheme': 'kemonofriends'}
 " let g:airline_theme = 'kemonofriends'
 " let g:ezbar = {'theme': 'kemonofriends'}
@@ -1815,13 +1819,19 @@ if has('win32')
   silent! vunmap <C-x>
 endif
 
+" use of function keys
+if has('win32')
+  nnoremap <F11> :simalt ~x<CR>
+endif
+nnoremap <expr> <F12> ':set background=' . (&background !=# 'light' ? 'light' : 'dark') . '<CR>'
+
 " disable distracting keys
 map  <F1> <Nop>
 map! <F1> <Nop>
 imap <C-\> <Nop>
 
 " do not store a character cut by x,s
-" nnoremap x "_x:<Esc>
+nnoremap x "_x:<Esc>
 " nnoremap s "_s:<Esc>
 
 " I prefer to use <C-p>/<C-n> when ascending history
@@ -1847,10 +1857,6 @@ inoremap <S-CR> <Esc>lDO<C-r>"<Esc>I
 
 " check syntax group of the character under the cursor
 nnoremap \s :echo map(synstack(line('.'), col('.')), 'synIDattr(synIDtrans(v:val), "name")')<CR>
-
-" getting into insert mode after moving cursor
-nnoremap <M-i> bi
-nnoremap <M-a> ea
 
 " reserve black hole register for the next operator
 nnoremap <C-\> "_
