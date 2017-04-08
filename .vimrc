@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 13-Mar-2017.
+" Last Change: 08-Apr-2017.
 "
 "***** Todo *****
 "***** startup ***** {{{
@@ -30,12 +30,8 @@ endif
 
 let $LANG = 'C'
 
-" SID
-function! s:SID() abort
-  return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
-endfunction
-let s:SID = printf("\<SNR>%s_", s:SID())
-delfunction s:SID
+" start syntax highlighting
+syntax enable
 
 augroup vimrc
   autocmd!
@@ -78,26 +74,28 @@ call neobundle#add('machakann/vim-highlightedyank')
 call neobundle#add('machakann/vim-swap')
 " call neobundle#add('vim-swap', {'base': '~/Dropbox/Works/', 'frozen': 1})
 call neobundle#add('machakann/vim-textobj-functioncall')
+" call neobundle#add('vim-textobj-functioncall', {'base': '~/Dropbox/Works/', 'frozen': 1})
 call neobundle#add('machakann/vim-textobj-delimited')
 " call neobundle#add('vim-copycat', {'base': '~/Dropbox/Works/', 'frozen': 1})
 " call neobundle#add('vim-textobj-mathblock', {'base': '~/Dropbox/Works/', 'frozen': 1})
 call neobundle#add('machakann/vim-vimhelplint')
 call neobundle#add('mattn/webapi-vim')
 call neobundle#add('mbbill/undotree')
-call neobundle#add('neomake/neomake')
+" call neobundle#add('neomake/neomake')
 call neobundle#add('osyo-manga/vim-reanimate')
+" call neobundle#add('plasticboy/vim-markdown')
 call neobundle#add('sgur/vim-textobj-parameter')
 call neobundle#add('Shougo/neobundle.vim', {'fetch': 1})
 call neobundle#add('Shougo/neomru.vim')
 call neobundle#add('Shougo/unite.vim')
-" call neobundle#add('Shougo/vimproc.vim', {
-"   \ 'build' : {
-"   \   'windows': 'tools\\update-dll-mingw',
-"   \   'cygwin' : 'make -f make_cygwin.mak',
-"   \   'mac'    : 'make -f make_mac.mak',
-"   \   'unix'   : 'make -f make_unix.mak',
-"   \  },
-"   \ })
+call neobundle#add('Shougo/vimproc.vim', {
+  \ 'build' : {
+  \   'windows': 'tools\\update-dll-mingw',
+  \   'cygwin' : 'make -f make_cygwin.mak',
+  \   'mac'    : 'make -f make_mac.mak',
+  \   'unix'   : 'make -f make_unix.mak',
+  \  },
+  \ })
 call neobundle#add('superbrothers/vim-quickrun-markdown-gfm')
 call neobundle#add('thinca/vim-prettyprint')
 call neobundle#add('thinca/vim-visualstar')
@@ -122,10 +120,9 @@ call neobundle#add('osyo-manga/vim-anzu', {
       \   'autoload' : {'mappings' : '<Plug>(anzu-',}
       \ })
 call neobundle#add('Shougo/neocomplete', {'lazy': 1})
-call neobundle#add('ujihisa/neco-look', {
+call neobundle#add('machakann/neco-look', {
       \   'lazy': 1,
       \   'depends': 'Shougo/neocomplete',
-      \   'type'   : 'nosync',
       \ })
 call neobundle#add('vim-jp/vital.vim', {
       \   'lazy': 1,
@@ -577,35 +574,39 @@ let s:rules += [
 let s:rules += [
       \   {'char': '+', 'at': '\%#',      'input': '+',              'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '+', 'at': '[^+]+\%#', 'input': '<BS> + ',        'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '+', 'at': ' + \%#',   'input': '<BS><BS><BS>++', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '+', 'at': ' + \%#',   'input': '<BS><BS><BS>++', 'filetype': ['matlab', 'scilab']},
+      \   {'char': '+', 'at': ' + \%#',  'input': '<BS><BS><BS> .+ ',   'filetype': ['julia']},
+      \   {'char': '+', 'at': ' .+ \%#', 'input': '<BS><BS><BS><BS>++', 'filetype': ['julia']},
       \ ]
 " '-' -> ' - ' -> '--' -> '---' ...
 let s:rules += [
       \   {'char': '-', 'at': '\%#',      'input': '-',              'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '-', 'at': '[^-]-\%#', 'input': '<BS> - ',        'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '-', 'at': ' - \%#',   'input': '<BS><BS><BS>--', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '-', 'at': ' - \%#',   'input': '<BS><BS><BS>--', 'filetype': ['matlab', 'scilab']},
+      \   {'char': '-', 'at': ' - \%#',  'input': '<BS><BS><BS> .- ',   'filetype': ['julia']},
+      \   {'char': '-', 'at': ' .- \%#', 'input': '<BS><BS><BS><BS>--', 'filetype': ['julia']},
       \ ]
 " '.^' -> '^' -> '^^' -> '^^^' ...
 let s:rules += [
-      \   {'char': '^', 'at': '\%#', 'input': '.^', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '^', 'at': '\^\%#', 'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '^', 'at': '\.\^\%#', 'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '^', 'at': '\%#', 'input': '^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '^', 'at': '[^\^.]\^\%#', 'input': '<BS>.^', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '^', 'at': '\.\^\%#', 'input': '<BS><BS>^^', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '[^^.]^\%#', 'input': '<BS>.^',    'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\.^\%#',    'input': '<BS><BS>^', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
 " '.*' -> '*' -> '**' -> '***' ...
 let s:rules += [
-      \   {'char': '*', 'at': '\%#', 'input': '.*', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '*', 'at': '\*\%#', 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '*', 'at': '\.\*\%#', 'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '*', 'at': '\%#', 'input': '*', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '*', 'at': '[^*.]\*\%#', 'input': '<BS>.*', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '*', 'at': '\.\*\%#', 'input': '<BS><BS>**', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '[^*.]\*\%#', 'input': '<BS>.*',    'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\.\*\%#',    'input': '<BS><BS>*', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
 " './' -> '/' -> '//' -> '///' ...
 let s:rules += [
-      \   {'char': '/', 'at': '\%#', 'input': './', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '/', 'at': '/\%#', 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
-      \   {'char': '/', 'at': '\./\%#', 'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '/', 'at': '\%#', 'input': '/', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '/', 'at': '[^/.]/\%#', 'input': '<BS>./', 'filetype': ['matlab', 'scilab', 'julia']},
+      \   {'char': '/', 'at': '\./\%#', 'input': '<BS><BS>//', 'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '[^/.]/\%#', 'input': '<BS>./',    'filetype': ['matlab', 'scilab', 'julia']},
       \   {'char': '<Plug>(smartinput_^k)', 'at': '\./\%#',    'input': '<BS><BS>/', 'filetype': ['matlab', 'scilab', 'julia']},
       \ ]
@@ -735,10 +736,16 @@ let s:rules += [
       \   {'char': '>', 'at': '-\%#', 'input': '<BS> -> ', 'filetype': ['julia']},
       \   {'char': '>', 'at': ' - \%#', 'input': '<BS>> ', 'filetype': ['julia']},
       \   {'char': '>', 'at': ' = \%#', 'input': '<BS>> ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '/\%#', 'input': '<BS> /= ', 'filetype': ['julia']},
       \   {'char': '>', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
       \   {'char': '<', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '/\%#',  'input': '<BS> /= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s\*\%#', 'input': '<BS>*= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s/\%#',  'input': '<BS>/= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\.\*\%#', 'input': '<BS><BS> .*= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\./\%#',  'input': '<BS><BS> ./= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s\.\*\%#', 'input': '<BS><BS>.*= ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\s\./\%#',  'input': '<BS><BS>./= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\.<\%#', 'input': '<BS><BS>.<= ',  'filetype': ['julia']},
       \   {'char': '=', 'at': '\S\.<\%#', 'input': '<BS><BS> .<= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\.>\%#', 'input': '<BS><BS>.>= ',  'filetype': ['julia']},
@@ -747,7 +754,7 @@ let s:rules += [
       \   {'char': '=', 'at': '\S\.< \%#', 'input': '<BS><BS><BS> .<= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\.> \%#', 'input': '<BS><BS><BS>.>= ',  'filetype': ['julia']},
       \   {'char': '=', 'at': '\S\.> \%#', 'input': '<BS><BS><BS> .>= ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': ',\s*\k\+\%#', 'input': '=', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '(.*,\s*\k\+\%#', 'input': '=', 'filetype': ['julia']},
       \   {'char': '+', 'at': '\S\.\%#', 'input': '<BS> .+ ', 'filetype': ['julia']},
       \   {'char': '-', 'at': '\S\.\%#', 'input': '<BS> .- ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function ", "end", " ")<CR>', 'filetype': ['julia']},
@@ -1299,6 +1306,7 @@ endfunction
 let g:swap#rules  = deepcopy(g:swap#default_rules)
 let g:swap#rules += [
       \   {'filetype': ['vim'], 'delimiter': ['\\|'], 'surrounds': ['\\%\{,2}(', '\\)'], 'braket': [['\(', '\)'], ['\%(', '\)']]},
+      \   {'filetype': ['julia'], 'delimiter': [',\s*'], 'surrounds': ['^\s*', '\ze\%($\|\s*=\)']},
       \   {'mode': 'x', 'delimiter': ['\s*[-+]\s*'], 'braket': [['(', ')']], 'priority': -10},
       \   {'mode': 'x', 'delimiter': ['\s*[*/]\s*'], 'braket': [['(', ')']], 'priority': -20},
       \   {'mode': 'x', 'delimiter': ['\s*||\s*'], 'braket': [['(', ')']], 'priority': 10},
@@ -1364,6 +1372,12 @@ nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
 "*** vim-operator-replace *** {{{
 nmap <Space>r <Plug>(operator-replace)
 xmap <Space>r <Plug>(operator-replace)
+"}}}
+"*** vim-textobj-functioncall *** {{{
+call textobj#functioncall#setlist([
+      \   {'header': '\m\\\a\+\*\?\%({[^}]*}\)*\%(\[[^]]*\]\)*', 'bra': '{', 'ket': '}'},
+      \   {'header': '\m\\\a\+\*\?\%(\[[^]]*\]\)*\%({[^}]*}\)*', 'bra': '{', 'ket': '}'},
+      \ ], 'tex')
 "}}}
 "}}}
 "***** fundamentals ***** {{{
@@ -1439,7 +1453,7 @@ let g:loaded_zipPlugin = 1
 "}}}
 "***** searching behavior ***** {{{
 "--------------------------------------------------------------------------
-set hlsearch                        " highlight searched words
+set hlsearch | nohlsearch           " highlight searched words
 set incsearch                       " use incremental search
 set ignorecase                      " ignore upper/lower case of searching word
 " set smartcase                       " do not ignore upper/lower cases when the searching word contains both of them
@@ -1480,10 +1494,8 @@ autocmd vimrc BufReadPost *
   \   exe "normal! g`\"" |
   \ endif
 
-" im control (for win, and partially for *nix)  "{{{
+" im control (for win)  "{{{
 if has('win32')
-  let g:im_auto_switch_filetype_white_list = ['julia']
-
   " at first
   augroup im-off
     autocmd!
@@ -1554,25 +1566,6 @@ if has('win32')
       autocmd! * <buffer>
     augroup END
   endfunction
-
-  function! s:im_auto_switch_bootstrap()
-    augroup im_auto_switch
-      autocmd! * <buffer>
-    augroup END
-
-    if filter(split(&filetype, '\.'), 'match(g:im_auto_switch_filetype_white_list, v:val) > -1') != []
-      let lines = join(getline(1, get(g:, 'im_auto_switch_checked_lnum', 30)), '')
-      if strlen(lines) != strchars(lines)
-        call s:im_auto_switch_start()
-      endif
-    endif
-  endfunction
-
-  augroup im_auto_switch
-    autocmd!
-    autocmd BufRead * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
-    autocmd SessionLoadPost * autocmd im_auto_switch InsertEnter <buffer> call s:im_auto_switch_bootstrap()
-  augroup END
 
   command! IMAutoSwitchStart call s:im_auto_switch_start()
   command! IMAutoSwitchStop  call s:im_auto_switch_stop()
@@ -1667,8 +1660,6 @@ autocmd vimrc BufRead,BufNewFile *.f90 let b:fortran_do_enddo=1
                               \| let b:fortran_fold=1
 
 "*** help ***"
-autocmd vimrc FileType help if &buftype == 'help' | vertical resize 79 | endif
-
 augroup help_optimizer
   au!
   autocmd FileType help call s:help_bootstrap()
@@ -1704,7 +1695,7 @@ autocmd vimrc FileType markdown setlocal wrap iminsert=0
 autocmd vimrc FileType tex setlocal wrap iminsert=0 spellcapcheck
 
 "*** quickfix ***"
-autocmd vimrc FileType        qf set nowrap
+autocmd vimrc FileType        qf setlocal nowrap
 autocmd vimrc FileType        qf call s:qf_resize()
 autocmd vimrc QuickFixCmdPost *  call s:qf_cmdpost()
 
@@ -1821,7 +1812,7 @@ endif
 
 " use of function keys
 if has('win32')
-  nnoremap <F11> :simalt ~x<CR>
+  nnoremap <F11> :simalt ~x<CR>:redraw<CR>
 endif
 nnoremap <expr> <F12> ':set background=' . (&background !=# 'light' ? 'light' : 'dark') . '<CR>'
 
@@ -2450,12 +2441,6 @@ command!          TextobjInstantClear  let g:textobj_instant_patterns = []
 if filereadable(expand($USERDIR . '/.vimrc.local'))
   source $USERDIR/.vimrc.local
 endif
-
-" start syntax highlighting
-syntax enable
-
-" to suppress highlighting the last searched word because of 'set hlsearch'
-nohlsearch
 
 " recall filetype autocommand
 if !has('vim_starting')
