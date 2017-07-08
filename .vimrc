@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 08-Apr-2017.
+" Last Change: 05-Jul-2017.
 "
 "***** Todo *****
 "***** startup ***** {{{
@@ -46,24 +46,23 @@ end
 call neobundle#begin(expand($USERDIR) . '/bundle/')
 call neobundle#add('JuliaEditorSupport/julia-vim')
 " call neobundle#add('julia-vim', {'base': '~/Dropbox/Works/', 'frozen': 1})
-" call neobundle#add('julia-vim-extra', {'base': '~/Dropbox/Works/', 'frozen': 1})
 call neobundle#add('kana/vim-operator-user')
 call neobundle#add('kana/vim-operator-replace')
-" call neobundle#add('rhysd/vim-operator-surround')
 call neobundle#add('kana/vim-smartinput')
 call neobundle#add('kana/vim-submode')
 call neobundle#add('kana/vim-textobj-user')
 call neobundle#add('kana/vim-textobj-indent')
 call neobundle#add('kana/vim-textobj-line')
 call neobundle#add('Konfekt/FastFold')
-" call neobundle#add('itchyny/lightline.vim')
-" call neobundle#add('vim-airline/vim-airline')
-" call neobundle#add('t9md/vim-ezbar')
 call neobundle#add('machakann/vim-event-DotCommandPre')
 " call neobundle#add('vim-event-DotCommandPre', {'base': '~/Dropbox/Works/', 'frozen': 1})
 call neobundle#add('machakann/vim-colorscheme-kemonofriends')
 call neobundle#add('machakann/vim-columnmove')
 " call neobundle#add('vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('vim-Junco', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('vim-Sparrow', {'base': '~/Dropbox/Works/', 'frozen': 1})
+call neobundle#add('machakann/vim-Verdin')
+" call neobundle#add('vim-Verdin', {'base': '~/Dropbox/Works/', 'frozen': 1})
 call neobundle#add('machakann/vim-lion')
 call neobundle#add('machakann/vim-operator-insert')
 call neobundle#add('machakann/vim-patternjump')
@@ -119,7 +118,8 @@ call neobundle#add('osyo-manga/vim-anzu', {
       \   'lazy': 1,
       \   'autoload' : {'mappings' : '<Plug>(anzu-',}
       \ })
-call neobundle#add('Shougo/neocomplete', {'lazy': 1})
+" call neobundle#add('Shougo/neocomplete', {'lazy': 1})
+call neobundle#add('Shougo/neocomplete')
 call neobundle#add('machakann/neco-look', {
       \   'lazy': 1,
       \   'depends': 'Shougo/neocomplete',
@@ -206,57 +206,57 @@ let s:rules = []
 " imitate smartchr.vim
 " '<' -> ' < ' -> ' << ' -> '<<' -> '<<<' -> '<<<<' ...
 let s:rules += [
-      \   {'char': '<', 'at': '\%#',     'input': '<',                },
-      \   {'char': '<', 'at': '<\%#',    'input': '<BS> < ',          },
-      \   {'char': '<', 'at': ' < \%#',  'input': '<BS>< ',           },
+      \   {'char': '<', 'at': '\%#',     'input': '<'},
+      \   {'char': '<', 'at': '<\%#',    'input': '<BS> < '},
+      \   {'char': '<', 'at': ' < \%#',  'input': '<BS>< '},
       \   {'char': '<', 'at': ' << \%#', 'input': '<BS><BS><BS><BS><<'},
-      \   {'char': '<', 'at': '<<\+\%#', 'input': '<',                },
+      \   {'char': '<', 'at': '<<\+\%#', 'input': '<'},
       \ ]
 " '>' -> ' > ' -> ' >> ' -> '>>' -> '>>>' -> '>>>>' ...
 let s:rules += [
-      \   {'char': '>', 'at': '\%#',     'input': '>',                },
-      \   {'char': '>', 'at': '>\%#',    'input': '<BS> > ',          },
-      \   {'char': '>', 'at': ' > \%#',  'input': '<BS>> ',           },
+      \   {'char': '>', 'at': '\%#',     'input': '>'},
+      \   {'char': '>', 'at': '>\%#',    'input': '<BS> > '},
+      \   {'char': '>', 'at': ' > \%#',  'input': '<BS>> '},
       \   {'char': '>', 'at': ' >> \%#', 'input': '<BS><BS><BS><BS>>>'},
-      \   {'char': '>', 'at': '>>\+\%#', 'input': '>',                },
+      \   {'char': '>', 'at': '>>\+\%#', 'input': '>'},
       \ ]
 " '+' -> ' + ' -> '++' -> '+++' -> '++++' ...
 let s:rules += [
-      \   {'char': '+', 'at': '\%#',     'input': '+',                 },
-      \   {'char': '+', 'at': '+\%#',    'input': '<BS> + ',           },
-      \   {'char': '+', 'at': ' + \%#',  'input': '<BS><BS><BS>++',    },
-      \   {'char': '+', 'at': '++\+\%#', 'input': '+',                 },
+      \   {'char': '+', 'at': '\%#',     'input': '+'},
+      \   {'char': '+', 'at': '+\%#',    'input': '<BS> + '},
+      \   {'char': '+', 'at': ' + \%#',  'input': '<BS><BS><BS>++'},
+      \   {'char': '+', 'at': '++\+\%#', 'input': '+'},
       \ ]
 " '-' -> ' - ' -> '--' -> '---' -> '----' ...
 let s:rules += [
-      \   {'char': '-', 'at': '\%#',          'input': '-',            },
-      \   {'char': '-', 'at': '-\%#',         'input': '<BS> - ',      },
+      \   {'char': '-', 'at': '\%#',          'input': '-'},
+      \   {'char': '-', 'at': '-\%#',         'input': '<BS> - '},
       \   {'char': '-', 'at': ' - \%#',       'input': '<BS><BS><BS>--'},
-      \   {'char': '-', 'at': '--\+\%#',      'input': '-',            },
-      \   {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-',            },
+      \   {'char': '-', 'at': '--\+\%#',      'input': '-'},
+      \   {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-'},
       \ ]
 " '&' -> ' && ' -> '&&' -> '&&&' -> '&&&&' ...
 let s:rules += [
-      \   {'char': '&', 'at': '\%#',     'input': '&',                },
-      \   {'char': '&', 'at': '&\%#',    'input': '<BS> && ',         },
+      \   {'char': '&', 'at': '\%#',     'input': '&'},
+      \   {'char': '&', 'at': '&\%#',    'input': '<BS> && '},
       \   {'char': '&', 'at': ' && \%#', 'input': '<BS><BS><BS><BS>&&'},
-      \   {'char': '&', 'at': '&&\+\%#', 'input': '&',                },
-      \   {'char': '&', 'at': ' &\%#\S', 'input': '& ',               },
-      \   {'char': '&', 'at': ' &\%#$',  'input': '& ',               },
-      \   {'char': '&', 'at': '\S&\%# ', 'input': '<BS><Del> && ',    },
-      \   {'char': '&', 'at': ' &\%# ',  'input': '<Del>& ',          },
+      \   {'char': '&', 'at': '&&\+\%#', 'input': '&'},
+      \   {'char': '&', 'at': ' &\%#\S', 'input': '& '},
+      \   {'char': '&', 'at': ' &\%#$',  'input': '& '},
+      \   {'char': '&', 'at': '\S&\%# ', 'input': '<BS><Del> && '},
+      \   {'char': '&', 'at': ' &\%# ',  'input': '<Del>& '},
       \ ]
 " '|' -> ' | ' -> ' || ' -> '||' -> '|||' -> '||||' ...
 let s:rules += [
-      \   {'char': '<Bar>', 'at': '\%#',     'input': '|',                },
-      \   {'char': '<Bar>', 'at': '|\%#',    'input': '<BS> | ',          },
-      \   {'char': '<Bar>', 'at': ' | \%#',  'input': '<BS>| ',           },
+      \   {'char': '<Bar>', 'at': '\%#',     'input': '|'},
+      \   {'char': '<Bar>', 'at': '|\%#',    'input': '<BS> | '},
+      \   {'char': '<Bar>', 'at': ' | \%#',  'input': '<BS>| '},
       \   {'char': '<Bar>', 'at': ' || \%#', 'input': '<BS><BS><BS><BS>||'},
-      \   {'char': '<Bar>', 'at': '||\+\%#', 'input': '|',                },
-      \   {'char': '<Bar>', 'at': ' |\%#\S', 'input': '| ',               },
-      \   {'char': '<Bar>', 'at': ' |\%#$',  'input': '| ',               },
-      \   {'char': '<Bar>', 'at': '\S|\%# ', 'input': '<BS><Del> || ',    },
-      \   {'char': '<Bar>', 'at': ' |\%# ',  'input': '<Del>| ',          },
+      \   {'char': '<Bar>', 'at': '||\+\%#', 'input': '|'},
+      \   {'char': '<Bar>', 'at': ' |\%#\S', 'input': '| '},
+      \   {'char': '<Bar>', 'at': ' |\%#$',  'input': '| '},
+      \   {'char': '<Bar>', 'at': '\S|\%# ', 'input': '<BS><Del> || '},
+      \   {'char': '<Bar>', 'at': ' |\%# ',  'input': '<Del>| '},
       \ ]
 
 " do not apply on 'Comment' or 'String' syntax
@@ -270,31 +270,35 @@ let s:rules += [
       \ ]
 
 " smart '=' input
-" ' = ' -> ' == ' -> '=' -> '==' ...
+" '=' -> ' = ' -> ' == ' -> ' === ' -> '===' ...
 let s:rules += [
-      \   {'char': '=', 'at': '\%#',     'input': ' = ',             },
-      \   {'char': '=', 'at': ' = \%#',  'input': '<BS>= ',          },
-      \   {'char': '=', 'at': ' == \%#', 'input': '<BS><BS><BS><BS>='},
-      \   {'char': '=', 'at': '=\%#',    'input': '=',               },
+      \   {'char': '=', 'at': '\%#',       'input': '='},
+      \   {'char': '=', 'at': '[^= ]=\%#', 'input': '<BS> == '},
+      \   {'char': '=', 'at': ' == \%#',   'input': '<BS> == '},
+      \   {'char': '=', 'at': ' == \%#',   'input': '<BS>= '},
+      \   {'char': '=', 'at': ' === \%#',  'input': '<BS><BS><BS><BS><BS>==='},
+      \   {'char': '=', 'at': '===\+\%#',  'input': '='},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '[^= ]=\%#', 'input': '<BS> = '},
       \ ]
 
 let s:rules += [
       \   {'char': '=', 'at': '\%# = ',         'input': '<Del><Del><Del>==' },
-      \   {'char': '=', 'at': ' \%#',           'input': '= ',               },
-      \   {'char': '=', 'at': '[^= ]\%# ',      'input': '<Del> = ',         },
-      \   {'char': '=', 'at': ' \%# ',          'input': '<Del>= ',          },
-      \   {'char': '=', 'at': ' \%#=',          'input': '<Del>== ',         },
-      \   {'char': '=', 'at': ' =\%#',          'input': '= ',               },
-      \   {'char': '=', 'at': ' =\%# ',         'input': '<Del>= ',          },
-      \   {'char': '=', 'at': '[-+<>~!] \%#',   'input': '<BS>= ',           },
-      \   {'char': '=', 'at': ' [-+<>~!]\%#\S', 'input': '= ',               },
-      \   {'char': '=', 'at': ' [-+<>~!]\%#$',  'input': '= ',               },
-      \   {'char': '=', 'at': ' [-+<>~!]\%# ',  'input': '=',                },
-      \   {'char': '=', 'at': '\S-\%#',         'input': '<BS> -= ',         },
-      \   {'char': '=', 'at': '\S+\%#',         'input': '<BS> += ',         },
-      \   {'char': '=', 'at': '\S<\%#',         'input': '<BS> <= ',         },
-      \   {'char': '=', 'at': '\S>\%#',         'input': '<BS> >= ',         },
-      \   {'char': '=', 'at': '\S!\%#',         'input': '<BS> != ',         },
+      \   {'char': '=', 'at': ' \%#',           'input': '= '},
+      \   {'char': '=', 'at': ' = \%#',         'input': '<BS>= '},
+      \   {'char': '=', 'at': '[^= ]\%# ',      'input': '<Del> = '},
+      \   {'char': '=', 'at': ' \%# ',          'input': '<Del>= '},
+      \   {'char': '=', 'at': ' \%#=',          'input': '<Del>== '},
+      \   {'char': '=', 'at': ' =\%#',          'input': '= '},
+      \   {'char': '=', 'at': ' =\%# ',         'input': '<Del>= '},
+      \   {'char': '=', 'at': '[-+<>~!] \%#',   'input': '<BS>= '},
+      \   {'char': '=', 'at': ' [-+<>~!]\%#\S', 'input': '= '},
+      \   {'char': '=', 'at': ' [-+<>~!]\%#$',  'input': '= '},
+      \   {'char': '=', 'at': ' [-+<>~!]\%# ',  'input': '='},
+      \   {'char': '=', 'at': '\S-\%#',         'input': '<BS> -= '},
+      \   {'char': '=', 'at': '\S+\%#',         'input': '<BS> += '},
+      \   {'char': '=', 'at': '\S<\%#',         'input': '<BS> <= '},
+      \   {'char': '=', 'at': '\S>\%#',         'input': '<BS> >= '},
+      \   {'char': '=', 'at': '\S!\%#',         'input': '<BS> != '},
       \   {'char': '=', 'at': ' -= \%#',        'input': '<BS><BS><BS><BS>-='},
       \   {'char': '=', 'at': ' += \%#',        'input': '<BS><BS><BS><BS>+='},
       \   {'char': '=', 'at': ' <= \%#',        'input': '<BS><BS><BS><BS><='},
@@ -306,7 +310,7 @@ let s:rules += [
 " smart '<CR>' input
 " delete line end spaces when line-breaking
 let s:rules += [
-      \   {'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call setline(line(''.'')-1, substitute(getline(line(''.'')-1), ''\s\+$'', '''', ''''))<CR>'},
+      \   {'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call TrimTrailingWhiteSpace(line(".")-1)<CR>'},
       \   {'char': '<Plug>(smartinput_CR)', 'at': '{\%#}', 'input': '<CR><CR><Up><C-f>'},
       \ ]
 
@@ -388,7 +392,6 @@ let s:rules += [
       \   {'char': ',', 'at': '\%# ',   'input': ',',      'mode': 'i'},
       \   {'char': ',', 'at': '\w \%#', 'input': '<BS>, ', 'mode': 'i'},
       \   {'char': '(', 'at': '\C^[hH]elp \w\+\%#', 'input': '(', 'mode': ':'},
-      \   {'char': '=', 'at': '\C\<set\> \w\+\%#',  'input': '=', 'mode': ':'},
       \ ]
 
 " for commandline mode
@@ -478,6 +481,9 @@ let s:rules += [
       \   {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
       \   {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
       \   {'char': '~', 'at': '!\%#',  'input': '<BS> !~ ', 'filetype': ['vim']},
+      \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\?-\%#',   'input': '<BS> -> ', 'filetype': ['vim']},
+      \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\? - \%#', 'input': '<BS>> ',   'filetype': ['vim']},
+      \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\? -\%#',  'input': '> ',       'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
@@ -499,15 +505,9 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*"\s\%#','input': '<BS><BS>',     'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' \. \%#',   'input': '<BS><BS><BS>', 'filetype': ['vim']},
       \   {'char': '=', 'at': '\. \%#',   'input': '<BS>= ',              'mode': 'i:', 'filetype': ['vim']},
-      \   {'char': '=', 'at': ' \.\%#\S', 'input': '= ',                  'mode': 'i:', 'filetype': ['vim']},
-      \   {'char': '=', 'at': ' \.\%#$',  'input': '= ',                  'mode': 'i:', 'filetype': ['vim']},
-      \   {'char': '=', 'at': ' \.\%# ',  'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
       \   {'char': '=', 'at': '\S\.\%#',  'input': '<BS> .= ',            'mode': 'i:', 'filetype': ['vim']},
       \   {'char': '=', 'at': ' \.= \%#', 'input': '<BS><BS><BS><BS>.=',  'mode': 'i:', 'filetype': ['vim']},
-      \   {'char': '=', 'at': '<C-r>\%#', 'input': '=',                   'mode': 'i:', 'filetype': ['vim']},
-      \   {'char': '=', 'at': '\C\<set\%[local]\> \w\+\%#', 'input': '=', 'mode': 'i',  'filetype': ['vim']},
       \   {'char': '=', 'at': '^\s*let\s\+\[\%(\k\+,\s*\)*\k\+\%#\]', 'input': '<C-g>U<Right> = ', 'mode': 'i',  'filetype': ['vim']},
-      \   {'char': '&', 'at': '\s\%#', 'input': '&<C-r>=Complete(col("."), getcompletion("", "option"))<CR><C-p>', 'filetype': ['vim']},
       \ ]
 
 " '.' -> ' . ' -> '..' -> '...'
@@ -547,6 +547,7 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*while\%#\s', 'input': '<C-r>=CloseBlock("", "endwhile", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*augroup\%#', 'input': '<C-r>=CloseBlock(" ", "augroup END", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*try\%#', 'input': '<C-r>=CloseBlock("", "endtry", " ")<CR>', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '{\s*\h\w*\%(\s*,\s*\h\w*\)*\%#\%(\s*->\)\@!', 'input': ' -> ', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_CR)', 'at': '^\s*try\%#', 'input': '<C-r>=CloseBlock("", "endtry", "<C-v><CR>", "<C-v><CR>")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': '^\s*for\s\+\S.* in \%#', 'input': '<BS><BS><BS><BS>', 'filetype': ['vim']},
       \ ]
@@ -738,6 +739,7 @@ let s:rules += [
       \   {'char': '>', 'at': ' = \%#', 'input': '<BS>> ', 'filetype': ['julia']},
       \   {'char': '>', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
       \   {'char': '<', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
+      \   {'char': '=', 'at': '\k\%#$', 'input': ' = ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '/\%#',  'input': '<BS> /= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\*\%#', 'input': '<BS>*= ', 'filetype': ['julia']},
@@ -754,11 +756,12 @@ let s:rules += [
       \   {'char': '=', 'at': '\S\.< \%#', 'input': '<BS><BS><BS> .<= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\.> \%#', 'input': '<BS><BS><BS>.>= ',  'filetype': ['julia']},
       \   {'char': '=', 'at': '\S\.> \%#', 'input': '<BS><BS><BS> .>= ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '(.*,\s*\k\+\%#', 'input': '=', 'filetype': ['julia']},
       \   {'char': '+', 'at': '\S\.\%#', 'input': '<BS> .+ ', 'filetype': ['julia']},
       \   {'char': '-', 'at': '\S\.\%#', 'input': '<BS> .- ', 'filetype': ['julia']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-w><C-r>=CloseBlock("function ", "end", " ")<CR>', 'filetype': ['julia']},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\)\%#', 'input': '<C-r>=CloseBlock(" ", "end", " ")<CR>', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nction]\%#', 'input': '<C-r>=CloseBlock("<C-v><C-w>function ", "end", " ", "", 1)<CR>', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*\%(if\|for\|while\|module\|struct\|type\|immutable\)\%#', 'input': '<C-r>=CloseBlock(" ", "end", " ", "", 1)<CR>', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\%([[:upper:][:lower:]_]\k*\|([[:upper:][:lower:]_]\k*\%(\s*,\s*[[:upper:][:lower:]_]\k*\)*)\)\%#', 'input': ' in ', 'filetype': ['julia']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\%([[:upper:][:lower:]_]\k*\|([[:upper:][:lower:]_]\k*\%(\s*,\s*[[:upper:][:lower:]_]\k*\)*)\)\s\+\%#', 'input': 'in ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
       \ ]
 
@@ -857,7 +860,6 @@ function! LocalComplete(kinds, ...) abort
       endfor
     else
       for kind in a:kinds
-        let hoge = copy(get(b:local_compl, kind, []))
         let candidates += map(filter(copy(get(b:local_compl, kind, [])), 'v:val[:n] ==# p'), '{"word": v:val, "menu": kind}')
       endfor
     endif
@@ -878,6 +880,11 @@ function! StCol(pat) abort
   return searchpos(a:pat, 'bcn', line('.'))[1] - 1
 endfunction
 
+" trim trailing white spaces
+function! TrimTrailingWhiteSpace(lnum) abort
+  call setline(a:lnum, substitute(getline(a:lnum), '\s\+$', '', ''))
+endfunction
+
 " lovely aid for ', ' rule
 autocmd vimrc InsertLeave * call s:eliminate_trailing_space()
 function! s:eliminate_trailing_space() abort
@@ -888,16 +895,21 @@ function! s:eliminate_trailing_space() abort
 endfunction
 
 function! CloseBlock(current, close, fallback, ...) abort
-  let nnb = nextnonblank(line('.')+1)
-  let nnb_indent = indent(nnb)
-  let cur_indent = indent('.')
-  let closetext  = escape(substitute(get(split(a:close, "\n"), 0, '$'), '[^[:print:]]', '', 'g'), '~"\.^$[]*')
+  let keyseq = a:fallback
   let additional = get(a:000, 0, '')
-  if nnb == 0 || nnb_indent < cur_indent || (nnb_indent == cur_indent && getline(nnb) !~# printf('^\s*\%%(%s\|else\)', closetext))
-    return printf("%s\<End>\<CR>%s\<Esc>kA%s", a:current, a:close, additional)
+  let nobalancecheck = get(a:000, 1, 0)
+  if nobalancecheck
+    let keyseq = printf("%s\<End>\<CR>%s\<Esc>kA%s", a:current, a:close, additional)
   else
-    return a:fallback
+    let nnb = nextnonblank(line('.')+1)
+    let nnb_indent = indent(nnb)
+    let cur_indent = indent('.')
+    let closetext  = escape(substitute(get(split(a:close, "\n"), 0, '$'), '[^[:print:]]', '', 'g'), '~"\.^$[]*')
+    if nnb == 0 || nnb_indent < cur_indent || (nnb_indent == cur_indent && getline(nnb) !~# printf('^\s*\%%(%s\|else\)', closetext))
+      let keyseq = printf("%s\<End>\<CR>%s\<Esc>kA%s", a:current, a:close, additional)
+    endif
   endif
+  return keyseq
 endfunction
 
 function! VimCloseForBlock() abort
@@ -976,6 +988,8 @@ let g:columnmove_fold_open = {'x' : &foldnestmax, 'o' : &foldnestmax}
 nmap . <Plug>(event-DotCommandPre+Dot)
 "}}}
 "*** julia.vim *** {{{
+runtime macros/Junco/complete/autocomplete.vim
+runtime macros/Junco/complete/omnifunc.vim
 "}}}
 "*** neocomplete.vim *** {{{
 let s:bundle = neobundle#get('neocomplete')
@@ -1031,10 +1045,15 @@ function! s:bundle.hooks.on_source(bundle)
   let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\%(\h\w*\)\?'
   let g:neocomplete#sources#omni#input_patterns.scilab = '[^. \t]\+\.\?\w*'
 
+  let g:neocomplete#sources = get(g:, 'neocomplete#sources', {})
+  let g:neocomplete#sources.vim = ['Verdin']
+  " let g:neocomplete#sources.vim = get(g:neocomplete#sources, 'vim', [])
+  " call add(g:neocomplete#sources.vim, 'Verdin')
+
   " Change default converter.
-  call neocomplete#custom#source('_', 'converters',
-        \ ['converter_remove_last_paren', 'converter_delimiter',
-        \  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
+  " call neocomplete#custom#source('_', 'converters',
+  "       \ ['converter_remove_last_paren', 'converter_delimiter',
+  "       \  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
 
   " Recommended key-mappings.
   inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
@@ -1077,7 +1096,9 @@ omap gn <Plug>(gn-for-operator-insert-i)
 omap gN <Plug>(gN-for-operator-insert-a)
 "}}}
 "*** highlightedyank *** {{{
-map y <Plug>(highlightedyank)
+if !has('nvim')
+  map y <Plug>(highlightedyank)
+endif
 let g:highlightedyank_highlight_duration = 3000
 let g:highlightedyank_keep_curpos = 1
 "}}}
@@ -1127,8 +1148,8 @@ let g:quickrun_config = {
       \         'runner': 'job',
       \       },
       \ 'julia' : {
-      \         'exec': 'julia -E "include(\"%S\")"',
-      \         'debug': 'quickrun_debug',
+      \         'command': 'julia',
+      \         'cmdopt': '--precompiled=yes',
       \       },
       \ 'maxima' : {
       \         'command': 'maxima',
@@ -1306,7 +1327,8 @@ endfunction
 let g:swap#rules  = deepcopy(g:swap#default_rules)
 let g:swap#rules += [
       \   {'filetype': ['vim'], 'delimiter': ['\\|'], 'surrounds': ['\\%\{,2}(', '\\)'], 'braket': [['\(', '\)'], ['\%(', '\)']]},
-      \   {'filetype': ['julia'], 'delimiter': [',\s*'], 'surrounds': ['^\s*', '\ze\%($\|\s*=\)']},
+      \   {'filetype': ['julia'], 'delimiter': [',\s*'], 'body': '^\s*\zs\h\k\+\%(,\s*\h\k\+\)\+\ze\s*='},
+      \   {'mode': 'n', 'surrounds': ['(', ')', 1], 'delimiter': ['\s*[,;]\s*'], 'filetype': ['julia'], 'braket': [['(', ')'], ['[', ']'], ['{', '}']], 'quotes': [['"', '"']], 'literal_quotes': [["'", "'"]], 'immutable': ['\%(^\|\n\)\s\+']},
       \   {'mode': 'x', 'delimiter': ['\s*[-+]\s*'], 'braket': [['(', ')']], 'priority': -10},
       \   {'mode': 'x', 'delimiter': ['\s*[*/]\s*'], 'braket': [['(', ')']], 'priority': -20},
       \   {'mode': 'x', 'delimiter': ['\s*||\s*'], 'braket': [['(', ')']], 'priority': 10},
@@ -1368,6 +1390,17 @@ let g:reanimate_sessionoptions = 'buffers,curdir,folds,globals,help,slash,tabpag
 
 call unite#custom#default_action('reanimate', 'reanimate_load')
 nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
+
+let g:reanimate_event_disables = {
+      \   '_': {'reanimate_viminfo': 1},
+      \ }
+"}}}
+" *** Verdin *** {{{
+let g:Verdin_autocomplete = 1
+let g:Verdin_autocompletedelay = 200
+let g:Verdin_fuzzymatch = 1
+let g:Verdin_autobraketinsert = 2
+let g:Verdin_debugmodeon = 1
 "}}}
 "*** vim-operator-replace *** {{{
 nmap <Space>r <Plug>(operator-replace)
@@ -1424,7 +1457,7 @@ function! s:init_cmdwin()
   imap <buffer><expr> <CR>  pumvisible() ? "\<C-y>\<Plug>(smartinput_CR)" : "\<Plug>(smartinput_CR)"
   imap <buffer><expr> <C-h> pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
   imap <buffer><expr> <BS>  pumvisible() ? "\<C-y>\<Plug>(smartinput_BS)" : "\<Plug>(smartinput_BS)"
-
+  syntax sync maxlines=1 minlines=1
   setlocal iminsert=0
 endfunction
 
@@ -1575,8 +1608,10 @@ endif
 "***** displaying ***** {{{
 "--------------------------------------------------------------------------
 " let g:colorscheme_no_italic = 1
-set background=light
-" set background=dark
+if has('vim_starting')
+  set background=light
+  " set background=dark
+endif
 colorscheme reki
 " colorscheme kemonofriends
 let g:colorscheme_kemonofriends_sandstar_active = 0
@@ -1812,7 +1847,7 @@ endif
 
 " use of function keys
 if has('win32')
-  nnoremap <F11> :simalt ~x<CR>:redraw<CR>
+  nnoremap <silent> <F11> :simalt ~x<CR>:redraw<CR>
 endif
 nnoremap <expr> <F12> ':set background=' . (&background !=# 'light' ? 'light' : 'dark') . '<CR>'
 
@@ -1932,9 +1967,6 @@ function! s:visual_range() abort
   return printf('\%%>%sl\%%<%sl', line("'<") - 1, line("'>") + 1)
 endfunction
 
-" easy :global
-command! -nargs=1 -range=% Global <line1>,<line2>global//normal <args>/g
-
 " A variant of i_CTRL-w "{{{
 let g:stop_pattern = [' ', '_', '#', '-', '/', '\\', ':', '(', ')', '\[', '\]', '{', '}']
 function! s:i_CTRL_b()
@@ -2053,20 +2085,32 @@ nmap ypp <SID>(operator-paste)g@
 "***** commands ***** {{{
 "--------------------------------------------------------------------------
 " simple performance checker
-function! Tic()
+function! Tic(...)
+  if a:0 > 0 && !empty(a:1)
+    if exists(':PP') == 2
+      PP! a:1
+    else
+      echomsg string(a:1)
+    endif
+  endif
   let s:hayasa_maruwakari_kun = reltime()
 endfunction
 function! Toc()
   return reltimestr(reltime(s:hayasa_maruwakari_kun))
 endfunction
-function! Time(cmd)
-  call Tic()
-  execute a:cmd
-  echomsg Toc()
-endfunction
-command! -nargs=0 Tic call Tic()
+command! -nargs=? Tic call Tic(<args>)
 command! -nargs=0 Toc echomsg Toc()
-command! -nargs=1 Time call Time(<q-args>)
+command! -nargs=1 Time call Tic() | execute <q-args> | echomsg printf('%s seconds: %s', Toc(), <q-args>)
+
+" start current file profile
+if has('profile')
+  function! s:ProfileThis() abort
+    let fullpath = expand('%:p')
+    profile start profile.log
+    execute 'profile! file ' . fullpath
+  endfunction
+  command! -nargs=0 ProfileThis call s:ProfileThis()
+endif
 
 " yank path
 function! s:yank_path(path) abort
@@ -2219,6 +2263,9 @@ function! s:TagGlanceClose() abort
 endfunction
 command! -nargs=1 TagGlance call s:TagGlance(<q-args>)
 command! TagGlanceClose call s:TagGlanceClose()
+
+" easy :global
+command! -nargs=1 -range=% Global <line1>,<line2>global//normal <args>/g
 "}}}
 "***** abbreviation ***** {{{
 let s:greeks = [
