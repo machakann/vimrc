@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 05-Jul-2017.
+" Last Change: 15-Oct-2017.
 "
 "***** Todo *****
 "***** startup ***** {{{
@@ -9,6 +9,7 @@
 " encoding and file format
 if has('win32') && !has('gui_running')
   set encoding=cp932
+  let &shell='cmd.exe /f:on /k"chcp 65001"'
 else
   set encoding=utf-8
   if has('win32')
@@ -30,8 +31,19 @@ endif
 
 let $LANG = 'C'
 
-" start syntax highlighting
+let s:SEPARATOR = has('win32') && !&shellslash ? '\' : '/'
+if has('win32')
+  let s:DEVELPATH = join([expand('$USERPROFILE'), 'Dropbox', 'Works'], s:SEPARATOR)
+else
+  let s:DEVELPATH = join([expand('~/'), 'Dropbox', 'Works'], '/')
+endif
+
+function! s:joinpath(...) abort
+  return join(a:000, s:SEPARATOR)
+endfunction
+
 syntax enable
+filetype plugin indent on
 
 augroup vimrc
   autocmd!
@@ -39,102 +51,72 @@ augroup END
 "}}}
 "***** plugins *****"{{{
 "--------------------------------------------------------------------------
-"*** neobundle.vim *** {{{
-if has('vim_starting')
-  set rtp+=$USERDIR/bundle/neobundle.vim/
-end
-call neobundle#begin(expand($USERDIR) . '/bundle/')
-call neobundle#add('JuliaEditorSupport/julia-vim')
-" call neobundle#add('julia-vim', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('kana/vim-operator-user')
-call neobundle#add('kana/vim-operator-replace')
-call neobundle#add('kana/vim-smartinput')
-call neobundle#add('kana/vim-submode')
-call neobundle#add('kana/vim-textobj-user')
-call neobundle#add('kana/vim-textobj-indent')
-call neobundle#add('kana/vim-textobj-line')
-call neobundle#add('Konfekt/FastFold')
-call neobundle#add('machakann/vim-event-DotCommandPre')
-" call neobundle#add('vim-event-DotCommandPre', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-colorscheme-kemonofriends')
-call neobundle#add('machakann/vim-columnmove')
-" call neobundle#add('vim-cmdline-completion-extra', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('vim-Junco', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('vim-Sparrow', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-Verdin')
-" call neobundle#add('vim-Verdin', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-lion')
-call neobundle#add('machakann/vim-operator-insert')
-call neobundle#add('machakann/vim-patternjump')
-call neobundle#add('machakann/vim-sandwich')
-" call neobundle#add('vim-sandwich', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-highlightedyank')
-" call neobundle#add('vim-highlightedyank', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-swap')
-" call neobundle#add('vim-swap', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-textobj-functioncall')
-" call neobundle#add('vim-textobj-functioncall', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-textobj-delimited')
-" call neobundle#add('vim-copycat', {'base': '~/Dropbox/Works/', 'frozen': 1})
-" call neobundle#add('vim-textobj-mathblock', {'base': '~/Dropbox/Works/', 'frozen': 1})
-call neobundle#add('machakann/vim-vimhelplint')
-call neobundle#add('mattn/webapi-vim')
-call neobundle#add('mbbill/undotree')
-" call neobundle#add('neomake/neomake')
-call neobundle#add('osyo-manga/vim-reanimate')
-" call neobundle#add('plasticboy/vim-markdown')
-call neobundle#add('sgur/vim-textobj-parameter')
-call neobundle#add('Shougo/neobundle.vim', {'fetch': 1})
-call neobundle#add('Shougo/neomru.vim')
-call neobundle#add('Shougo/unite.vim')
-call neobundle#add('Shougo/vimproc.vim', {
-  \ 'build' : {
-  \   'windows': 'tools\\update-dll-mingw',
-  \   'cygwin' : 'make -f make_cygwin.mak',
-  \   'mac'    : 'make -f make_mac.mak',
-  \   'unix'   : 'make -f make_unix.mak',
-  \  },
-  \ })
-call neobundle#add('superbrothers/vim-quickrun-markdown-gfm')
-call neobundle#add('thinca/vim-prettyprint')
-call neobundle#add('thinca/vim-visualstar')
-call neobundle#add('thinca/vim-quickrun')
-" call neobundle#add('thinca/vim-template')
-call neobundle#add('thinca/vim-themis')
-" call neobundle#add('tommcdo/vim-lion')
-call neobundle#add('tyru/caw.vim')
-call neobundle#add('tyru/open-browser.vim')
-" call neobundle#add('vim-scripts/visualrepeat')
-" call neobundle#add('vim-scripts/ingo-library')
-" call neobundle#add('vim-scripts/ConflictMotions')
-" call neobundle#add('vim-scripts/CountJump')
-call neobundle#add('vim-jp/vimdoc-ja')
-
-call neobundle#add('jceb/vim-hier', {
-      \   'lazy': 1,
-      \   'autoload' : {'commands' : ['HierUpdate', 'HierClear', 'HierStart', 'HierStop'],}
-      \ })
-call neobundle#add('osyo-manga/vim-anzu', {
-      \   'lazy': 1,
-      \   'autoload' : {'mappings' : '<Plug>(anzu-',}
-      \ })
-" call neobundle#add('Shougo/neocomplete', {'lazy': 1})
-call neobundle#add('Shougo/neocomplete')
-call neobundle#add('machakann/neco-look', {
-      \   'lazy': 1,
-      \   'depends': 'Shougo/neocomplete',
-      \ })
-call neobundle#add('vim-jp/vital.vim', {
-      \   'lazy': 1,
-      \   'autoload' : {'commands' : 'Vitalize',},
-      \ })
-call neobundle#end()
-
-filetype plugin indent on       " Required!
-if !has('vim_starting')
-  " Call on_source hook when reloading .vimrc.
-  call neobundle#call_hook('on_source')
+"*** minpac *** {{{
+if exists('*minpac#init')
+  call minpac#init()
+  call minpac#add('davidhalter/jedi-vim')
+  call minpac#add('JuliaEditorSupport/julia-vim')
+  call minpac#add('jceb/vim-hier')
+  call minpac#add('kana/vim-operator-user')
+  call minpac#add('kana/vim-operator-replace')
+  call minpac#add('kana/vim-smartinput')
+  call minpac#add('kana/vim-submode')
+  call minpac#add('kana/vim-textobj-user')
+  call minpac#add('kana/vim-textobj-indent')
+  call minpac#add('kana/vim-textobj-line')
+  call minpac#add('Konfekt/FastFold')
+  call minpac#add('machakann/vim-event-DotCommandPre')
+  call minpac#add('machakann/vim-colorscheme-kemonofriends')
+  call minpac#add('machakann/vim-columnmove')
+  call minpac#add('machakann/vim-Verdin')
+  call minpac#add('machakann/vim-lion')
+  call minpac#add('machakann/vim-operator-insert')
+  call minpac#add('machakann/vim-patternjump')
+  call minpac#add('machakann/vim-sandwich')
+  call minpac#add('machakann/vim-highlightedyank')
+  call minpac#add('machakann/vim-swap')
+  call minpac#add('machakann/vim-textobj-functioncall')
+  call minpac#add('machakann/vim-textobj-delimited')
+  call minpac#add('machakann/vim-vimhelplint')
+  " call minpac#add('vim-copycat', {'base': s:DEVELPATH, 'frozen': 1})
+  " call minpac#add('vim-textobj-mathblock', {'base': s:DEVELPATH, 'frozen': 1})
+  call minpac#add('mattn/webapi-vim')
+  call minpac#add('mbbill/undotree')
+  call minpac#add('neomake/neomake')
+  call minpac#add('osyo-manga/vim-reanimate')
+  call minpac#add('osyo-manga/vim-anzu')
+  call minpac#add('sgur/vim-textobj-parameter')
+  call minpac#add('Shougo/neomru.vim')
+  call minpac#add('Shougo/unite.vim')
+  call minpac#add('superbrothers/vim-quickrun-markdown-gfm')
+  call minpac#add('thinca/vim-prettyprint')
+  call minpac#add('thinca/vim-visualstar')
+  call minpac#add('thinca/vim-quickrun')
+  " call minpac#add('thinca/vim-template')
+  call minpac#add('thinca/vim-themis')
+  call minpac#add('tyru/caw.vim')
+  call minpac#add('tyru/open-browser.vim')
+  call minpac#add('vim-jp/vimdoc-ja')
+  call minpac#add('vim-jp/vital.vim', {'type': 'opt'})
 endif
+
+function! s:local_add(name, ...) abort
+  let develpath = get(a:000, 0, s:DEVELPATH)
+  let path = s:joinpath(develpath, a:name)
+  execute 'set runtimepath^=' . path
+
+  let afterpath = s:joinpath(path, 'after')
+  if glob(afterpath) !=# ''
+    execute 'set runtimepath+=' . afterpath
+  endif
+endfunction
+call s:local_add('vim-Junco')
+call s:local_add('vim-Sparrow')
+
+command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update()
+command! PackClean  packadd minpac | source $MYVIMRC | call minpac#clean()
+
+packloadall
 "}}}
 "*** smartinput *** {{{
 " Disable default settings
@@ -235,6 +217,20 @@ let s:rules += [
       \   {'char': '-', 'at': '--\+\%#',      'input': '-'},
       \   {'char': '-', 'at': '[(=<>]\s*\%#', 'input': '-'},
       \ ]
+" '*' -> ' * ' -> '**' -> '***' -> '****' ...
+let s:rules += [
+      \   {'char': '*', 'at': '\%#',       'input': '*'},
+      \   {'char': '*', 'at': '\*\%#',     'input': '<BS> * '},
+      \   {'char': '*', 'at': ' \* \%#',   'input': '<BS><BS><BS>**'},
+      \   {'char': '*', 'at': '\*\*\+\%#', 'input': '*'},
+      \ ]
+" '/' -> ' / ' -> '//' -> '///' -> '////' ...
+let s:rules += [
+      \   {'char': '/', 'at': '\%#',     'input': '/'},
+      \   {'char': '/', 'at': '/\%#',    'input': '<BS> / '},
+      \   {'char': '/', 'at': ' / \%#',  'input': '<BS><BS><BS>//'},
+      \   {'char': '/', 'at': '//\+\%#', 'input': '/'},
+      \ ]
 " '&' -> ' && ' -> '&&' -> '&&&' -> '&&&&' ...
 let s:rules += [
       \   {'char': '&', 'at': '\%#',     'input': '&'},
@@ -273,16 +269,15 @@ let s:rules += [
 " '=' -> ' = ' -> ' == ' -> ' === ' -> '===' ...
 let s:rules += [
       \   {'char': '=', 'at': '\%#',       'input': '='},
-      \   {'char': '=', 'at': '[^= ]=\%#', 'input': '<BS> == '},
-      \   {'char': '=', 'at': ' == \%#',   'input': '<BS> == '},
+      \   {'char': '=', 'at': '[^= ]=\%#', 'input': '<BS> = '},
+      \   {'char': '=', 'at': ' = \%#',    'input': '<BS>= '},
       \   {'char': '=', 'at': ' == \%#',   'input': '<BS>= '},
       \   {'char': '=', 'at': ' === \%#',  'input': '<BS><BS><BS><BS><BS>==='},
       \   {'char': '=', 'at': '===\+\%#',  'input': '='},
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '[^= ]=\%#', 'input': '<BS> = '},
       \ ]
 
 let s:rules += [
-      \   {'char': '=', 'at': '\%# = ',         'input': '<Del><Del><Del>==' },
+      \   {'char': '=', 'at': '\%# = ',         'input': '<Del><Del><Del>=='},
       \   {'char': '=', 'at': ' \%#',           'input': '= '},
       \   {'char': '=', 'at': ' = \%#',         'input': '<BS>= '},
       \   {'char': '=', 'at': '[^= ]\%# ',      'input': '<Del> = '},
@@ -462,24 +457,25 @@ let s:rules += [
 
 " vim
 let s:rules += [
-      \   {'char': '"', 'at': '^\s*\%#', 'input': '" ',     'filetype': ['vim']},
-      \   {'char': '~', 'at': '= \%#',   'input': '<BS>~ ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '== \%#',  'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '== \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '!= \%#',  'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '!= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '> \%#',   'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '> \%#',   'input': '<BS>? ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '>= \%#',  'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '>= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '< \%#',   'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '< \%#',   'input': '<BS>? ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '<= \%#',  'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '<= \%#',  'input': '<BS>? ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '=\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '=\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
-      \   {'char': '#', 'at': '!\~ \%#', 'input': '<BS># ', 'filetype': ['vim']},
-      \   {'char': '?', 'at': '!\~ \%#', 'input': '<BS>? ', 'filetype': ['vim']},
+      \   {'char': '"', 'at': '^\s*\%#',   'input': '" ',       'filetype': ['vim']},
+      \   {'char': '~', 'at': '= \%#',     'input': '<BS>~ ',   'filetype': ['vim']},
+      \   {'char': '~', 'at': '[^= ]=\%#', 'input': '<BS> =~ ', 'filetype': ['vim']},
+      \   {'char': '#', 'at': '== \%#',    'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '== \%#',    'input': '<BS>? ',   'filetype': ['vim']},
+      \   {'char': '#', 'at': '!= \%#',    'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '!= \%#',    'input': '<BS>? ',   'filetype': ['vim']},
+      \   {'char': '#', 'at': '> \%#',     'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '> \%#',     'input': '<BS>? ',   'filetype': ['vim']},
+      \   {'char': '#', 'at': '>= \%#',    'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '>= \%#',    'input': '<BS>? ',   'filetype': ['vim']},
+      \   {'char': '#', 'at': '< \%#',     'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '< \%#',     'input': '<BS>? ',   'filetype': ['vim']},
+      \   {'char': '#', 'at': '<= \%#',    'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '<= \%#',    'input': '<BS>? ',   'filetype': ['vim']},
+      \   {'char': '#', 'at': '=\~ \%#',   'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '=\~ \%#',   'input': '<BS>? ',   'filetype': ['vim']},
+      \   {'char': '#', 'at': '!\~ \%#',   'input': '<BS># ',   'filetype': ['vim']},
+      \   {'char': '?', 'at': '!\~ \%#',   'input': '<BS>? ',   'filetype': ['vim']},
       \   {'char': '~', 'at': '!\%#',  'input': '<BS> !~ ', 'filetype': ['vim']},
       \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\?-\%#',   'input': '<BS> -> ', 'filetype': ['vim']},
       \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\? - \%#', 'input': '<BS>> ',   'filetype': ['vim']},
@@ -701,7 +697,10 @@ let s:rules += [
       \ ]
 
 " python
-let s:rules += [{'char': '<Plug>(smartinput_BS)', 'at': '#\s\%#', 'input': '<BS><BS>', 'filetype': ['python']}]
+let s:rules += [
+      \   {'char': '<Plug>(smartinput_BS)', 'at': '#\s\%#', 'input': '<BS><BS>', 'filetype': ['python']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '\C^\s*\%(def\|if\|elif\|for\)\%#', 'input': ' :<C-g>U<Left>', 'filetype': ['python']},
+      \ ]
 
 " c
 let s:rules += [{'char': '<Plug>(smartinput_BS)', 'at': '//\s\%#', 'input': '<BS><BS><BS>', 'filetype': ['c']}]
@@ -739,7 +738,6 @@ let s:rules += [
       \   {'char': '>', 'at': ' = \%#', 'input': '<BS>> ', 'filetype': ['julia']},
       \   {'char': '>', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
       \   {'char': '<', 'at': '\.\%#', 'input': '<BS> .< ', 'filetype': ['julia']},
-      \   {'char': '=', 'at': '\k\%#$', 'input': ' = ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\*\%#', 'input': '<BS> *= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '/\%#',  'input': '<BS> /= ', 'filetype': ['julia']},
       \   {'char': '=', 'at': '\s\*\%#', 'input': '<BS>*= ', 'filetype': ['julia']},
@@ -778,7 +776,7 @@ let g:is_smartinput_active = 1
 " But required just for safety-net.
 imap <BS>  <Plug>(smartinput_BS)
 cmap <BS>  <Plug>(smartinput_BS)
-imap <CR>  <Plug>(smartinput_CR)
+imap <expr> <CR>  <SID>i_CR()
 imap <C-k> <Plug>(smartinput_^k)
 cmap <C-k> <Plug>(smartinput_^k)
 imap <expr> <C-n> <SID>i_CTRL_n()
@@ -789,6 +787,14 @@ function! s:i_CTRL_n() abort
     return "\<C-n>"
   else
     return "\<Plug>(smartinput_^n)"
+  endif
+endfunction
+
+function! s:i_CR() abort
+  if pumvisible()
+    return "\<C-y>\<CR>"
+  else
+    return "\<Plug>(smartinput_CR)"
   endif
 endfunction
 
@@ -991,93 +997,6 @@ nmap . <Plug>(event-DotCommandPre+Dot)
 runtime macros/Junco/complete/autocomplete.vim
 runtime macros/Junco/complete/omnifunc.vim
 "}}}
-"*** neocomplete.vim *** {{{
-let s:bundle = neobundle#get('neocomplete')
-function! s:bundle.hooks.on_source(bundle)
-  " Use neocomplete.
-  let g:neocomplete#enable_at_startup = 1
-  " Ignore cases
-  let g:neocomplete#enable_ignore_case = 1
-  " Set completion start length
-  let g:neocomplete#auto_completion_start_length = 3
-  " Set minimum syntax keyword length.
-  let g:neocomplete#sources#syntax#min_keyword_length = 3
-  " Assign data directory path.
-  let g:neocomplete#data_directory = $USERCACHEDIR . '/.neocon'
-  " Delimiter automatic insertion.
-  let g:neocomplete#enable_auto_delimiter = 1
-  " Delimiter patterns for smart completion.
-  if !exists('g:neocomplete#delimiter_patterns')
-    let g:neocomplete#delimiter_patterns= {}
-  endif
-  let g:neocomplete#delimiter_patterns.vim = ['#', '.']
-  " no fuzzy matching
-  let g:neocomplete#enable_fuzzy_completion = 0
-
-  " Define dictionary.
-  let g:neocomplete#sources#dictionary#dictionaries = {
-    \   'default' : '',
-    \   'vimshell' : $USERCACHEDIR . '/.vimshell/command-history',
-    \   'autohotkey' : $USERDIR . '/dict/AHK.dict'
-    \ }
-
-  " Define keyword.
-  if !exists('g:neocomplete#keyword_patterns')
-      let g:neocomplete#keyword_patterns = {}
-  endif
-  let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-
-  " Input assist for English
-  if !exists('g:neocomplete#text_mode_filetypes')
-      let g:neocomplete#text_mode_filetypes = {}
-  endif
-  let g:neocomplete#text_mode_filetypes.plaintex = 1
-
-  " Enable heavy omni completion.
-  if !exists('g:neocomplete#sources#omni#input_patterns')
-    let g:neocomplete#sources#omni#input_patterns = {}
-  endif
-  if !exists('g:neocomplete#force_omni_input_patterns')
-    let g:neocomplete#force_omni_input_patterns = {}
-  endif
-  let g:jedi#auto_vim_configuration = 0
-  let g:neocomplete#force_omni_input_patterns.python = '[^. \t]\.\w*'
-  let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)\%(\h\w*\)\?'
-  let g:neocomplete#sources#omni#input_patterns.scilab = '[^. \t]\+\.\?\w*'
-
-  let g:neocomplete#sources = get(g:, 'neocomplete#sources', {})
-  let g:neocomplete#sources.vim = ['Verdin']
-  " let g:neocomplete#sources.vim = get(g:neocomplete#sources, 'vim', [])
-  " call add(g:neocomplete#sources.vim, 'Verdin')
-
-  " Change default converter.
-  " call neocomplete#custom#source('_', 'converters',
-  "       \ ['converter_remove_last_paren', 'converter_delimiter',
-  "       \  'converter_remove_overlap', 'converter_case', 'converter_abbr'])
-
-  " Recommended key-mappings.
-  inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-  if maparg('<Plug>(smartinput_CR)', 'i') ==# ''
-    function! s:my_cr_function() abort
-      return (pumvisible() ? "\<C-y>" : '' ) . "\<CR>"
-    endfunction
-  else
-    function! s:my_cr_function() abort
-      call feedkeys("\<Plug>(smartinput_CR)", 'm')
-      return (pumvisible() ? "\<C-y>" : '' )
-    endfunction
-  endif
-
-  if maparg('<Plug>(smartinput_BS)', 'i') ==# ''
-    imap <expr> <C-h> neocomplete#smart_close_popup() . "\<BS>"
-    imap <expr> <BS> neocomplete#smart_close_popup() . "\<BS>"
-  else
-    imap <expr> <C-h> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-    imap <expr> <BS> neocomplete#smart_close_popup() . "\<Plug>(smartinput_BS)"
-  endif
-endfunction
-unlet s:bundle
-"}}}
 "*** neomru.vim *** {{{
 let g:neomru#file_mru_path = $USERCACHEDIR . '/.neomru/file'
 let g:neomru#directory_mru_path = $USERCACHEDIR . '/.neomru/directly'
@@ -1110,8 +1029,8 @@ let g:patternjump_move_afap = 1
 let g:patternjump_patterns = {
   \ '_' : {
   \   'i' : {
-  \     'head' : ['\<\k*\>', '^\s*\zs\S', ',', '[^)\]}"'']\zs[)\]}]', '[([{"'']\zs[^([{]', '[)\]}"'']\+', '$'],
-  \     'tail' : ['\<\k*\>', '^\s*\zs\S', ',', '[^)\]}"'']\zs[)\]}]', '[([{"'']\zs[^([{]', '[)\]}"'']\+', '$'],
+  \     'head' : [','],
+  \     'tail' : ['\<\k*\>', '^\s*\zs\S', '[[({]\+', '[)\]}"'']\+', '$'],
   \     },
   \   'n' : {
   \     'head' : ['[[({''"]\+\zs\k'],
@@ -1143,43 +1062,46 @@ xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\k*\>', '[^.
 "*** quickrun.vim *** {{{
 let g:quickrun_config = {
       \ '_' : {
-      \         'runner/vimproc/updatetime' : 500,
-      \         'hook/time/enable' : 1,
-      \         'runner': 'job',
-      \       },
-      \ 'julia' : {
-      \         'command': 'julia',
-      \         'cmdopt': '--precompiled=yes',
-      \       },
-      \ 'maxima' : {
-      \         'command': 'maxima',
-      \         'cmdopt': '-q -b',
-      \         'runner': 'process_manager',
-      \         'runner/process_manager/load': has('win32') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
-      \         'runner/process_manager/prompt': '(%[io]\d\+)'
-      \       },
-      \ 'markdown' : {
-      \         'type' : 'markdown/gfm',
-      \         'outputter': 'browser',
-      \         'hook/time/enable' : 0,
-      \       },
-      \ 'tex' : {
-      \         'command' : 'platex',
-      \       },
-      \ 'scilab'  : {
-      \         'command': has('win32') ? 'scilex' : 'scilab-adv-cli',
-      \         'cmdopt': '-l en -nb -nw -f',
-      \         'runner': 'process_manager',
-      \         'runner/process_manager/load': 'exec(%s,-1)',
-      \         'runner/process_manager/prompt': '-->',
-      \         'hook/output_encode/encoding' : has('win32') ? 'utf-8:cp932' : '&fileencoding',
-      \         'hook/eval/enable': 1,
-      \         'hook/eval/template': "%s\nmfprintf(6, '-->')",
-      \       },
-      \ 'r'   : {
-      \         'command': has('win32') ? 'Rscript' : 'R',
-      \         'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
-      \       },
+      \     'runner/vimproc/updatetime' : 500,
+      \     'hook/time/enable' : 1,
+      \     'runner': 'job',
+      \   },
+      \ 'julia': {
+      \     'command': 'julia',
+      \     'cmdopt': '--precompiled=yes',
+      \   },
+      \ 'maxima': {
+      \     'command': 'maxima',
+      \     'cmdopt': '-q -b',
+      \     'runner': 'process_manager',
+      \     'runner/process_manager/load': has('win32') ? &shellslash ? 'batch("%S:gs?/?\\\\\\\\\\?");' : 'batch(%s:gs?\\?\\\\\\\\);' : 'batch(%s)',
+      \     'runner/process_manager/prompt': '(%[io]\d\+)'
+      \   },
+      \ 'markdown': {
+      \     'type' : 'markdown/gfm',
+      \     'outputter': 'browser',
+      \     'hook/time/enable' : 0,
+      \   },
+      \ 'tex': {
+      \     'command' : 'platex',
+      \   },
+      \ 'scilab': {
+      \     'command': has('win32') ? 'scilex' : 'scilab-adv-cli',
+      \     'cmdopt': '-l en -nb -nw -f',
+      \     'runner': 'process_manager',
+      \     'runner/process_manager/load': 'exec(%s,-1)',
+      \     'runner/process_manager/prompt': '-->',
+      \     'hook/output_encode/encoding' : has('win32') ? 'utf-8:cp932' : '&fileencoding',
+      \     'hook/eval/enable': 1,
+      \     'hook/eval/template': "%s\nmfprintf(6, '-->')",
+      \   },
+      \ 'r': {
+      \     'command': has('win32') ? 'Rscript' : 'R',
+      \     'exec': has('win32') ? '%c %o --no-save --slave %a %s' : 'sh -c ''%c %o --no-save --slave %a < %s''',
+      \   },
+      \ 'grammarly': {
+      \     'command': 'grammarly',
+      \   },
       \ }
 "}}}
 "*** submode.vim *** {{{
@@ -1242,7 +1164,6 @@ call operator#sandwich#set('all', 'all', 'cursor', 'keep')
 " highlight
 call operator#sandwich#set('all',    'all', 'hi_duration', 3000)
 call operator#sandwich#set('delete', 'all', 'hi_duration', 200)
-
 let g:sandwich#recipes = [
       \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
       \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
@@ -1340,40 +1261,37 @@ let g:swap#rules += [
 let g:template_dir = $USERDIR
 "}}}
 "*** unite.vim *** {{{
-if neobundle#tap('unite.vim')
-  nnoremap <Space>uu :Unite<Space>
-  nnoremap <Space>um :Unite -no-split file_mru<CR>
-  nnoremap <Space>ub :Unite -no-split buffer_tab buffer<CR>
-  nnoremap <Space>ud :Unite -no-split directory_mru directory directory/new<CR>
-  nnoremap <Space>up :Unite neobundle/update<CR>
+nnoremap <Space>uu :Unite<Space>
+nnoremap <Space>um :Unite -no-split file_mru<CR>
+nnoremap <Space>ub :Unite -no-split buffer_tab buffer<CR>
+nnoremap <Space>ud :Unite -no-split directory_mru directory directory/new<CR>
 
-  if has('win32')
-    nnoremap <Space>uf :Unite file_rec buffer<CR>
-  else
-    nnoremap <Space>uf :Unite file_rec/async buffer<CR>
-  endif
-
-  let g:unite_enable_start_insert = 1
-  let g:unite_enable_ignore_case = 1
-  let g:unite_data_directory = $USERCACHEDIR . '/.unite'
-  let g:unite_source_history_yank_enable = 1
-
-  " tiny optimizations
-  call unite#custom#default_action('directory',     'lcd')
-  call unite#custom#default_action('directory_mru', 'lcd')
-  call unite#custom#source('file_mru', 'ignore_pattern', '\f*[\/]doc[\/]\f\+\.\(jax\|txt\)')
-  " hi link uniteStatusSourceNames Directory
-  " hi link uniteStatusSourceCandidates ModeMsg
-
-  " last ':messages'
-  " http://d.hatena.ne.jp/osyo-manga/20131030/1383144724
-  let g:unite_source_alias_aliases = {'messages' : {'source': 'output', 'args': 'message'}}
-  "   call unite#custom#source('messages', 'sorters', 'sorter_reverse')
-  call unite#custom#default_action('messages', 'yank')
-  call unite#custom#profile('source/messages', 'context', {'start_insert' : 0})
-  call unite#custom#source('messages', 'syntax', '')
-  nnoremap <Space>uM :Unite messages<CR>
+if has('win32')
+  nnoremap <Space>uf :Unite file_rec buffer<CR>
+else
+  nnoremap <Space>uf :Unite file_rec/async buffer<CR>
 endif
+
+let g:unite_enable_start_insert = 1
+let g:unite_enable_ignore_case = 1
+let g:unite_data_directory = $USERCACHEDIR . '/.unite'
+let g:unite_source_history_yank_enable = 1
+
+" tiny optimizations
+call unite#custom#default_action('directory',     'lcd')
+call unite#custom#default_action('directory_mru', 'lcd')
+call unite#custom#source('file_mru', 'ignore_pattern', '\f*[\/]doc[\/]\f\+\.\(jax\|txt\)')
+" hi link uniteStatusSourceNames Directory
+" hi link uniteStatusSourceCandidates ModeMsg
+
+" last ':messages'
+" http://d.hatena.ne.jp/osyo-manga/20131030/1383144724
+let g:unite_source_alias_aliases = {'messages' : {'source': 'output', 'args': 'message'}}
+"   call unite#custom#source('messages', 'sorters', 'sorter_reverse')
+call unite#custom#default_action('messages', 'yank')
+call unite#custom#profile('source/messages', 'context', {'start_insert' : 0})
+call unite#custom#source('messages', 'syntax', '')
+nnoremap <Space>uM :Unite messages<CR>
 "}}}
 "*** reanimate *** {{{
 " default path to save session file
@@ -1396,11 +1314,12 @@ let g:reanimate_event_disables = {
       \ }
 "}}}
 " *** Verdin *** {{{
-let g:Verdin_autocomplete = 1
-let g:Verdin_autocompletedelay = 200
-let g:Verdin_fuzzymatch = 1
-let g:Verdin_autobraketinsert = 2
-let g:Verdin_debugmodeon = 1
+let g:Verdin#autocomplete = 1
+let g:Verdin#autocompletedelay = 200
+let g:Verdin#fuzzymatch = 1
+let g:Verdin#loadpath += ['test/*.vim', 'test/.themisrc', 'macros/*.vim', 'macros/**/*.vim']
+let g:Verdin#autobraketinsert = 2
+let g:Verdin#debugmodeon = 1
 "}}}
 "*** vim-operator-replace *** {{{
 nmap <Space>r <Plug>(operator-replace)
@@ -1505,11 +1424,13 @@ endif
 "***** editing configuration ***** {{{
 "--------------------------------------------------------------------------
 set backspace=indent,eol,start      " allow backspace key to delete indent and break line
+set completeopt-=preview
 set formatoptions&
-set formatoptions+=mM               " handle line-breaking appropriately also with multi-byte
+set formatoptions+=m
+set formatoptions-=B
+set formatoptions+=B
 set nrformats=hex                   " do not use increment/decrement keys (<C-a>/<C-x>) for octal numbers and alphabets
 set switchbuf=usetab,useopen        " switch to it when trying to open file which has already opened elsewhere
-" set virtualedit=block               " freely cursor movement in blockwise visual mode
 set whichwrap=b,s,h,l,<,>,[,]       " do not stop cursor at head/tail of line, move to tail/head of previous/next line
 
 " indentation option
@@ -2108,6 +2029,10 @@ if has('profile')
     let fullpath = expand('%:p')
     profile start profile.log
     execute 'profile! file ' . fullpath
+    let scriptnames = map(split(execute('scriptnames'), "\n"), 'fnamemodify(matchstr(v:val, ''^\s*\d\+:\s*\zs.*''), ":p")')
+    if filter(scriptnames, 'v:val ==# fullpath') != []
+      execute 'source ' . fullpath
+    endif
   endfunction
   command! -nargs=0 ProfileThis call s:ProfileThis()
 endif
@@ -2234,7 +2159,7 @@ function! EditCompl(ArgLead, CmdLine, CursorPos) abort
   for string in split(a:ArgLead, '[^\\]\%(\\\\\)*\s')
     call filter(candidates, 'match(v:val, ''\c'' . escape(string, ''~"\.^$[]*'')) > -1')
   endfor
-  return filter(candidates, 'filereadable(v:val) || isdirectory(v:val)')
+  return filter(candidates, 'filereadable(v:val)')
 endfunction
 command! -nargs=1 -complete=customlist,EditCompl E call Edit('E', <q-args>)
 command! -nargs=1 -complete=customlist,EditCompl M call Edit('M', <q-args>)
@@ -2266,6 +2191,34 @@ command! TagGlanceClose call s:TagGlanceClose()
 
 " easy :global
 command! -nargs=1 -range=% Global <line1>,<line2>global//normal <args>/g
+
+" Capture script local functions for test
+function! s:capture_script_scope(...) abort
+  let funcrefs = {}
+  let expr = get(a:000, 0, '%')
+  let currentbuf = bufnr(expr)
+  let scripts = map(split(execute('scriptnames'), '\n'), 'matchlist(v:val, ''^\s*\(\d\+\):\s*\(.\+\)$'')[1:2]')
+  call filter(scripts, 'bufnr(v:val[1]) == currentbuf')
+  if scripts != []
+    let script_number = scripts[0][0]
+    let pat = printf('^function <SNR>%d_\zs\h\w*\ze(', script_number)
+    let functions = filter(map(split(execute('function'), '\n'), 'matchstr(v:val, pat)'), 'v:val !=# ""')
+    for func in functions
+      let funcrefs[func] = function(printf("\<SNR>%d_%s", script_number, func))
+    endfor
+  endif
+  return funcrefs
+endfunction
+command! -nargs=0 CaptureScriptlocalFunctions let g:s = s:capture_script_scope()
+
+" send to grammarly
+function! s:send_to_grammarly(start, end) abort
+  let lines = getline(a:start, a:end)
+  let tmp = tempname() . '.txt'
+  call writefile(lines, tmp)
+  execute '!grammarly ' . tmp
+endfunction
+command! -nargs=0 -range=% Grammarly call s:send_to_grammarly(<line1>, <line2>)
 "}}}
 "***** abbreviation ***** {{{
 let s:greeks = [
