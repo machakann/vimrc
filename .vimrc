@@ -32,15 +32,11 @@ endif
 let $LANG = 'C'
 
 let s:SEPARATOR = has('win32') && !&shellslash ? '\' : '/'
-if has('win32')
-  let s:DEVELPATH = join([expand('$USERPROFILE'), 'Dropbox', 'Works'], s:SEPARATOR)
-else
-  let s:DEVELPATH = join([expand('~/'), 'Dropbox', 'Works'], '/')
-endif
-
 function! s:joinpath(...) abort
   return join(a:000, s:SEPARATOR)
 endfunction
+
+let s:DEVELPATH = s:joinpath(expand('$HOME'), 'Dropbox', 'Works', 'vim')
 
 syntax enable
 filetype plugin indent on
@@ -103,11 +99,12 @@ endif
 function! s:local_add(name, ...) abort
   let develpath = get(a:000, 0, s:DEVELPATH)
   let path = s:joinpath(develpath, a:name)
-  execute 'set runtimepath^=' . path
-
-  let afterpath = s:joinpath(path, 'after')
-  if glob(afterpath) !=# ''
-    execute 'set runtimepath+=' . afterpath
+  if glob(path) !=? ''
+    execute 'set runtimepath^=' . path
+    let afterpath = s:joinpath(path, 'after')
+    if glob(afterpath) !=? ''
+      execute 'set runtimepath+=' . afterpath
+    endif
   endif
 endfunction
 call s:local_add('vim-Junco')
