@@ -1,7 +1,7 @@
 " vim:set ts=2 sts=2 sw=2 tw=0:
 " vim:set foldcolumn=2:
 " vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 15-Oct-2017.
+" Last Change: 16-Jan-2018.
 "
 "***** Todo *****
 "***** startup ***** {{{
@@ -50,9 +50,13 @@ augroup END
 "*** minpac *** {{{
 if exists('*minpac#init')
   call minpac#init()
-  call minpac#add('davidhalter/jedi-vim')
+  call minpac#add('davidhalter/jedi-vim', {'type': 'opt'})
+  call minpac#add('haya14busa/vim-asterisk')
   call minpac#add('JuliaEditorSupport/julia-vim')
   call minpac#add('jceb/vim-hier')
+  call minpac#add('junegunn/goyo.vim')
+  call minpac#add('junegunn/limelight.vim')
+  call minpac#add('k-takata/minpac', {'type': 'opt'})
   call minpac#add('kana/vim-operator-user')
   call minpac#add('kana/vim-operator-replace')
   call minpac#add('kana/vim-smartinput')
@@ -64,36 +68,31 @@ if exists('*minpac#init')
   call minpac#add('machakann/vim-event-DotCommandPre')
   call minpac#add('machakann/vim-colorscheme-kemonofriends')
   call minpac#add('machakann/vim-columnmove')
-  call minpac#add('machakann/vim-Verdin')
+  call minpac#add('machakann/vim-Verdin', {'type': 'opt'})
   call minpac#add('machakann/vim-lion')
   call minpac#add('machakann/vim-operator-insert')
   call minpac#add('machakann/vim-patternjump')
-  call minpac#add('machakann/vim-sandwich')
-  call minpac#add('machakann/vim-highlightedyank')
-  call minpac#add('machakann/vim-swap')
+  call minpac#add('machakann/vim-sandwich', {'type': 'opt'})
+  call minpac#add('machakann/vim-highlightedyank', {'type': 'opt'})
+  call minpac#add('machakann/vim-swap', {'type': 'opt'})
   call minpac#add('machakann/vim-textobj-functioncall')
   call minpac#add('machakann/vim-textobj-delimited')
   call minpac#add('machakann/vim-vimhelplint')
-  " call minpac#add('vim-copycat', {'base': s:DEVELPATH, 'frozen': 1})
-  " call minpac#add('vim-textobj-mathblock', {'base': s:DEVELPATH, 'frozen': 1})
   call minpac#add('mattn/webapi-vim')
   call minpac#add('mbbill/undotree')
   call minpac#add('neomake/neomake')
   call minpac#add('osyo-manga/vim-reanimate')
   call minpac#add('osyo-manga/vim-anzu')
-  call minpac#add('sgur/vim-textobj-parameter')
+  call minpac#add('PProvost/vim-ps1')
   call minpac#add('Shougo/neomru.vim')
   call minpac#add('Shougo/unite.vim')
   call minpac#add('superbrothers/vim-quickrun-markdown-gfm')
   call minpac#add('thinca/vim-prettyprint')
-  call minpac#add('thinca/vim-visualstar')
   call minpac#add('thinca/vim-quickrun')
-  " call minpac#add('thinca/vim-template')
   call minpac#add('thinca/vim-themis')
   call minpac#add('tyru/caw.vim')
   call minpac#add('tyru/open-browser.vim')
   call minpac#add('vim-jp/vimdoc-ja')
-  call minpac#add('vim-jp/vital.vim', {'type': 'opt'})
 endif
 
 function! s:local_add(name, ...) abort
@@ -107,13 +106,29 @@ function! s:local_add(name, ...) abort
     endif
   endif
 endfunction
-call s:local_add('vim-Junco')
-call s:local_add('vim-Sparrow')
+" call s:local_add('vim-Junco')
+" call s:local_add('vim-Sparrow')
 
-command! PackUpdate packadd minpac | source $MYVIMRC | call minpac#update()
-command! PackClean  packadd minpac | source $MYVIMRC | call minpac#clean()
+packadd! vim-sandwich
+" call s:local_add('vim-sandwich')
 
+packadd! vim-swap
+" call s:local_add('vim-swap')
+
+packadd! vim-highlightedyank
+" call s:local_add('vim-highlightedyank')
+
+packadd! vim-Verdin
+" call s:local_add('vim-Verdin')
+
+" call s:local_add('vim-highlightedundo')
+" call s:local_add('vim-multiselect')
+" call s:local_add('vim-masquerade')
+" call s:local_add('vim-textobj-mathblock')
 packloadall
+
+command! -bar MinpacClean  packadd minpac | source $MYVIMRC | call minpac#clean()
+command! -bar MinpacUpdate MinpacClean | call minpac#update()
 "}}}
 "*** smartinput *** {{{
 " Disable default settings
@@ -303,7 +318,7 @@ let s:rules += [
 " delete line end spaces when line-breaking
 let s:rules += [
       \   {'char': '<Plug>(smartinput_CR)', 'at': '\S\s\+\%#', 'input': '<CR><C-o>:call TrimTrailingWhiteSpace(line(".")-1)<CR>'},
-      \   {'char': '<Plug>(smartinput_CR)', 'at': '{\%#}', 'input': '<CR><CR><Up><C-f>'},
+      \   {'char': '<Plug>(smartinput_CR)', 'at': '{\%#}', 'input': '<CR><CR><Up>'},
       \ ]
 
 " smart quotes input
@@ -477,6 +492,7 @@ let s:rules += [
       \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\?-\%#',   'input': '<BS> -> ', 'filetype': ['vim']},
       \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\? - \%#', 'input': '<BS>> ',   'filetype': ['vim']},
       \   {'char': '>', 'at': '{\s*\h\k*\%(,\s*\h\k*\)\? -\%#',  'input': '> ',       'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_CR)', 'at': '^\s*\\\s*.*\%#$', 'input': '<CR><C-r>=matchstr(getline(line(".")-1), ''^\s*\\\s*'')<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' ==# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' ==? \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' !=# \%#',  'input': '<BS><BS> ',    'filetype': ['vim']},
@@ -532,7 +548,7 @@ let s:rules += [
       \ ]
 
 let s:rules += [
-      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nctio]\%#', 'input': '<C-w><C-r>=CloseBlock("function!  abort", "endfunction", " ")<CR><Esc>0f!la', 'filetype': ['vim']},
+      \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*fu\%[nctio]\%#', 'input': '<C-w><C-r>=CloseBlock("function!  abort ", "endfunction ", " ")<CR><Esc>zfj0f!la', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#', 'input': '<C-r>=CloseBlock(" ", "endif", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*if\%#\s', 'input': '<C-r>=CloseBlock("", "endif", " ")<CR>', 'filetype': ['vim']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\S.*\%#', 'input': '<C-r>=VimCloseForBlock()<CR>', 'filetype': ['vim']},
@@ -760,6 +776,11 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
       \ ]
 
+" powershell
+let s:rules += [
+      \   {'char': '<Plug>(smartinput_CR)', 'at': '{\%#}', 'input': '<CR><CR><C-d><Up><End>'}
+      \ ]
+
 " dosbatch, shellscript
 let s:rules += [
       \   {'char': '=', 'at': '\%#',      'input': '=',        'filetype': ['dosbatch', 'sh']},
@@ -963,14 +984,14 @@ function! Complete(startcol, matches) abort
 endfunction
 "}}}
 " *** anzu.vim *** {{{
-" mapping
 nmap n <Plug>(anzu-n-with-echo)
 nmap N <Plug>(anzu-N-with-echo)
-nmap * <Plug>(anzu-star-with-echo)
-nmap # <Plug>(anzu-sharp-with-echo)
-
-" clear status
-" nmap <Esc><Esc> <Plug>(anzu-clear-search-status)
+"}}}
+" *** asterisk.vim *** {{{
+map *  <Plug>(asterisk-z*)<Plug>(anzu-update-search-status-with-echo)
+map #  <Plug>(asterisk-z#)<Plug>(anzu-update-search-status-with-echo)
+map g* <Plug>(asterisk-gz*)<Plug>(anzu-update-search-status-with-echo)
+map g# <Plug>(asterisk-gz#)<Plug>(anzu-update-search-status-with-echo)
 "}}}
 "*** caw.vim *** {{{
 " skip blank line
@@ -1012,11 +1033,20 @@ omap gn <Plug>(gn-for-operator-insert-i)
 omap gN <Plug>(gN-for-operator-insert-a)
 "}}}
 "*** highlightedyank *** {{{
-if !has('nvim')
+if !exists('##TextYankPost')
   map y <Plug>(highlightedyank)
 endif
-let g:highlightedyank_highlight_duration = 3000
-let g:highlightedyank_keep_curpos = 1
+"}}}
+"*** highlightedundo *** {{{
+" let g:highlightedundo#highlight_mode = 2
+" nmap u <Plug>(highlightedundo-undo)
+" nmap <C-r> <Plug>(highlightedundo-redo)
+" nmap U <Plug>(highlightedundo-Undo)
+" nmap g- <Plug>(highlightedundo-gminus)
+" nmap g+ <Plug>(highlightedundo-gplus)
+"}}}
+"*** multiselect *** {{{
+runtime macros/multiselect/keymap/example1.vim
 "}}}
 "*** patternjump *** {{{
 "   let g:patternjump_highlight = 1
@@ -1047,14 +1077,14 @@ let g:patternjump_patterns = {
   \   },
   \ }
 
-nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
-xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>'], []], [[], []]])<CR>
-xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['\<\k*\>', '[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>']], [[], []]])<CR>
+nnoremap <silent> w :<C-u>call patternjump#forward('n', [[['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>'], []], [[], []]])<CR>
+nnoremap <silent> e :<C-u>call patternjump#forward('n', [[[], ['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>']], [[], []]])<CR>
+nnoremap <silent> b :<C-u>call patternjump#backward('n', [[['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>'], []], [[], []]])<CR>
+nnoremap <silent> ge :<C-u>call patternjump#backward('n', [[[], ['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>']], [[], []]])<CR>
+xnoremap <silent> w :<C-u>call patternjump#forward('x', [[['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>'], []], [[], []]])<CR>
+xnoremap <silent> e :<C-u>call patternjump#forward('x', [[[], ['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>']], [[], []]])<CR>
+xnoremap <silent> b :<C-u>call patternjump#backward('x', [[['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>'], []], [[], []]])<CR>
+xnoremap <silent> ge :<C-u>call patternjump#backward('x', [[[], ['[^.deDE-]\zs\<-\?\d\+\%(\.\d\+\)\?\%([eE]-\?\d\+\)\?\>', '\<\k*\>']], [[], []]])<CR>
 "}}}
 "*** quickrun.vim *** {{{
 let g:quickrun_config = {
@@ -1162,49 +1192,49 @@ call operator#sandwich#set('all', 'all', 'cursor', 'keep')
 call operator#sandwich#set('all',    'all', 'hi_duration', 3000)
 call operator#sandwich#set('delete', 'all', 'hi_duration', 200)
 let g:sandwich#recipes = [
-      \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
-      \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
-      \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
-      \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
-      \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
-      \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
-      \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
-      \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
-      \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
-      \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
-      \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
-      \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
-      \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
-      \   {'buns': ['^\s*if\>',    '\<endif\>'],    'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*for\>',   '\<endfor\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*while\>', '\<endwhile\>'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': ['^\s*try\>',   '\<endtry\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
-      \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['add'], 'action': ['add'], 'input': ['t']},
-      \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['T']},
-      \   {'buns': 'sandwich#magicchar#t#tagname()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['t']},
-      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 0, 'kind' : ['delete', 'textobj'], 'expr_filter': ['operator#sandwich#kind() !=# "replace"'], 'synchro': 1, 'linewise': 1, 'input': ['t', 'T']},
-      \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 0, 'kind' : ['replace', 'query'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['T']},
-      \   {'external': ["\<Plug>(textobj-sandwich-tagname-i)", "\<Plug>(textobj-sandwich-tagname-a)"], 'noremap' : 0, 'kind' : ['replace', 'textobj'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['t']},
-      \ ]
+  \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
+  \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
+  \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
+  \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
+  \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
+  \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
+  \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
+  \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
+  \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
+  \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
+  \   {'buns': ['(', ')'], 'nesting': 1, 'match_syntax': 1, 'input': ['(', ')', '8', '9']},
+  \   {'buns': ['$(', ')'], 'filetype': ['make'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
+  \   {'buns': ['${', '}'], 'filetype': ['sh'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['$']},
+  \   {'buns': ['%', '%'], 'filetype': ['dosbatch'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['%']},
+  \   {'buns': ['\(', '\)'],  'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+  \   {'buns': ['\%(', '\)'], 'filetype': ['vim'], 'expand_range': 0, 'nesting': 1, 'match_syntax': 1, 'syntax': ['Constant', 'String']},
+  \   {'buns': ['^\s*if\>',    '\<endif\>'],    'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+  \   {'buns': ['^\s*for\>',   '\<endfor\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+  \   {'buns': ['^\s*while\>', '\<endwhile\>'], 'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+  \   {'buns': ['^\s*try\>',   '\<endtry\>'],   'filetype': ['vim'], 'kind': ['delete', 'auto'], 'motionwise': ['line'], 'regex': 1, 'linewise': 2, 'command': ["'[,']normal! <<"], 'nesting': 1, 'skip_break': 1, 'syntax': ['Statement']},
+  \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['add'], 'action': ['add'], 'input': ['t']},
+  \   {'buns': 'sandwich#magicchar#t#tag()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['T']},
+  \   {'buns': 'sandwich#magicchar#t#tagname()', 'listexpr': 1, 'kind': ['replace'], 'action': ['add'], 'input': ['t']},
+  \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 0, 'kind' : ['delete', 'textobj'], 'expr_filter': ['operator#sandwich#kind() !=# "replace"'], 'synchro': 1, 'linewise': 1, 'input': ['t', 'T']},
+  \   {'external': ["\<Plug>(textobj-sandwich-tag-i)", "\<Plug>(textobj-sandwich-tag-a)"], 'noremap' : 0, 'kind' : ['replace', 'query'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['T']},
+  \   {'external': ["\<Plug>(textobj-sandwich-tagname-i)", "\<Plug>(textobj-sandwich-tagname-a)"], 'noremap' : 0, 'kind' : ['replace', 'textobj'], 'expr_filter': ['operator#sandwich#kind() ==# "replace"'], 'synchro': 1, 'input': ['t']},
+  \ ]
 
 let g:operator#sandwich#recipes = [
-      \   {'buns': ['sandwich#magicchar#f#fname()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ['f']},
-      \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
-      \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
-      \   {'buns': 'VimSandwichBlocks()', 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'listexpr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['b'], 'cursor': 'headend'},
-      \   {'buns': 'sandwich#magicchar#i#input("operator")', 'kind': ['add', 'replace'], 'action': ['add'], 'listexpr': 1, 'input': ['i']},
-      \   {'buns': 'sandwich#magicchar#i#lastinput("operator", 1)', 'kind': ['add', 'replace'], 'action': ['add'], 'listexpr': 1, 'input': ['I']},
-      \ ]
+  \   {'buns': ['sandwich#magicchar#f#fname()', '")"'], 'kind': ['add', 'replace'], 'action': ['add'], 'expr': 1, 'cursor': 'inner_tail', 'input': ['f']},
+  \   {'buns': ['{', '}'], 'kind': ['add'],    'motionwise': ['line'], 'linewise': 1, 'command': ["'[+1,']-1normal! >>"]},
+  \   {'buns': ['{', '}'], 'kind': ['delete'], 'motionwise': ['line'], 'linewise': 1, 'command': ["'[,']normal! <<"]},
+  \   {'buns': 'VimSandwichBlocks()', 'filetype': ['vim'], 'kind': ['add'], 'motionwise': ['line'], 'listexpr': 1, 'linewise': 1, 'command': ['normal! `[=`]'], 'input': ['b'], 'cursor': 'headend'},
+  \   {'buns': 'sandwich#magicchar#i#input("operator")', 'kind': ['add', 'replace'], 'action': ['add'], 'listexpr': 1, 'input': ['i']},
+  \   {'buns': 'sandwich#magicchar#i#lastinput("operator", 1)', 'kind': ['add', 'replace'], 'action': ['add'], 'listexpr': 1, 'input': ['I']},
+  \ ]
 
 let g:textobj#sandwich#recipes = [
-      \   {'external': ["\<Plug>(textobj-sandwich-function-ip)", "\<Plug>(textobj-sandwich-function-i)"], 'noremap': 0, 'kind': ['delete', 'replace', 'query'], 'input': ['f']},
-      \   {'external': ["\<Plug>(textobj-sandwich-function-ap)", "\<Plug>(textobj-sandwich-function-a)"], 'noremap': 0, 'kind': ['delete', 'replace', 'query'], 'input': ['F']},
-      \   {'buns': 'sandwich#magicchar#i#input("textobj", 1)', 'kind': ['delete', 'replace', 'query'], 'listexpr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
-      \   {'buns': 'sandwich#magicchar#i#lastinput("textobj")', 'kind': ['delete', 'replace', 'query'], 'listexpr': 1, 'regex': 1, 'synchro': 1, 'input': ['I']},
-      \ ]
+  \   {'external': ["\<Plug>(textobj-sandwich-function-ip)", "\<Plug>(textobj-sandwich-function-i)"], 'noremap': 0, 'kind': ['delete', 'replace', 'query'], 'input': ['f']},
+  \   {'external': ["\<Plug>(textobj-sandwich-function-ap)", "\<Plug>(textobj-sandwich-function-a)"], 'noremap': 0, 'kind': ['delete', 'replace', 'query'], 'input': ['F']},
+  \   {'buns': 'sandwich#magicchar#i#input("textobj", 1)', 'kind': ['delete', 'replace', 'query'], 'listexpr': 1, 'regex': 1, 'synchro': 1, 'input': ['i']},
+  \   {'buns': 'sandwich#magicchar#i#lastinput("textobj")', 'kind': ['delete', 'replace', 'query'], 'listexpr': 1, 'regex': 1, 'synchro': 1, 'input': ['I']},
+  \ ]
 
 function! GetChar() abort
   let c = getchar()
@@ -1242,7 +1272,30 @@ function! s:vim_sandwich_blocks_echo_choices(table) abort
 endfunction
 "}}}
 "*** swap.vim *** {{{
+let s:RE_WORD = '\%(\w\+\)'
+let s:RE_ATTR_NAME = '\%([a-zA-Z0-9\-_:@.]\+\)'
+let s:RE_QUOTED_STR = '\%(".\{-}"\|''.\{-}''\)'
+let s:RE_JSX_BLOCK = '\%({\_.\{-}\%(}}\|}\)\%(\/>\|[ \n>]\)\@=\)'
+let s:RE_ATTR_VALUE = '\%(' . s:RE_QUOTED_STR . '\|' . s:RE_WORD . '\|' . s:RE_JSX_BLOCK . '\)'
+let s:RE_ATTR_RHS = '\%(=' . s:RE_ATTR_VALUE . '\)\='
+let s:RE_ATTR = '\%(' . s:RE_ATTR_NAME . s:RE_ATTR_RHS . '\)'
+let s:RE_ATTR_WITH_SPACE = '\%(\_s*' . s:RE_ATTR . '\)'
+let s:RE_ATTR_A = '\(' . s:RE_ATTR_WITH_SPACE . '\)'
 let g:swap#rules  = deepcopy(g:swap#default_rules)
+let g:swap#rules += [
+            \   {'filetype': ['xml'],
+            \    'surrounds': ['<?\?\h\w*\_s*', '\_s*[/?]\?>'],
+            \    'delimiter': ['\_s\+'],
+            \    'immutable': ['^\s\+'],
+            \    'braket': [['{', '}']],
+            \    'quotes': [['"', '"'], ["'", "'"]]},
+            \   {'filetype': ['jsx'],
+            \    'surrounds': ['<\h\w*\_s*\ze' . s:RE_ATTR, s:RE_ATTR_WITH_SPACE . '\zs\_s*[/?]\?>', 0],
+            \    'delimiter': ['\_s\+'],
+            \    'immutable': ['^\s\+'],
+            \    'braket': [['{', '}']],
+            \    'quotes': [['"', '"'], ["'", "'"]]}
+            \ ]
 let g:swap#rules += [
       \   {'filetype': ['vim'], 'delimiter': ['\\|'], 'surrounds': ['\\%\{,2}(', '\\)'], 'braket': [['\(', '\)'], ['\%(', '\)']]},
       \   {'filetype': ['julia'], 'delimiter': [',\s*'], 'body': '^\s*\zs\h\k\+\%(,\s*\h\k\+\)\+\ze\s*='},
@@ -1253,6 +1306,10 @@ let g:swap#rules += [
       \   {'mode': 'x', 'delimiter': ['\s*&&\s*'], 'braket': [['(', ')']], 'priority': 10},
       \   {'mode': 'x', 'body': '_\?\%(\h\k*_\)\+\h\k*_\?', 'delimiter': ['_'], 'priority': -30},
       \ ]
+omap i, <Plug>(swap-textobject-i)
+xmap i, <Plug>(swap-textobject-i)
+omap a, <Plug>(swap-textobject-a)
+xmap a, <Plug>(swap-textobject-a)
 "}}}
 "*** template.vim *** {{{
 let g:template_dir = $USERDIR
@@ -1301,7 +1358,7 @@ let g:reanimate_save_dir = $USERCACHEDIR . '/reanimate'
 let g:reanimate_default_save_name = ''
 
 " session options
-let g:reanimate_sessionoptions = 'buffers,curdir,folds,globals,help,slash,tabpages,winsize'
+let g:reanimate_sessionoptions = 'buffers,curdir,folds,globals,help,slash,tabpages'
 
 call unite#custom#default_action('reanimate', 'reanimate_load')
 nnoremap <Space>ur :Unite -auto-resize reanimate<CR>
@@ -1312,15 +1369,15 @@ let g:reanimate_event_disables = {
 "}}}
 " *** Verdin *** {{{
 let g:Verdin#autocomplete = 1
-let g:Verdin#autocompletedelay = 200
+let g:Verdin#autocompletedelay = 300
 let g:Verdin#fuzzymatch = 1
 let g:Verdin#loadpath += ['test/*.vim', 'test/.themisrc', 'macros/*.vim', 'macros/**/*.vim']
 let g:Verdin#autobraketinsert = 2
 let g:Verdin#debugmodeon = 1
 "}}}
 "*** vim-operator-replace *** {{{
-nmap <Space>r <Plug>(operator-replace)
-xmap <Space>r <Plug>(operator-replace)
+map <Space>r <Plug>(operator-replace)
+nmap <Space>rr <Plug>(operator-replace)<Plug>(operator-replace)
 "}}}
 "*** vim-textobj-functioncall *** {{{
 call textobj#functioncall#setlist([
@@ -1346,6 +1403,7 @@ set hidden                          " move out from current buffer without warni
 set history=100                     " the stored number of commands/searching history
 set iminsert=0                      " turn off ime when getting into insert mode
 set imsearch=0                      " turn off ime when getting into searching mode
+set sessionoptions=blank,buffers,curdir,folds,help,tabpages
 set splitbelow                      " open new window below the current when splitting
 set splitright                      " open new window in right hand side of the current when splitting
 set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
@@ -1531,6 +1589,7 @@ if has('vim_starting')
   " set background=dark
 endif
 colorscheme reki
+" colorscheme tatami
 " colorscheme kemonofriends
 let g:colorscheme_kemonofriends_sandstar_active = 0
 " let g:lightline = {'colorscheme': 'kemonofriends'}
