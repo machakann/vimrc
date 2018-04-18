@@ -48,7 +48,7 @@ if exists('*minpac#init')
   call minpac#add('davidhalter/jedi-vim', {'type': 'opt'})
   call minpac#add('haya14busa/vim-asterisk')
   " call minpac#add('JuliaEditorSupport/julia-vim')
-  call minpac#add('machakann/julia-vim', {'branch': 'K_for_doc'})
+  call minpac#add('machakann/julia-vim', {'branch': 'playground'})
   " call minpac#add('itchyny/lightline.vim')
   call minpac#add('jceb/vim-hier')
   call minpac#add('junegunn/goyo.vim')
@@ -2468,7 +2468,6 @@ endfunction
 command! -nargs=1 TextobjInstantAdd    let g:textobj_instant_patterns += [<q-args>]
 command! -nargs=1 TextobjInstantDelete call filter(g:textobj_instant_patterns, 'v:val != <q-args>')
 command!          TextobjInstantClear  let g:textobj_instant_patterns = []
-
 "}}}
 "***** finalize (rather for reloading .vimrc) ***** {{{
 " loading local settings
