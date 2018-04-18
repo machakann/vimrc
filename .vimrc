@@ -1577,8 +1577,8 @@ endif
 " let g:lightline = {'colorscheme': 'kemonofriends'}
 " let g:airline_theme = 'kemonofriends'
 " let g:ezbar = {'theme': 'kemonofriends'}
-colorscheme snowtrek
-" colorscheme reki
+" colorscheme snowtrek
+colorscheme reki
 " colorscheme tatami
 " colorscheme kemonofriends
 " let g:colorscheme_kemonofriends_sandstar_active = 0
