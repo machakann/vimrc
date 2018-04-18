@@ -1390,7 +1390,8 @@ set sessionoptions=blank,buffers,curdir,folds,help,tabpages
 set splitbelow                      " open new window below the current when splitting
 set splitright                      " open new window in right hand side of the current when splitting
 set synmaxcol=500                   " restrict the number of lines considered for syntax coloring
-set timeoutlen=2000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
+set timeoutlen=1000                 " The time in milliseconds that is waited for a key code or mapped key sequence to complete.
+set ttimeoutlen=0
 set viminfo&
 set viminfo+=n$USERCACHEDIR/viminfo.txt
                                     " assign path to viminfo file
