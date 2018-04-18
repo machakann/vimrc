@@ -1,15 +1,10 @@
-" vim:set ts=2 sts=2 sw=2 tw=0:
-" vim:set foldcolumn=2:
-" vim:set foldmethod=marker: commentstring="%s:
-" Last Change: 16-Jan-2018.
-"
-"***** Todo *****
 "***** startup ***** {{{
 "-------------------------------------------------------------------------
 " encoding and file format
 if has('win32') && !has('gui_running')
   set encoding=cp932
   let &shell='cmd.exe /f:on /k"chcp 65001"'
+  set termguicolors
 else
   set encoding=utf-8
   if has('win32')
@@ -17,7 +12,6 @@ else
   endif
 endif
 set fileencodings=ucs-bom,utf-8,euc-jp,cp932,latin1
-set fileformat=unix
 set fileformats=unix,dos
 scriptencoding utf-8
 
@@ -50,9 +44,12 @@ augroup END
 "*** minpac *** {{{
 if exists('*minpac#init')
   call minpac#init()
+  call minpac#add('arcticicestudio/nord-vim')
   call minpac#add('davidhalter/jedi-vim', {'type': 'opt'})
   call minpac#add('haya14busa/vim-asterisk')
-  call minpac#add('JuliaEditorSupport/julia-vim')
+  " call minpac#add('JuliaEditorSupport/julia-vim')
+  call minpac#add('machakann/julia-vim', {'branch': 'K_for_doc'})
+  " call minpac#add('itchyny/lightline.vim')
   call minpac#add('jceb/vim-hier')
   call minpac#add('junegunn/goyo.vim')
   call minpac#add('junegunn/limelight.vim')
@@ -65,22 +62,25 @@ if exists('*minpac#init')
   call minpac#add('kana/vim-textobj-indent')
   call minpac#add('kana/vim-textobj-line')
   call minpac#add('Konfekt/FastFold')
+  call minpac#add('lambdalisue/gina.vim')
   call minpac#add('machakann/vim-event-DotCommandPre')
   call minpac#add('machakann/vim-colorscheme-kemonofriends')
   call minpac#add('machakann/vim-columnmove')
   call minpac#add('machakann/vim-Verdin', {'type': 'opt'})
   call minpac#add('machakann/vim-lion')
-  call minpac#add('machakann/vim-operator-insert')
+  call minpac#add('machakann/vim-masquerade', {'type': 'opt'})
+  call minpac#add('machakann/vim-multiselect', {'type': 'opt'})
   call minpac#add('machakann/vim-patternjump')
   call minpac#add('machakann/vim-sandwich', {'type': 'opt'})
-  call minpac#add('machakann/vim-highlightedyank', {'type': 'opt'})
+  call minpac#add('machakann/vim-highlightedyank', {'type': 'opt', 'branch': 'develop'})
   call minpac#add('machakann/vim-swap', {'type': 'opt'})
   call minpac#add('machakann/vim-textobj-functioncall')
   call minpac#add('machakann/vim-textobj-delimited')
   call minpac#add('machakann/vim-vimhelplint')
+  call minpac#add('machakann/vital-Schedule', {'type': 'opt'})
   call minpac#add('mattn/webapi-vim')
   call minpac#add('mbbill/undotree')
-  call minpac#add('neomake/neomake')
+  call minpac#add('neomake/neomake', {'type': 'opt'})
   call minpac#add('osyo-manga/vim-reanimate')
   call minpac#add('osyo-manga/vim-anzu')
   call minpac#add('PProvost/vim-ps1')
@@ -93,6 +93,7 @@ if exists('*minpac#init')
   call minpac#add('tyru/caw.vim')
   call minpac#add('tyru/open-browser.vim')
   call minpac#add('vim-jp/vimdoc-ja')
+  " call minpac#add('vim-jp/vital.vim')
 endif
 
 function! s:local_add(name, ...) abort
@@ -121,18 +122,28 @@ packadd! vim-highlightedyank
 packadd! vim-Verdin
 " call s:local_add('vim-Verdin')
 
-" call s:local_add('vim-highlightedundo')
 " call s:local_add('vim-multiselect')
 " call s:local_add('vim-masquerade')
+packadd! vim-multiselect
+packadd! vim-masquerade
+
+" call s:local_add('vital-Schedule')
+" packadd! vital-Schedule
+
+" call s:local_add('julia-vim')
+" call s:local_add('vim-steadyoperators')
+" call s:local_add('vim-highlightedundo')
 " call s:local_add('vim-textobj-mathblock')
 packloadall
 
-command! -bar MinpacClean  packadd minpac | source $MYVIMRC | call minpac#clean()
-command! -bar MinpacUpdate MinpacClean | call minpac#update()
+command! -bar MinpacUpdate packadd minpac | source $MYVIMRC | call minpac#clean() | call minpac#update()
 "}}}
 "*** smartinput *** {{{
 " Disable default settings
 let g:smartinput_no_default_key_mappings = 1
+
+" clear default rules
+call smartinput#clear_rules()
 
 " I know following description is too lengthy, but otherwise I would not be
 " able to review them...
@@ -145,11 +156,6 @@ let g:smartinput_no_default_key_mappings = 1
 "       be same. Note it.
 "       "oooooooooooooh, wahhoi!
 "       |<-   Comment        ->|#Here is not comment.
-
-" NOTE: Usually 'String' can not be used for syntax group assignment, but as
-"       far as using 'mckn' colorscheme 'String' is available.  Since 'mckn'
-"       sets a color directly for 'String' group.  I mean, in case I want to
-"       change the colorscheme this settings might not work as I expect.
 
 " map to trigger
 let s:trig = [
@@ -191,9 +197,6 @@ for item in s:trig
   call smartinput#map_to_trigger('c', item[0], item[1], item[2])
 endfor
 unlet item
-
-" clear default rules
-call smartinput#clear_rules()
 
 let s:rules = []
 
@@ -774,6 +777,7 @@ let s:rules += [
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\%([[:upper:][:lower:]_]\k*\|([[:upper:][:lower:]_]\k*\%(\s*,\s*[[:upper:][:lower:]_]\k*\)*)\)\%#', 'input': ' in ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_SPACE)', 'at': '^\s*for\s\+\%([[:upper:][:lower:]_]\k*\|([[:upper:][:lower:]_]\k*\%(\s*,\s*[[:upper:][:lower:]_]\k*\)*)\)\s\+\%#', 'input': 'in ', 'filetype': ['julia']},
       \   {'char': '<Plug>(smartinput_BS)', 'at': ' [*/]= \%#',  'input': '<BS><BS><BS><BS>', 'filetype': ['julia'], 'mode': 'i:'},
+      \   {'char': '''', 'at': '\k\+\%#', 'input': ''''},
       \ ]
 
 " powershell
@@ -1019,34 +1023,20 @@ runtime macros/Junco/complete/omnifunc.vim
 let g:neomru#file_mru_path = $USERCACHEDIR . '/.neomru/file'
 let g:neomru#directory_mru_path = $USERCACHEDIR . '/.neomru/directly'
 "}}}
-"*** operator-insert *** {{{
-" operator mappings
-nmap <Space>i <Plug>(operator-insert-i)
-xmap <Space>i <Plug>(operator-insert-i)
-nmap <Space>a <Plug>(operator-insert-a)
-xmap <Space>a <Plug>(operator-insert-a)
-nmap <Space>o <Plug>(operator-insert-o)
-xmap <Space>o <Plug>(operator-insert-o)
-nmap <Space>O <Plug>(operator-insert-O)
-xmap <Space>O <Plug>(operator-insert-O)
-omap gn <Plug>(gn-for-operator-insert-i)
-omap gN <Plug>(gN-for-operator-insert-a)
+"*** netrw.vim *** {{{
+let g:netrw_dirhistmax = 0
 "}}}
 "*** highlightedyank *** {{{
 if !exists('##TextYankPost')
   map y <Plug>(highlightedyank)
 endif
 "}}}
-"*** highlightedundo *** {{{
-" let g:highlightedundo#highlight_mode = 2
-" nmap u <Plug>(highlightedundo-undo)
-" nmap <C-r> <Plug>(highlightedundo-redo)
-" nmap U <Plug>(highlightedundo-Undo)
-" nmap g- <Plug>(highlightedundo-gminus)
-" nmap g+ <Plug>(highlightedundo-gplus)
-"}}}
 "*** multiselect *** {{{
 runtime macros/multiselect/keymap/example1.vim
+runtime macros/multiselect/keymap/textobjects.vim
+"}}}
+"*** masquerade *** {{{
+runtime macros/masquerade/keymap/all.vim
 "}}}
 "*** patternjump *** {{{
 "   let g:patternjump_highlight = 1
@@ -1193,12 +1183,8 @@ call operator#sandwich#set('all',    'all', 'hi_duration', 3000)
 call operator#sandwich#set('delete', 'all', 'hi_duration', 200)
 let g:sandwich#recipes = [
   \   {'buns': ['<', '>'], 'expand_range': 0, 'match_syntax': 1},
-  \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ['"', '2']},
-  \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'input': ["'", '7']},
-  \   {'buns': ['"', '"'], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'PreProc', 'Special', 'String', 'Comment'], 'input': ['"', '2']},
-  \   {'buns': ["'", "'"], 'kind': ['auto'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'match_syntax': 1, 'syntax': ['Constant', 'Statement', 'Special', 'String', 'Comment'], 'inner_syntax': ['Constant', 'String', 'Comment'], 'input': ["'", '7']},
-  \   {'buns': ['"', '"'], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
-  \   {'buns': ["'", "'"], 'filetype': ['', 'help', 'text', 'markdown'], 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
+  \   {'buns': ['"', '"'], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ['"', '2']},
+  \   {'buns': ["'", "'"], 'quoteescape': 1, 'expand_range': 0, 'nesting': 0, 'linewise': 0, 'input': ["'", '7']},
   \   {'buns': ["'", "'"], 'filetype': ['vim'], 'skip_regex_head': ['\%(\%#\zs''\|''\%#\zs\)''\%(''''\)*[^'']'], 'skip_regex_tail': ['[^'']\%(''''\)*\%(\%#\zs''\|''\%#\zs\)'''], 'nesting': 0, 'linewise': 0, 'match_syntax': 2},
   \   {'buns': ['{', '}'], 'nesting': 1, 'match_syntax': 1, 'skip_break': 1},
   \   {'buns': ['[', ']'], 'nesting': 1, 'match_syntax': 1},
@@ -1272,47 +1258,44 @@ function! s:vim_sandwich_blocks_echo_choices(table) abort
 endfunction
 "}}}
 "*** swap.vim *** {{{
-let s:RE_WORD = '\%(\w\+\)'
-let s:RE_ATTR_NAME = '\%([a-zA-Z0-9\-_:@.]\+\)'
-let s:RE_QUOTED_STR = '\%(".\{-}"\|''.\{-}''\)'
-let s:RE_JSX_BLOCK = '\%({\_.\{-}\%(}}\|}\)\%(\/>\|[ \n>]\)\@=\)'
-let s:RE_ATTR_VALUE = '\%(' . s:RE_QUOTED_STR . '\|' . s:RE_WORD . '\|' . s:RE_JSX_BLOCK . '\)'
-let s:RE_ATTR_RHS = '\%(=' . s:RE_ATTR_VALUE . '\)\='
-let s:RE_ATTR = '\%(' . s:RE_ATTR_NAME . s:RE_ATTR_RHS . '\)'
-let s:RE_ATTR_WITH_SPACE = '\%(\_s*' . s:RE_ATTR . '\)'
-let s:RE_ATTR_A = '\(' . s:RE_ATTR_WITH_SPACE . '\)'
-let g:swap#rules  = deepcopy(g:swap#default_rules)
-let g:swap#rules += [
-            \   {'filetype': ['xml'],
-            \    'surrounds': ['<?\?\h\w*\_s*', '\_s*[/?]\?>'],
-            \    'delimiter': ['\_s\+'],
-            \    'immutable': ['^\s\+'],
-            \    'braket': [['{', '}']],
-            \    'quotes': [['"', '"'], ["'", "'"]]},
-            \   {'filetype': ['jsx'],
-            \    'surrounds': ['<\h\w*\_s*\ze' . s:RE_ATTR, s:RE_ATTR_WITH_SPACE . '\zs\_s*[/?]\?>', 0],
-            \    'delimiter': ['\_s\+'],
-            \    'immutable': ['^\s\+'],
-            \    'braket': [['{', '}']],
-            \    'quotes': [['"', '"'], ["'", "'"]]}
-            \ ]
-let g:swap#rules += [
-      \   {'filetype': ['vim'], 'delimiter': ['\\|'], 'surrounds': ['\\%\{,2}(', '\\)'], 'braket': [['\(', '\)'], ['\%(', '\)']]},
-      \   {'filetype': ['julia'], 'delimiter': [',\s*'], 'body': '^\s*\zs\h\k\+\%(,\s*\h\k\+\)\+\ze\s*='},
-      \   {'mode': 'n', 'surrounds': ['(', ')', 1], 'delimiter': ['\s*[,;]\s*'], 'filetype': ['julia'], 'braket': [['(', ')'], ['[', ']'], ['{', '}']], 'quotes': [['"', '"']], 'literal_quotes': [["'", "'"]], 'immutable': ['\%(^\|\n\)\s\+']},
-      \   {'mode': 'x', 'delimiter': ['\s*[-+]\s*'], 'braket': [['(', ')']], 'priority': -10},
-      \   {'mode': 'x', 'delimiter': ['\s*[*/]\s*'], 'braket': [['(', ')']], 'priority': -20},
-      \   {'mode': 'x', 'delimiter': ['\s*||\s*'], 'braket': [['(', ')']], 'priority': 10},
-      \   {'mode': 'x', 'delimiter': ['\s*&&\s*'], 'braket': [['(', ')']], 'priority': 10},
-      \   {'mode': 'x', 'body': '_\?\%(\h\k*_\)\+\h\k*_\?', 'delimiter': ['_'], 'priority': -30},
-      \ ]
+" let s:RE_WORD = '\%(\w\+\)'
+" let s:RE_ATTR_NAME = '\%([a-zA-Z0-9\-_:@.]\+\)'
+" let s:RE_QUOTED_STR = '\%(".\{-}"\|''.\{-}''\)'
+" let s:RE_JSX_BLOCK = '\%({\_.\{-}\%(}}\|}\)\%(\/>\|[ \n>]\)\@=\)'
+" let s:RE_ATTR_VALUE = '\%(' . s:RE_QUOTED_STR . '\|' . s:RE_WORD . '\|' . s:RE_JSX_BLOCK . '\)'
+" let s:RE_ATTR_RHS = '\%(=' . s:RE_ATTR_VALUE . '\)\='
+" let s:RE_ATTR = '\%(' . s:RE_ATTR_NAME . s:RE_ATTR_RHS . '\)'
+" let s:RE_ATTR_WITH_SPACE = '\%(\_s*' . s:RE_ATTR . '\)'
+" let s:RE_ATTR_A = '\(' . s:RE_ATTR_WITH_SPACE . '\)'
+" let g:swap#rules  = deepcopy(g:swap#default_rules)
+" let g:swap#rules += [
+"       \   {'filetype': ['xml'],
+"       \    'surrounds': ['<?\?\h\w*\_s*', '\_s*[/?]\?>'],
+"       \    'delimiter': ['\_s\+'],
+"       \    'immutable': ['^\s\+'],
+"       \    'braket': [['{', '}']],
+"       \    'quotes': [['"', '"'], ["'", "'"]]},
+"       \   {'filetype': ['jsx'],
+"       \    'surrounds': ['<\h\w*\_s*\ze' . s:RE_ATTR, s:RE_ATTR_WITH_SPACE . '\zs\_s*[/?]\?>', 0],
+"       \    'delimiter': ['\_s\+'],
+"       \    'immutable': ['^\s\+'],
+"       \    'braket': [['{', '}']],
+"       \    'quotes': [['"', '"'], ["'", "'"]]}
+"       \ ]
+" let g:swap#rules += [
+"       \   {'filetype': ['vim'], 'delimiter': ['\\|'], 'surrounds': ['\\%\{,2}(', '\\)'], 'braket': [['\(', '\)'], ['\%(', '\)']]},
+"       \   {'filetype': ['julia'], 'delimiter': [',\s*'], 'body': '^\s*\zs\h\k\+\%(,\s*\h\k\+\)\+\ze\s*='},
+"       \   {'mode': 'n', 'surrounds': ['(', ')', 1], 'delimiter': ['\s*[,;]\s*'], 'filetype': ['julia'], 'braket': [['(', ')'], ['[', ']'], ['{', '}']], 'quotes': [['"', '"']], 'literal_quotes': [["'", "'"]], 'immutable': ['\%(^\|\n\)\s\+']},
+"       \   {'mode': 'x', 'delimiter': ['\s*[-+]\s*'], 'braket': [['(', ')']], 'priority': -10},
+"       \   {'mode': 'x', 'delimiter': ['\s*[*/]\s*'], 'braket': [['(', ')']], 'priority': -20},
+"       \   {'mode': 'x', 'delimiter': ['\s*||\s*'], 'braket': [['(', ')']], 'priority': 10},
+"       \   {'mode': 'x', 'delimiter': ['\s*&&\s*'], 'braket': [['(', ')']], 'priority': 10},
+"       \   {'mode': 'x', 'body': '_\?\%(\h\k*_\)\+\h\k*_\?', 'delimiter': ['_'], 'priority': -30},
+"       \ ]
 omap i, <Plug>(swap-textobject-i)
 xmap i, <Plug>(swap-textobject-i)
 omap a, <Plug>(swap-textobject-a)
 xmap a, <Plug>(swap-textobject-a)
-"}}}
-"*** template.vim *** {{{
-let g:template_dir = $USERDIR
 "}}}
 "*** unite.vim *** {{{
 nnoremap <Space>uu :Unite<Space>
@@ -1460,6 +1443,7 @@ let g:loaded_zipPlugin = 1
 "}}}
 "***** searching behavior ***** {{{
 "--------------------------------------------------------------------------
+set grepprg=jvgrep
 set hlsearch | nohlsearch           " highlight searched words
 set incsearch                       " use incremental search
 set ignorecase                      " ignore upper/lower case of searching word
@@ -1588,13 +1572,15 @@ if has('vim_starting')
   set background=light
   " set background=dark
 endif
-colorscheme reki
-" colorscheme tatami
-" colorscheme kemonofriends
-let g:colorscheme_kemonofriends_sandstar_active = 0
+" let g:lightline = {'colorscheme': 'snowtrek'}
 " let g:lightline = {'colorscheme': 'kemonofriends'}
 " let g:airline_theme = 'kemonofriends'
 " let g:ezbar = {'theme': 'kemonofriends'}
+colorscheme snowtrek
+" colorscheme reki
+" colorscheme tatami
+" colorscheme kemonofriends
+" let g:colorscheme_kemonofriends_sandstar_active = 0
 set cmdheight=1                     " the height of commandline
 " set cursorline                      " highlight corsor line
 set laststatus=2                    " always display status line
@@ -1776,6 +1762,9 @@ function! s:qf_flash() abort
 endfunction
 command! -nargs=0 QfFlash call s:qf_flash()
 
+"*** julia ***
+autocmd vimrc FileType julia nmap <buffer> ? <Plug>(JuliaDocPrompt)
+
 "*** anonymous ***"
 " Close non-named buffer without any warning.
 " Imperfect...
@@ -1859,7 +1848,7 @@ inoremap <C-j> <Esc>o
 inoremap <S-CR> <Esc>lDO<C-r>"<Esc>I
 
 " check syntax group of the character under the cursor
-nnoremap \s :echo map(synstack(line('.'), col('.')), 'synIDattr(synIDtrans(v:val), "name")')<CR>
+nnoremap \s :echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')<CR>
 
 " reserve black hole register for the next operator
 nnoremap <C-\> "_
@@ -2017,47 +2006,6 @@ call textobj#user#plugin('number', {
   \   },
   \ })
 "}}}
-" paste operator  "{{{
-function! Operator_paste_prerequisite() abort "{{{
-  set operatorfunc=Operator_paste
-  let s:register = v:register ==# s:default_register() ? '' : '"' . v:register
-  return ''
-endfunction
-"}}}
-function! Operator_paste(motionwise) abort  "{{{
-  let v = s:v(a:motionwise)
-  execute printf('normal! `[%s`]%sp', v, s:register)
-endfunction
-"}}}
-function! s:default_register() abort  "{{{
-  if &clipboard =~# 'unnamedplus'
-    let default_register = '+'
-  elseif &clipboard =~# 'unnamed'
-    let default_register = '*'
-  else
-    let default_register = '"'
-  endif
-  return default_register
-endfunction
-"}}}
-function! s:v(motionwise) abort "{{{
-  if a:motionwise ==# 'char'
-    let v = 'v'
-  elseif a:motionwise ==# 'line'
-    let v = 'V'
-  elseif a:motionwise ==# 'block'
-    let v = "\<C-v>"
-  else
-    let v = a:motionwise
-  endif
-  return v
-endfunction
-"}}}
-nnoremap <expr> <SID>(operator-paste-prerequisite) Operator_paste_prerequisite()
-nmap <silent> <SID>(operator-paste) <SID>(operator-paste-prerequisite)g@
-nmap yp <SID>(operator-paste)
-nmap ypp <SID>(operator-paste)g@
-"}}}
 "}}}
 "***** commands ***** {{{
 "--------------------------------------------------------------------------
@@ -2091,6 +2039,7 @@ if has('profile')
     endif
   endfunction
   command! -nargs=0 ProfileThis call s:ProfileThis()
+  command! -nargs=0 Profile profile start profile.log | profile! file *
 endif
 
 " yank path
@@ -2275,6 +2224,35 @@ function! s:send_to_grammarly(start, end) abort
   execute '!grammarly ' . tmp
 endfunction
 command! -nargs=0 -range=% Grammarly call s:send_to_grammarly(<line1>, <line2>)
+
+" open terminal window
+let s:TERMHEIGHT = 25
+let s:TERMWIDTH = 80
+function! s:open_terminal(vertical, arg) abort "{{{
+  let cmd = ''
+  if a:vertical
+    let cmd .= 'vert '
+    let cmd .= 'terminal '
+    if winwidth(winnr()) >= s:TERMWIDTH * 2
+      let cmd .= printf('++cols=%d ', s:TERMWIDTH)
+    endif
+  else
+    let cmd = 'terminal '
+    if winheight(winnr()) >= s:TERMHEIGHT * 2
+      let cmd .= printf('++rows=%d ', s:TERMHEIGHT)
+    endif
+  endif
+  let cmd .= '++close '
+  let cmd .= a:arg
+  let bg = &background
+  set background=dark
+  execute cmd
+  let &background = bg
+
+  tnoremap <buffer><silent> <Esc> <C-w>N
+endfunction "}}}
+command! -nargs=* -bar -complete=file Term call s:open_terminal(0, '<args>')
+command! -nargs=* -bar -complete=file VTerm call s:open_terminal(1, '<args>')
 "}}}
 "***** abbreviation ***** {{{
 let s:greeks = [
@@ -2503,3 +2481,7 @@ if !has('vim_starting')
   doautocmd FileType
 endif
 "}}}
+
+" vim:set ts=2 sts=2 sw=2 tw=0:
+" vim:set foldcolumn=2:
+" vim:set foldmethod=marker: commentstring="%s:
